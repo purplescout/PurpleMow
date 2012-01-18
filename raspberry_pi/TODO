@@ -1,0 +1,27 @@
+Makefile:
+[ ] .d files
+
+IO:
+2 relays
+2 engines
+1 blade
+
+remote cli:
+[ ] proprietary?
+[ ] web page
+
+multicast:
+[x] lyssna pa port
+[x] skicka "ping"
+[x] svara pa ping med ip, port, version, uuid
+[x] ta emot svaret och printa ut
+
+dcn:
+[ ] generera uuid
+[ ] satt sysname
+[ ] hamta ip
+[ ] satta ip, manuellt/dhcp
+[ ] versionsnummer fran git
+
+
+[ ] 
