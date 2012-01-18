@@ -1,2 +1,8 @@
+GPIO:
 http://www.avrfreaks.net/wiki/index.php/Documentation:Linux/GPIO
 http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;f=Documentation/gpio.txt;h=36af58eba136bac198ea3b1f33f34236be9ce5df;hb=HEAD
+
+I2C:
+https://i2c.wiki.kernel.org/
+https://xgoat.com/wp/2007/11/11/using-i2c-from-userspace-in-linux/
+
