@@ -1,5 +1,5 @@
 
-#include "raspi_io.h"
+#include "raspi_i2c.h"
 #include "auto_management.h"
 #include "dcn.h"
 

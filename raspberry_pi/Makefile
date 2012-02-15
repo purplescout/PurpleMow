@@ -11,8 +11,13 @@ CC=gcc
 ECHO=echo
 RM=rm
 
-OBJ=purplemow.o raspi_io.o auto_management.o dcn.o
+purplemow_src=purplemow.c \
+			  raspi_i2c.c \
+			  auto_management.c \
+			  dcn.c
+
 BIN=purplemow
+OBJ=$(purplemow_src:.c=.o)
 
 Q=$(VERBOSE)
 MAKEFLAGS += --no-print-directory
@@ -33,6 +38,16 @@ $(BIN): $(OBJ)
 clean:
 	$(Q) $(ECHO) " [ removing *.o ]"
 	$(Q) $(RM) -f *.o
+	$(Q) $(ECHO) " [ removing *.d ]"
+	$(Q) $(RM) -f *.d
+	$(Q) $(RM) -f *.d.????
 	$(Q) $(ECHO) " [ removing $(BIN) ]"
 	$(Q) $(RM) -f $(BIN)
 
+%.d: %.c
+	@set -e; rm -f $@; \
+	$(CC) -M $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+-include $(OBJ:.o=.d)
