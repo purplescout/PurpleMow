@@ -14,11 +14,11 @@ public class RemoteController extends Thread{
 	private static final int port = 22001;
 	
 	private boolean runFlag;
-	private IRobot mRobot;
 	private TextView mTextView;
+	private MotorController motorController;
 	
-	public RemoteController(IRobot robot, TextView textView) {
-		this.mRobot = robot;
+	public RemoteController(MotorController mc, TextView textView) {
+		this.motorController = mc;
 		this.mTextView = textView;
 	}
 	
@@ -49,7 +49,7 @@ public class RemoteController extends Thread{
 
 		try {
 			while (runFlag) {
-				mRobot.readSensor();
+				//mc.readSensor();
 				try {
 					DatagramPacket packet = new DatagramPacket(new byte[256], 256);
 					try {
@@ -61,7 +61,7 @@ public class RemoteController extends Thread{
 					//Test
 					byte[] data = packet.getData();
 					if(data[0] == 1){
-						mRobot.moveForward();
+						motorController.moveForward(null);
 						mTextView.post(new Runnable() {
 							
 							@Override
@@ -70,7 +70,7 @@ public class RemoteController extends Thread{
 							}
 						});
 					}else if(data[0] == 2){
-						mRobot.stop();
+						motorController.stop(null);
 						mTextView.post(new Runnable() {
 							
 							@Override

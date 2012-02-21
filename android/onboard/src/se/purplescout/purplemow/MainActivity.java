@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
 			mUsbCommunicator.openAccessory(accessory);
 		}
 
-		mRemoteController = new RemoteController(mUsbCommunicator, textView);
+		//mRemoteController = new RemoteController(mUsbCommunicator, textView);
 	}
 
 	@Override
