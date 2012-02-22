@@ -1,12 +1,10 @@
-package se.purpleout.purplemow;
-
-import java.io.IOException;
+package se.purplescout.purplemow;
 
 import android.util.Log;
 
 /**
- * This class is the Main program. It is responsible for handling states and
- * react accordingly, a so called State Machine!
+ * This class is the Main program. It is responsible for handling states and react accordingly, a so called State
+ * Machine!
  * 
  */
 public class StateMachine implements Runnable {
@@ -43,15 +41,14 @@ public class StateMachine implements Runnable {
 			while (true) {
 
 				// This is the first state of the state machine
-				if (ms.getMotorLeft() == 1 && ms.getMotorRight() == 1
-						&& dist < TOO_FUCKING_CLOSE) {
+				if (ms.getMotorLeft() == 1 && ms.getMotorRight() == 1 && dist < TOO_FUCKING_CLOSE) {
 					// do some magic to avoid obstacle
 					mc.avoidObstacleLeftSide(ms);
 				}
-				
-				//TODO: Implement all states. Possibly something smarter than a bunch of if-statements...
-				//Any more states?
-				
+
+				// TODO: Implement all states. Possibly something smarter than a bunch of if-statements...
+				// Any more states?
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

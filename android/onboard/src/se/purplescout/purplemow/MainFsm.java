@@ -6,10 +6,7 @@ import java.util.PriorityQueue;
 public class MainFsm implements Runnable {
 
 	public enum State {
-		IDLE,
-		MOWING,
-		AVOID_OBSTACLE,
-		BWF
+		IDLE, MOWING, AVOID_OBSTACLE, BWF
 	}
 
 	public enum EventType {
@@ -17,9 +14,7 @@ public class MainFsm implements Runnable {
 	}
 
 	public enum EventPriority {
-		HIGH,
-		DEFAULT,
-		LOW
+		HIGH, DEFAULT, LOW
 	}
 
 	class Event {
@@ -30,21 +25,21 @@ public class MainFsm implements Runnable {
 			this.type = type;
 			this.prio = prio;
 		}
+
 		Event(EventType type) {
 			this.type = type;
 			this.prio = EventPriority.DEFAULT;
 		}
 	}
-	
-	class EventComparator implements Comparator<Event>
-	{
+
+	class EventComparator implements Comparator<Event> {
 		@Override
 		public int compare(Event left, Event right) {
 			return left.prio.compareTo(right.prio);
 		}
-		
+
 	}
-	
+
 	private State state;
 	private SensorReader sr;
 	private MotorFsm motorFsm;
@@ -60,8 +55,7 @@ public class MainFsm implements Runnable {
 	public void start() {
 		eventQueue.add(new Event(EventType.START));
 	}
-	
-	
+
 	@Override
 	public void run() {
 		Event e = eventQueue.poll();
@@ -80,5 +74,5 @@ public class MainFsm implements Runnable {
 			break;
 		}
 	}
-	
+
 }

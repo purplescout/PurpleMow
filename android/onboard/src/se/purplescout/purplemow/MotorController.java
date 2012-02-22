@@ -1,4 +1,4 @@
-package se.purpleout.purplemow;
+package se.purplescout.purplemow;
 
 import java.io.IOException;
 
@@ -15,16 +15,16 @@ public class MotorController {
 	}
 
 	public static MotorController getInstance() {
-		if(mc == null) {
+		if (mc == null) {
 			mc = new MotorController();
-		}			
+		}
 		return mc;
 	}
-	
+
 	public void moveForward(MotorState ms) throws IOException {
 		move(ms, 1);
 	}
-	
+
 	/**
 	 * 
 	 * @param ms
@@ -36,20 +36,20 @@ public class MotorController {
 		sleep();
 		getComStream().sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY1, 0);
 		getComStream().sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 0);
-		
+
 		sleep();
-		
+
 		ms.setMotorLeft(0);
 		ms.setMotorRight(0);
 	}
-	
+
 	public void moveBackward(MotorState ms) throws IOException {
 		move(ms, -1);
 	}
-	
+
 	/**
-	 * Om nån av motorerna går åt motsatt håll, stanna de först. Sedan byt riktning.
-	 * Lägg på full speed ahead.
+	 * Om nån av motorerna går åt motsatt håll, stanna de först. Sedan byt riktning. Lägg på full speed ahead.
+	 * 
 	 * @param ms
 	 * @param direction
 	 * @throws IOException
@@ -58,38 +58,39 @@ public class MotorController {
 		if (ms.getMotorLeft() == -direction || ms.getMotorRight() == -direction) {
 			stop(ms);
 		}
-		if(direction > 0) {
+		if (direction > 0) {
 			getComStream().sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY1, 0);
 			getComStream().sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 0);
-		} else if(direction < 0) {
+		} else if (direction < 0) {
 			getComStream().sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY1, 1);
 			getComStream().sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 1);
-		} 
+		}
 		sleep();
 		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, FULL_SPEED);
 		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO2, FULL_SPEED);
-		
+
 		ms.setMotorLeft(direction);
 		ms.setMotorRight(direction);
-		
-		sleep();	
+
+		sleep();
 	}
-	public void turnRight(MotorState ms) throws IOException{
+
+	public void turnRight(MotorState ms) throws IOException {
 		turn(ms, true);
 	}
-	
-	public void turnLeft(MotorState ms) throws IOException{
+
+	public void turnLeft(MotorState ms) throws IOException {
 		turn(ms, false);
 	}
 
 	public void turn(MotorState ms, boolean right) throws IOException {
-		if(ms.getMotorRight() != 0 || ms.getMotorLeft() != 0) {
+		if (ms.getMotorRight() != 0 || ms.getMotorLeft() != 0) {
 			stop(ms);
 		}
-		
-		if(right) {
+
+		if (right) {
 			ms.setMotorLeft(1);
-			getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, FULL_SPEED);			
+			getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, FULL_SPEED);
 			sleep();
 			stop(ms);
 		} else {
@@ -98,8 +99,8 @@ public class MotorController {
 			stop(ms);
 		}
 	}
-	
-	public void avoidObstacleLeftSide(MotorState ms)  throws IOException {
+
+	public void avoidObstacleLeftSide(MotorState ms) throws IOException {
 		stop(ms);
 		moveBackward(ms);
 		sleep();
@@ -109,7 +110,7 @@ public class MotorController {
 		moveForward(ms);
 	}
 
-	public void avoidObstacleRightSide(MotorState ms)  throws IOException {
+	public void avoidObstacleRightSide(MotorState ms) throws IOException {
 		stop(ms);
 		moveBackward(ms);
 		sleep();
@@ -118,7 +119,7 @@ public class MotorController {
 		stop(ms);
 		moveForward(ms);
 	}
-	
+
 	private void sleep() {
 		try {
 			Thread.sleep(DELAY);

@@ -1,4 +1,4 @@
-package se.purpleout.purplemow;
+package se.purplescout.purplemow;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -19,7 +19,6 @@ import com.android.future.usb.UsbManager;
 public class UsbCommunicator extends BroadcastReceiver {
 	private static final String TAG = "PurpleMow";
 	static final String ACTION_USB_PERMISSION = "se.purplescout.purplemow.action.USB_PERMISSION";
-
 
 	private UsbManager mUsbManager;
 	private UsbAccessory mAccessory;
@@ -42,13 +41,11 @@ public class UsbCommunicator extends BroadcastReceiver {
 			synchronized (this) {
 				UsbAccessory accessory = UsbManager.getAccessory(intent);
 
-				if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,
-						false)) {
+				if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 					openAccessory(accessory);
 				} else {
 
-					log("PurpleMow", "permission denied for accessory "
-							+ accessory);
+					log("PurpleMow", "permission denied for accessory " + accessory);
 				}
 				mPermissionRequestPending = false;
 			}
@@ -66,7 +63,6 @@ public class UsbCommunicator extends BroadcastReceiver {
 		textView.append(tag + " : " + message + "\n");
 	}
 
-
 	void openAccessory(UsbAccessory accessory) {
 		mFileDescriptor = mUsbManager.openAccessory(accessory);
 		if (mFileDescriptor != null) {
@@ -78,8 +74,9 @@ public class UsbCommunicator extends BroadcastReceiver {
 			MotorController mc = MotorController.getInstance();
 			mc.setComStream(usbComStream);
 			SensorReader sr = new SensorReader(usbComStream);
-			//Kör igång huvudtråden
-			Thread thread = new Thread(null, new StateMachine(mc, sr), "PurpleMow");
+			// Kör igång huvudtråden
+			// Thread thread = new Thread(null, new StateMachine(mc, sr), "PurpleMow");
+			Thread thread = new Thread(null, new MainFsm(usbComStream), "PurpleMow");
 			thread.start();
 		}
 	}
@@ -98,8 +95,6 @@ public class UsbCommunicator extends BroadcastReceiver {
 			fileInputStream = null;
 		}
 	}
-
-
 
 	void setUsbManager(UsbManager usbManager) {
 		mUsbManager = usbManager;
@@ -122,5 +117,4 @@ public class UsbCommunicator extends BroadcastReceiver {
 		}
 	}
 
-	
 }

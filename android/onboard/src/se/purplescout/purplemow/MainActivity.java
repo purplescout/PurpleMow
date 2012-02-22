@@ -1,6 +1,6 @@
-package se.purpleout.purplemow;
+package se.purplescout.purplemow;
 
-import se.purpleout.R;
+import se.purplescout.R;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -29,10 +29,8 @@ public class MainActivity extends Activity {
 		mUsbCommunicator = new UsbCommunicator(textView);
 
 		mUsbCommunicator.setUsbManager(UsbManager.getInstance(this));
-		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(
-				UsbCommunicator.ACTION_USB_PERMISSION), 0);
-		IntentFilter filter = new IntentFilter(
-				UsbCommunicator.ACTION_USB_PERMISSION);
+		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(UsbCommunicator.ACTION_USB_PERMISSION), 0);
+		IntentFilter filter = new IntentFilter(UsbCommunicator.ACTION_USB_PERMISSION);
 		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
 		registerReceiver(mUsbCommunicator, filter);
 
@@ -41,7 +39,7 @@ public class MainActivity extends Activity {
 			mUsbCommunicator.openAccessory(accessory);
 		}
 
-		//mRemoteController = new RemoteController(mUsbCommunicator, textView);
+		// mRemoteController = new RemoteController(mUsbCommunicator, textView);
 	}
 
 	@Override
