@@ -1,6 +1,6 @@
-package se.purpleout.purplemow;
+package se.purplescout.purplemow;
 
-import se.purpleout.R;
+import se.purplescout.R;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -41,6 +41,12 @@ public class MainActivity extends Activity {
 			mUsbCommunicator.openAccessory(accessory);
 		}
 
+		UsbComStream usbComStream = new UsbComStream(
+				mUsbCommunicator.fileInputStream,
+				mUsbCommunicator.fileOutputStream);
+		//Kör igång huvudtråden
+		Thread thread = new Thread(null, new MainFsm(usbComStream), "PurpleMow");
+		thread.start();
 		//mRemoteController = new RemoteController(mUsbCommunicator, textView);
 	}
 

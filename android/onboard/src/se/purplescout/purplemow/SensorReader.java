@@ -1,4 +1,4 @@
-package se.purpleout.purplemow;
+package se.purplescout.purplemow;
 
 import java.io.IOException;
 
@@ -6,8 +6,8 @@ public class SensorReader {
 	
 	private ComStream comStream;
 	
-	public SensorReader(UsbComStream usbComStream) {
-		this.comStream = usbComStream;
+	public SensorReader(ComStream comStream) {
+		this.comStream = comStream;
 	}
 
 

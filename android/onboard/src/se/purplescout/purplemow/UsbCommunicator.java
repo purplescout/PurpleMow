@@ -1,4 +1,4 @@
-package se.purpleout.purplemow;
+package se.purplescout.purplemow;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -74,13 +74,6 @@ public class UsbCommunicator extends BroadcastReceiver {
 			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
 			fileInputStream = new FileInputStream(fd);
 			fileOutputStream = new FileOutputStream(fd);
-			UsbComStream usbComStream = new UsbComStream(fileInputStream, fileOutputStream);
-			MotorController mc = MotorController.getInstance();
-			mc.setComStream(usbComStream);
-			SensorReader sr = new SensorReader(usbComStream);
-			//Kör igång huvudtråden
-			Thread thread = new Thread(null, new StateMachine(mc, sr), "PurpleMow");
-			thread.start();
 		}
 	}
 

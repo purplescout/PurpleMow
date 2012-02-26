@@ -1,4 +1,4 @@
-package se.purpleout.purplemow;
+package se.purplescout.purplemow;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;

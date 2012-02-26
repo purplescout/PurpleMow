@@ -1,4 +1,4 @@
-package se.purpleout.purplemow;
+package se.purplescout.purplemow;
 
 public class MotorState {
 	// -1 back, 0 står still, 1 kör framåt
