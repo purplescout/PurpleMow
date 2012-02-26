@@ -19,6 +19,7 @@ public class MainActivity extends Activity {
 	private RemoteController mRemoteController;
 	private WifiManager wifi;
 	private WifiManager.MulticastLock mcLock;
+	private MainFsm mainFsm;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -29,10 +30,8 @@ public class MainActivity extends Activity {
 		mUsbCommunicator = new UsbCommunicator(textView);
 
 		mUsbCommunicator.setUsbManager(UsbManager.getInstance(this));
-		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(
-				UsbCommunicator.ACTION_USB_PERMISSION), 0);
-		IntentFilter filter = new IntentFilter(
-				UsbCommunicator.ACTION_USB_PERMISSION);
+		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(UsbCommunicator.ACTION_USB_PERMISSION), 0);
+		IntentFilter filter = new IntentFilter(UsbCommunicator.ACTION_USB_PERMISSION);
 		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
 		registerReceiver(mUsbCommunicator, filter);
 
@@ -41,12 +40,9 @@ public class MainActivity extends Activity {
 			mUsbCommunicator.openAccessory(accessory);
 		}
 
-		UsbComStream usbComStream = new UsbComStream(
-				mUsbCommunicator.fileInputStream,
-				mUsbCommunicator.fileOutputStream);
 		//Kör igång huvudtråden
-		Thread thread = new Thread(null, new MainFsm(usbComStream), "PurpleMow");
-		thread.start();
+		mainFsm = new MainFsm(mUsbCommunicator.getComStream());
+		mainFsm.start();
 		//mRemoteController = new RemoteController(mUsbCommunicator, textView);
 	}
 

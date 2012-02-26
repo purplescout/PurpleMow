@@ -11,15 +11,13 @@ public class UsbComStream extends ComStream {
 	private FileInputStream inputStream;
 	private FileOutputStream outputStream;
 
-	public UsbComStream(FileInputStream inputStream,
-			FileOutputStream outputStream) {
+	public UsbComStream(FileInputStream inputStream, FileOutputStream outputStream) {
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
 	}
 
 	@Override
-	public void sendCommand(byte command, byte target, int value)
-			throws IOException {
+	public void sendCommand(byte command, byte target, int value) throws IOException {
 		byte[] buffer = new byte[3];
 		if (value > 255)
 			value = 255;
@@ -27,9 +25,7 @@ public class UsbComStream extends ComStream {
 		buffer[0] = command;
 		buffer[1] = target;
 		buffer[2] = (byte) value;
-		Log.w(this.getClass().getSimpleName(),
-				"[" + Byte.toString(buffer[0]) + "," + Byte.toString(buffer[1])
-						+ "," + Byte.toString(buffer[2]) + "]\n");
+		Log.w(this.getClass().getSimpleName(), "[" + Byte.toString(buffer[0]) + "," + Byte.toString(buffer[1]) + "," + Byte.toString(buffer[2]) + "]\n");
 		if (outputStream != null && buffer[1] != -1) {
 			try {
 				outputStream.write(buffer);
@@ -38,7 +34,6 @@ public class UsbComStream extends ComStream {
 			}
 		}
 
-		
 	}
 
 	@Override

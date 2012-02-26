@@ -1,15 +1,14 @@
 package se.purplescout.purplemow;
 
 import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+
+import android.util.Log;
 
 public class MainFsm implements Runnable {
 
 	public enum State {
-		IDLE,
-		MOWING,
-		AVOID_OBSTACLE,
-		BWF
+		IDLE, MOWING, AVOID_OBSTACLE, BWF
 	}
 
 	public enum EventType {
@@ -17,9 +16,7 @@ public class MainFsm implements Runnable {
 	}
 
 	public enum EventPriority {
-		HIGH,
-		DEFAULT,
-		LOW
+		HIGH, DEFAULT, LOW
 	}
 
 	class Event {
@@ -30,49 +27,79 @@ public class MainFsm implements Runnable {
 			this.type = type;
 			this.prio = prio;
 		}
+
 		Event(EventType type) {
 			this.type = type;
 			this.prio = EventPriority.DEFAULT;
 		}
 	}
-	
-	class EventComparator implements Comparator<Event>
-	{
+
+	class EventComparator implements Comparator<Event> {
 		@Override
 		public int compare(Event left, Event right) {
 			return left.prio.compareTo(right.prio);
 		}
-		
+
 	}
-	
+
 	private State state;
 	private SensorReader sr;
 	private MotorFsm motorFsm;
-	private PriorityQueue<Event> eventQueue;
+	private PriorityBlockingQueue<Event> eventQueue;
 
 	public MainFsm(ComStream comStream) {
 		this.sr = new SensorReader(comStream);
 		this.motorFsm = new MotorFsm(comStream, sr);
-		eventQueue = new PriorityQueue<MainFsm.Event>(5, new EventComparator());
+		eventQueue = new PriorityBlockingQueue<MainFsm.Event>(5, new EventComparator());
 		state = State.IDLE;
 	}
 
 	public void start() {
-		eventQueue.add(new Event(EventType.START));
+		Thread thread = new Thread(null, this, "PurpleMow");
+		thread.start();	
+		
+		eventQueue.put(new Event(EventType.START));
 	}
-	
-	
+
 	@Override
 	public void run() {
-		Event e = eventQueue.poll();
+		Event ev;
+
+		while (true) {
+			
+			try {
+				switch (state) {
+				case IDLE:
+					ev = eventQueue.take();
+					if (ev.type == EventType.START) {
+						changeState(State.MOWING);
+					}
+					break;
+				case MOWING:
+					break;
+				case AVOID_OBSTACLE:
+					break;
+				case BWF:
+					break;
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}			
+		}
+	}
+
+	private void changeState(State newState) {
+		Log.d(this.getClass().getName(), "Change state from " + state + ", to " + newState);
+		state = newState;
+		handleNewStateEntry();
+	}
+
+	private void handleNewStateEntry() {
 		switch (state) {
 		case IDLE:
-			if (e != null && e.type == EventType.START) {
-				state = State.MOWING;
-			}
 			break;
 		case MOWING:
-			motorFsm.run();
+			motorFsm.startMowing();
 			break;
 		case AVOID_OBSTACLE:
 			break;
@@ -81,4 +108,6 @@ public class MainFsm implements Runnable {
 		}
 	}
 	
+	
+
 }

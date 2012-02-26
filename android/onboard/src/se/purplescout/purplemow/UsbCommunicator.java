@@ -20,7 +20,6 @@ public class UsbCommunicator extends BroadcastReceiver {
 	private static final String TAG = "PurpleMow";
 	static final String ACTION_USB_PERMISSION = "se.purplescout.purplemow.action.USB_PERMISSION";
 
-
 	private UsbManager mUsbManager;
 	private UsbAccessory mAccessory;
 	ParcelFileDescriptor mFileDescriptor;
@@ -42,13 +41,11 @@ public class UsbCommunicator extends BroadcastReceiver {
 			synchronized (this) {
 				UsbAccessory accessory = UsbManager.getAccessory(intent);
 
-				if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,
-						false)) {
+				if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 					openAccessory(accessory);
 				} else {
 
-					log("PurpleMow", "permission denied for accessory "
-							+ accessory);
+					log("PurpleMow", "permission denied for accessory " + accessory);
 				}
 				mPermissionRequestPending = false;
 			}
@@ -65,7 +62,6 @@ public class UsbCommunicator extends BroadcastReceiver {
 	private void log(String tag, String message) {
 		textView.append(tag + " : " + message + "\n");
 	}
-
 
 	void openAccessory(UsbAccessory accessory) {
 		mFileDescriptor = mUsbManager.openAccessory(accessory);
@@ -92,8 +88,6 @@ public class UsbCommunicator extends BroadcastReceiver {
 		}
 	}
 
-
-
 	void setUsbManager(UsbManager usbManager) {
 		mUsbManager = usbManager;
 	}
@@ -115,5 +109,8 @@ public class UsbCommunicator extends BroadcastReceiver {
 		}
 	}
 
-	
+	public ComStream getComStream() {
+		UsbComStream comStream = new UsbComStream(fileInputStream, fileOutputStream);
+		return comStream;
+	}
 }
