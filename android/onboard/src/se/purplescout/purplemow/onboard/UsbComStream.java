@@ -1,9 +1,10 @@
-package se.purplescout.purplemow;
+package se.purplescout.purplemow.onboard;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import se.purplescout.purplemow.core.ComStream;
 import android.util.Log;
 
 public class UsbComStream extends ComStream {
@@ -35,10 +36,14 @@ public class UsbComStream extends ComStream {
 		}
 
 	}
+	
+	@Override
+	public void sendCommand(byte command, byte target) throws IOException {
+		sendCommand(command, target, -1);
+	}
 
 	@Override
 	public void read(byte[] buffer) throws IOException {
 		inputStream.read(buffer);
 	}
-
 }

@@ -1,10 +1,11 @@
-package se.purplescout.purplemow;
+package se.purplescout.purplemow.onboard;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import se.purplescout.purplemow.core.ComStream;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;

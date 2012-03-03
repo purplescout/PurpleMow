@@ -1,8 +1,8 @@
 package se.purplescout.purplemow.simulator;
 
-import se.purplescout.purplemow.ComStream;
 import java.io.IOException;
 
+import se.purplescout.purplemow.core.ComStream;
 import android.util.Log;
 
 public class SimulatorModel extends ComStream {
@@ -32,6 +32,11 @@ public class SimulatorModel extends ComStream {
 				break;
 			}
 		}
+	}
+	
+	@Override
+	public void sendCommand(byte command, byte target) throws IOException {
+		sendCommand(command, target, -1);	
 	}
 
 	@Override
@@ -97,6 +102,5 @@ public class SimulatorModel extends ComStream {
 			}
 			notify();
 		}
-	}
-	
+	}	
 }

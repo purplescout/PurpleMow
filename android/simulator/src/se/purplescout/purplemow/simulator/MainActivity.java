@@ -1,11 +1,11 @@
 package se.purplescout.purplemow.simulator;
 
-import se.purplescout.purplemow.MainFsm;
+import se.purplescout.purplemow.core.fsm.MainFSM;
 import android.app.Activity;
 import android.os.Bundle;
 
 public class MainActivity extends Activity {
-    private MainFsm mainFsm;
+    private MainFSM mainFSM;
 	private SimulatorModel model;
 	private SimulatorView view;
 
@@ -18,15 +18,17 @@ public class MainActivity extends Activity {
 
         view = (SimulatorView) findViewById(R.id.simulatorView);
 
+        model = new SimulatorModel();
+        view.setModel(model);
 
-        if (savedInstanceState == null) {
-            model = new SimulatorModel();
-            view.setModel(model);
-
-            mainFsm = new MainFsm(model.getComStream());
-    		mainFsm.start();
-        } else {
-        	// TODO
-        }        
+        mainFSM = new MainFSM(model.getComStream());
+		mainFSM.start();
+            
     }
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		mainFSM.stop();
+	}
 }
