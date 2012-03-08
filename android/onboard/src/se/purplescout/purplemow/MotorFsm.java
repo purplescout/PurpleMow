@@ -20,6 +20,7 @@ public class MotorFsm {
 	}
 
 	public void startMowing() {
+/*
 		try {
 			MotorState ms = new MotorState();
 			ms.setMotorLeft(0);
@@ -36,7 +37,7 @@ public class MotorFsm {
 			dist = sr.readDistance();
 
 			mc.moveForward(ms);
-/*
+
 			// Loop forever!
 			while (true) {
 
@@ -50,12 +51,12 @@ public class MotorFsm {
 				// Any more states?
 
 			}
-*/
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(this.getClass().getName(), e.getMessage());
 		}
-
+*/
 	}
 
 }

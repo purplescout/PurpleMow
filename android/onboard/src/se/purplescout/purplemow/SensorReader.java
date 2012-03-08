@@ -2,36 +2,39 @@ package se.purplescout.purplemow;
 
 import java.io.IOException;
 
-public class SensorReader {
+import android.os.Handler;
+import android.os.Message;
+
+public class SensorReader implements Runnable {
 
 	private ComStream comStream;
+	private Handler messageQueue;
 	
 	public SensorReader(ComStream comStream) {
 		this.comStream = comStream;
 	}
 
-	/**
-	 * Range sensor. Values 0 - 1023.
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	public int readDistance() throws IOException {
-		comStream.readSensor();
-
-		byte[] buffer = new byte[4];
-		comStream.read(buffer);
-		// TODO: How to interpret value from distance sensor? Combine multiple bytes?
-		return buffer[3];
+	public void start() {
+		Thread thread = new Thread(null, this, "SensorReader");
+		thread.start();	
 	}
 
-	/**
-	 * BWF sensor. Values 0 - ?
-	 * 
-	 * @return
-	 */
-	public int readBWF() {
-		// TODO: Implement!
-		return 0;
+	public void connect(Handler handler) {
+		messageQueue = handler;
+	}
+
+	@Override
+	public void run() {
+		byte[] buffer = new byte[4];
+		while (true) {
+			try {
+				comStream.read(buffer);
+				// TODO - update. This is just to make it work with the simulator
+				Message msg = messageQueue.obtainMessage(buffer[0], buffer[3]);
+				messageQueue.sendMessageDelayed(msg, 100);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
