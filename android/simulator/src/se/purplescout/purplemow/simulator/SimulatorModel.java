@@ -9,7 +9,7 @@ public class SimulatorModel extends ComStream {
 
 	private float x = 0.5f;
 	private float y = 0.5f;
-	private float direction = 1;
+	private float direction = 0;
 	private int[] relays = new int[2];
 	private int[] servos = new int[3];
 	private byte[] sensorData;
@@ -18,7 +18,7 @@ public class SimulatorModel extends ComStream {
 	@Override
 	public void sendCommand(byte command, byte target, int value)
 			throws IOException {
-		Log.d(this.getClass().getName(), "sendCommand " + command);
+		Log.d(this.getClass().getName(), "sendCommand " + command + ", target = " + target + ", value = " + value);
 		synchronized(this) {
 			switch (command) {
 			case RELAY_COMMAND:
@@ -65,36 +65,38 @@ public class SimulatorModel extends ComStream {
 		synchronized(this) {
 			long timeDelta = now - lastUpdate;
 			lastUpdate = now;
+			final double speedFactor = 255*10000.0;
 
-			float speed = timeDelta * servos[SERVO1] / (255*10000.0f);
-			float speedX = 0, speedY = 0;
+			double speed = timeDelta * servos[SERVO1];
 			if (relays[RELAY1] == 0 && relays[RELAY2] == 0) {
-				speedX = (float) (speed * Math.cos(direction));
-				speedY = (float) (speed * Math.sin(direction));
+				x += speed / speedFactor;
+				y += speed / speedFactor;
+//				x += speed * Math.cos(direction) / speedFactor;
+//				y += speed * Math.sin(direction) / speedFactor;
 			} else if (relays[RELAY1] == 1 && relays[RELAY2] == 0) {
 				direction += 0.01;
 			} else if (relays[RELAY1] == 0 && relays[RELAY2] == 1) {
 				direction -= 0.01;
 			} else if (relays[RELAY1] == 1 && relays[RELAY2] == 1) {
-				speedX = (float) (-speed * Math.cos(direction));
-				speedY = (float) (-speed * Math.sin(direction));
+				x -= speed * Math.cos(direction) / speedFactor;
+				y -= speed * Math.sin(direction) / speedFactor;
 			}
-			x += speedX;
-			y += speedY;
+			Log.d(this.getClass().getName(), "Update: x = " + x + ", y = " + y + ", speed = " + speed + ", direction = " + direction);
 		}
 	}
 
-	public float getMowerX() {
+	public synchronized float getMowerX() {
 		return x;
 	}
 
-	public float getMowerY() {
+	public synchronized float getMowerY() {
 		return y;
 	}
 
 	private void generateSensorData(byte target, int value) {
 		synchronized(this) {
-			sensorData = new byte[4];				
+			sensorData = new byte[4];
+			sensorData[0] = 2;
 			if (x < 0.1 || x > 0.9 || y < 0.1 || y > 0.9) {
 				sensorData[3] = (byte) 99;
 			} else {

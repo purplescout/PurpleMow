@@ -62,7 +62,7 @@ public class SimulatorView extends SurfaceView implements SurfaceHolder.Callback
                     	model.update();
                         drawCanvas(c);
                     }
-                } finally {
+				} finally {
                     if (c != null) {
                         surfaceHolder.unlockCanvasAndPost(c);
                     }
