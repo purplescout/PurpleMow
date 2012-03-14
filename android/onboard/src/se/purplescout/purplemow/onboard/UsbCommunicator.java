@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import se.purplescout.R;
 import se.purplescout.purplemow.core.ComStream;
+import se.purplescout.purplemow.core.fsm.MainFSM;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,7 +31,9 @@ public class UsbCommunicator extends BroadcastReceiver {
 	private boolean mPermissionRequestPending;
 
 	private TextView textView;
-
+	
+	MainFSM mainFSM;
+	
 	public UsbCommunicator(TextView textView) {
 		this.textView = textView;
 	}
@@ -71,6 +75,10 @@ public class UsbCommunicator extends BroadcastReceiver {
 			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
 			fileInputStream = new FileInputStream(fd);
 			fileOutputStream = new FileOutputStream(fd);
+			
+			//Kör igång huvudtråden
+			mainFSM = new MainFSM(getComStream(), textView);
+			mainFSM.start();
 		}
 	}
 
@@ -86,6 +94,7 @@ public class UsbCommunicator extends BroadcastReceiver {
 			mAccessory = null;
 			fileOutputStream = null;
 			fileInputStream = null;
+			mainFSM.stop();
 		}
 	}
 

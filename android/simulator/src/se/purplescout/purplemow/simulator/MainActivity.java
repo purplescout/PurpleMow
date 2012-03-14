@@ -3,6 +3,7 @@ package se.purplescout.purplemow.simulator;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
     private MainFSM mainFSM;
@@ -21,7 +22,7 @@ public class MainActivity extends Activity {
         model = new SimulatorModel();
         view.setModel(model);
 
-        mainFSM = new MainFSM(model.getComStream());
+        mainFSM = new MainFSM(model.getComStream(), new TextView(this));
 		mainFSM.start();
             
     }
