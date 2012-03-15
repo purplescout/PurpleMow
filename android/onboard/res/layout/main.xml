@@ -4,9 +4,17 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView android:id="@+id/textview"
+    <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:overScrollMode="ifContentScrolls" 
+         >
+        
+        <TextView
+            android:id="@+id/textview"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/hello" />
+    </ScrollView>
 
 </LinearLayout>

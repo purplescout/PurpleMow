@@ -1,5 +1,6 @@
 package se.purplescout.purplemow.core.fsm;
 
+import java.util.Random;
 import java.util.Timer;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -14,7 +15,7 @@ import android.widget.TextView;
 public class MainFSM implements Runnable {
 
 	public enum State {
-		IDLE, MOWING, AVOIDING_OBSTACLE, BWF
+		IDLE, MOWING, AVOIDING_OBSTACLE, BWF, UNKNOWN
 	}
 
 	private State state;
@@ -25,7 +26,7 @@ public class MainFSM implements Runnable {
 	private PriorityBlockingQueue<Event> motorFSMQueue;
 	private ComStream comStream;
 	private boolean isRunning = false;
-	
+
 	TextView text;
 
 	public MainFSM(ComStream comStream, TextView text) {
@@ -39,17 +40,19 @@ public class MainFSM implements Runnable {
 	public void start() {
 		isRunning = true;
 		sensorReader = new SensorReader(comStream);
-		
+
 		motorFSM = new MotorFSM(comStream, eventQueue, motorFSMQueue);
 		main = new Thread(null, this, "PurpleMow");
 		Timer sensorReaderTimer = new Timer();
 		sensorReaderTimer.schedule(sensorReader, 100, 100);
-//		motorFSM.start();
+		motorFSM.start();
 		main.start();
 		eventQueue.put(new Event(EventType.START));
-		Log.e(this.getClass().getName(), "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#########################################!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		// To find the start of the application in the log
+		Log.e(this.getClass().getName(),
+				"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################################################################!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	}
-	
+
 	public void stop() {
 		isRunning = false;
 		sensorReader.cancel();
@@ -58,31 +61,55 @@ public class MainFSM implements Runnable {
 
 	@Override
 	public void run() {
+		State oldState = State.UNKNOWN;
+		int oldDistance = 9999;
+		Random randoimizer = new Random();
 		while (isRunning) {
 			try {
 				Event event;
-				Log.i(this.getClass().getName(), "Entering " + state + " state");
+
+				// Debug-printa lite dynga om avstånd eller status har ändrats
+				if (!state.equals(oldState)) {
+					logToTextView("State is " + state);
+				}
+				oldState = state;
+
+				// Printa bara om diffen är tillräckligt stor
+				int diff = oldDistance - sensorReader.getLatestDistanceValue();
+				if (Math.abs(diff) > 10) {
+					String msg = String.format("Avstånd %d", sensorReader.getLatestDistanceValue());
+					logToTextView(msg);
+					oldDistance = sensorReader.getLatestDistanceValue();
+				}
 				switch (state) {
 				case IDLE:
-					int val = sensorReader.getLatestDistanceValue();
-					Log.i(this.getClass().getName(), "Current Distance: " + Integer.toString(val));
-//					event = eventQueue.take();
-//					if (event.type == EventType.START) {
-//						motorFSMQueue.add(new Event(EventType.MOVE_FORWARD));
-//						Log.i(this.getClass().getName(), "Enter MOWING state");
-//						changeState(State.MOWING);
-//					}
+					// logToTextView("Doing IDLE");
+					event = eventQueue.take();
+					if (event.type == EventType.START) {
+						motorFSMQueue.add(new Event(EventType.MOVE_FORWARD));
+						Log.i(this.getClass().getName(), "Enter MOWING state");
+						changeState(State.MOWING);
+					}
 					break;
 				case MOWING:
-					val = sensorReader.getLatestDistanceValue();
-					Log.i(this.getClass().getName(), Integer.toString(val));
-					if (val < 100) {
-						motorFSMQueue.add(new Event(EventType.AVOID_OBSTACLE_LEFT));
+					// logToTextView("Doing MOWING");
+					int val = sensorReader.getLatestDistanceValue();
+					if (val > 420) {
+						// Avoid left or right? Dunno yet since there is only one sensor. Do it randomly for now.
+						boolean right = randoimizer.nextBoolean();
+						if (right) {
+							logToTextView("Avoiding obstacle right");
+							motorFSMQueue.add(new Event(EventType.AVOID_OBSTACLE_RIGHT));
+						} else {
+							logToTextView("Avoiding obstacle left");
+							motorFSMQueue.add(new Event(EventType.AVOID_OBSTACLE_LEFT));
+						}
 						Log.i(this.getClass().getName(), "Enter AVOIDING_OBSTACLE state");
 						changeState(State.AVOIDING_OBSTACLE);
 					}
 					break;
 				case AVOIDING_OBSTACLE:
+					// logToTextView("Doing AVOID_OBSTACLE");
 					event = eventQueue.take();
 					if (event.type == EventType.AVOIDING_OBSTACLE_DONE) {
 						motorFSMQueue.add(new Event(EventType.MOVE_FORWARD));
@@ -97,13 +124,18 @@ public class MainFSM implements Runnable {
 				Log.e(this.getClass().getName(), e.getMessage());
 				e.printStackTrace();
 			}
-			//TODO ta bort
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+
 		}
+	}
+
+	private void logToTextView(final String msg) {
+
+		text.post(new Runnable() {
+			@Override
+			public void run() {
+				text.append(msg + "\n");
+			}
+		});
 	}
 
 	private void changeState(State newState) {

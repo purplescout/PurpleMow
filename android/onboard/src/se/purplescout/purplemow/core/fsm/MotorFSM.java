@@ -26,7 +26,7 @@ public class MotorFSM implements Runnable {
 		this.mainFSMQueue = mainFSMQueue;
 		this.motorFSMQueue = motorFSMQueue;
 	}
-	
+
 	public void start() {
 		isRunning = true;
 		state = State.STILL;
@@ -80,11 +80,11 @@ public class MotorFSM implements Runnable {
 
 	}
 
-	//TODO Observera att alla anrop till motorn sker i denna tråd och således låser MotorFSM. Så borde ej ske.
+	// TODO Observera att alla anrop till motorn sker i denna tråd och således låser MotorFSM. Så borde ej ske.
 	private void handleEvent(Event event) {
-		try{
+		try {
 			switch (event.type) {
-			case MOVE_FORWARD:	
+			case MOVE_FORWARD:
 				moveForward();
 				changeState(State.MOVING_FORWARD);
 				break;
@@ -103,6 +103,9 @@ public class MotorFSM implements Runnable {
 			case AVOID_OBSTACLE_LEFT:
 				avoidObstacleLeft();
 				break;
+			case AVOID_OBSTACLE_RIGHT:
+				avoidObstacleRight();
+				break;
 			default:
 				break;
 			}
@@ -118,35 +121,47 @@ public class MotorFSM implements Runnable {
 	public void cancel() {
 		isRunning = false;
 	}
-	
+
 	private void moveForward() throws IOException {
 		motorController.move(state, 1);
 	}
-	
+
 	private void moveBackward() throws IOException {
 		motorController.move(state, 1);
 	}
-	
+
 	private void turnLeft() throws IOException {
 		motorController.turnLeft(state);
 	}
-	
+
 	private void turnRight() throws IOException {
 		motorController.turnLeft(state);
 	}
-	
-	private void avoidObstacleLeft() throws IOException, InterruptedException {		
+
+	private void avoidObstacleLeft() throws IOException, InterruptedException {
 		motorController.moveBackward(state);
 		changeState(State.MOVING_BACKWARD);
-		Thread.sleep(2000);
-		motorController.turnLeft(state);
-		changeState(State.TURNING_LEFT);
-		Thread.sleep(2000);
+		Thread.sleep(800);
+		motorController.turnRight(state);
+		changeState(State.TURNING_RIGHT);
+		Thread.sleep(600);
 		motorController.stop();
 		changeState(State.STILL);
 		mainFSMQueue.add(new Event(EventType.AVOIDING_OBSTACLE_DONE));
 	}
-	
+
+	private void avoidObstacleRight() throws IOException, InterruptedException {
+		motorController.moveBackward(state);
+		changeState(State.MOVING_BACKWARD);
+		Thread.sleep(800);
+		motorController.turnLeft(state);
+		changeState(State.TURNING_LEFT);
+		Thread.sleep(600);
+		motorController.stop();
+		changeState(State.STILL);
+		mainFSMQueue.add(new Event(EventType.AVOIDING_OBSTACLE_DONE));
+	}
+
 	private void changeState(State newState) {
 		Log.d(this.getClass().getName(), "Change state from " + state + ", to " + newState);
 		state = newState;

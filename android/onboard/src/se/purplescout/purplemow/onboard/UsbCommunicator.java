@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import se.purplescout.R;
 import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import android.app.PendingIntent;
@@ -31,9 +30,9 @@ public class UsbCommunicator extends BroadcastReceiver {
 	private boolean mPermissionRequestPending;
 
 	private TextView textView;
-	
+
 	MainFSM mainFSM;
-	
+
 	public UsbCommunicator(TextView textView) {
 		this.textView = textView;
 	}
@@ -47,6 +46,7 @@ public class UsbCommunicator extends BroadcastReceiver {
 				UsbAccessory accessory = UsbManager.getAccessory(intent);
 
 				if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+					log("PurpleMow", "Access beviljad " + accessory);
 					openAccessory(accessory);
 				} else {
 
@@ -75,8 +75,8 @@ public class UsbCommunicator extends BroadcastReceiver {
 			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
 			fileInputStream = new FileInputStream(fd);
 			fileOutputStream = new FileOutputStream(fd);
-			
-			//Kör igång huvudtråden
+
+			// Kör igång huvudtråden
 			mainFSM = new MainFSM(getComStream(), textView);
 			mainFSM.start();
 		}
