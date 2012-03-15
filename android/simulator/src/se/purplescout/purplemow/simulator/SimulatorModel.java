@@ -9,11 +9,17 @@ public class SimulatorModel extends ComStream {
 
 	private float x = 0.5f;
 	private float y = 0.5f;
-	private float direction = 0;
+	private float direction;
 	private int[] relays = new int[2];
 	private int[] servos = new int[3];
 	private byte[] sensorData;
 	private long lastUpdate;
+	
+	SimulatorModel()
+	{
+		lastUpdate = System.currentTimeMillis();
+		direction = (float) (2 * Math.random() * Math.PI);
+	}
 
 	@Override
 	public void sendCommand(byte command, byte target, int value)
@@ -61,22 +67,22 @@ public class SimulatorModel extends ComStream {
 			long timeDelta = now - lastUpdate;
 			lastUpdate = now;
 			final double speedFactor = 255*10000.0;
+			final double turnFactor = 255*500.0;
 
 			double speed = timeDelta * servos[SERVO1];
 			if (relays[RELAY1] == 0 && relays[RELAY2] == 0) {
-				x += speed / speedFactor;
-				y += speed / speedFactor;
-//				x += speed * Math.cos(direction) / speedFactor;
-//				y += speed * Math.sin(direction) / speedFactor;
+				x += speed * Math.cos(direction) / speedFactor;
+				y += speed * Math.sin(direction) / speedFactor;
 			} else if (relays[RELAY1] == 1 && relays[RELAY2] == 0) {
-				direction += 0.01;
+				direction += speed / turnFactor;
 			} else if (relays[RELAY1] == 0 && relays[RELAY2] == 1) {
-				direction -= 0.01;
+				direction -= speed / turnFactor;
 			} else if (relays[RELAY1] == 1 && relays[RELAY2] == 1) {
 				x -= speed * Math.cos(direction) / speedFactor;
 				y -= speed * Math.sin(direction) / speedFactor;
 			}
-			Log.d(this.getClass().getName(), "Update: x = " + x + ", y = " + y + ", speed = " + speed + ", direction = " + direction);
+			if (speed != 0)
+				Log.d(this.getClass().getName(), "Update: x = " + x + ", y = " + y + ", speed = " + speed + ", direction = " + direction);
 		}
 	}
 
@@ -86,6 +92,10 @@ public class SimulatorModel extends ComStream {
 
 	public synchronized float getMowerY() {
 		return y;
+	}
+
+	public synchronized float getDirection() {
+		return direction;
 	}
 
 	private void generateSensorData(byte target, int value) {

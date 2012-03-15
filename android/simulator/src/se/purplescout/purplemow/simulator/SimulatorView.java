@@ -16,6 +16,7 @@ public class SimulatorView extends SurfaceView implements SurfaceHolder.Callback
 		private SimulatorModel model;
 		private Paint cutterPaint;
 		private Paint mowerPaint;
+		private Paint linePaint;
 		private Bitmap bitmap;
 		private Canvas lawnCanvas;
 		private Paint bitmapPaint;
@@ -29,6 +30,9 @@ public class SimulatorView extends SurfaceView implements SurfaceHolder.Callback
 			mowerPaint = new Paint();
             mowerPaint.setARGB(0xFF, 0xFF, 0, 0xFF);
             
+			linePaint = new Paint();
+            linePaint.setARGB(0xFF, 0, 0, 0);
+
             bitmapPaint = new Paint(Paint.DITHER_FLAG);
 		}
 
@@ -61,7 +65,11 @@ public class SimulatorView extends SurfaceView implements SurfaceHolder.Callback
                     synchronized (surfaceHolder) {
                     	model.update();
                         drawCanvas(c);
+                        Thread.sleep(20);
                     }
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				} finally {
                     if (c != null) {
                         surfaceHolder.unlockCanvasAndPost(c);
@@ -77,9 +85,13 @@ public class SimulatorView extends SurfaceView implements SurfaceHolder.Callback
 			c.drawBitmap(bitmap, 0, 0, bitmapPaint);
 			float x = getWidth() * model.getMowerX();
 			float y = getHeight() * model.getMowerY();
+			float d = model.getDirection();
+			float dx = (float) (1.5*radius*Math.cos(d));
+			float dy = (float) (1.5*radius*Math.sin(d));
 			
 			lawnCanvas.drawCircle(x, y, radius-2, cutterPaint);
 			c.drawCircle(x, y, radius, mowerPaint);
+			c.drawLine(x, y, x + dx, y + dy, linePaint);
 		}
 
     }

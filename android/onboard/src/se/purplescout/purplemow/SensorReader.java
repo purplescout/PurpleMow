@@ -30,7 +30,7 @@ public class SensorReader implements Runnable {
 			try {
 				comStream.read(buffer);
 				// TODO - update. This is just to make it work with the simulator
-				Message msg = messageQueue.obtainMessage(buffer[0], buffer[3]);
+				Message msg = messageQueue.obtainMessage(buffer[0], (int) (buffer[3] & 0xFF), 0);
 				messageQueue.sendMessageDelayed(msg, 100);
 			} catch (IOException e) {
 				e.printStackTrace();
