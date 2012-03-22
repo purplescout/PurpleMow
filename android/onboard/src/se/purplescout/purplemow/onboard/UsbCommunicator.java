@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import se.purplescout.purplemow.core.ComStream;
-import se.purplescout.purplemow.core.fsm.MainFSM;
+import se.purplescout.purplemow.core.MainFSM;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;

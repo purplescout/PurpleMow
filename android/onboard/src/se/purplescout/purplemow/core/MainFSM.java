@@ -1,16 +1,79 @@
-package se.purplescout.purplemow.core.fsm;
+package se.purplescout.purplemow.core;
 
+import java.io.IOException;
 import java.util.Random;
-import java.util.Timer;
-import java.util.concurrent.PriorityBlockingQueue;
 
-import se.purplescout.purplemow.core.ComStream;
-import se.purplescout.purplemow.core.fsm.event.Event;
-import se.purplescout.purplemow.core.fsm.event.EventComparator;
-import se.purplescout.purplemow.core.fsm.event.EventType;
-import se.purplescout.purplemow.core.sensor.SensorReader;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.widget.TextView;
+
+class EventHandler extends Handler {
+	private enum State {
+		IDLE, MOWING, AVOID_OBSTACLE, BWF
+	}
+
+	private State state	= State.IDLE;
+	private MotorFSM motorFSM;
+
+	EventHandler(MotorFSM motorFSM) {
+		this.motorFSM = motorFSM;
+	}
+
+	public void handleMessage(Message msg) {
+//		Log.d(this.getClass().getName(), "handleMessage, msg = " + msg.what + ", state = " + state);
+
+		try {
+			switch (state) {
+			case IDLE:
+				if (!motorFSM.handleMessageIdle(msg)) {
+					if (msg.what == Event.START.ordinal()) {
+						changeState(State.MOWING);
+					}
+				}
+				break;
+			case MOWING:
+				if (!motorFSM.handleMessageMowing(msg)) {
+					if (msg.what == Event.BWF_SENSOR.ordinal()) {
+						changeState(State.BWF);
+					}
+				}
+				break;
+			case AVOID_OBSTACLE:
+				break;
+			case BWF:
+				if (!motorFSM.handleMessageBwf(msg)) {
+					changeState(State.MOWING);
+				}
+				break;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void invokeEntryAction() throws IOException {
+		switch (state) {
+		case IDLE:
+			break;
+		case MOWING:
+			break;
+		case AVOID_OBSTACLE:
+			break;
+		case BWF:
+			motorFSM.entryActionBwf();
+			break;
+		}
+	}
+
+	private void changeState(State newState) throws IOException {
+		Log.d(this.getClass().getName(), "Change state from " + state + ", to " + newState);
+		state = newState;
+		invokeEntryAction();
+	}
+}
 
 public class MainFSM implements Runnable {
 
@@ -18,25 +81,51 @@ public class MainFSM implements Runnable {
 		IDLE, MOWING, AVOIDING_OBSTACLE, BWF, UNKNOWN
 	}
 
-	private State state;
+	private State state	= State.IDLE;
 	private SensorReader sensorReader;
 	private MotorFSM motorFSM;
 	private Thread main;
-	private PriorityBlockingQueue<Event> eventQueue;
-	private PriorityBlockingQueue<Event> motorFSMQueue;
 	private ComStream comStream;
+	private Handler handler;
 	private boolean isRunning = false;
 
 	TextView text;
+	private Timer timer;
 
-	public MainFSM(ComStream comStream, TextView text) {
-		state = State.IDLE;
-		eventQueue = new PriorityBlockingQueue<Event>(5, new EventComparator());
-		motorFSMQueue = new PriorityBlockingQueue<Event>(5, new EventComparator());
-		this.comStream = comStream;
-		this.text = text;
+
+	public MainFSM(ComStream comStream, TextView textView) {
+		this.sensorReader = new SensorReader(comStream);
+		this.timer = new Timer() ;
+		this.motorFSM = new MotorFSM(sensorReader, comStream, timer);
 	}
 
+	@Override
+	public void run() {
+		Looper.prepare();
+
+		handler = new EventHandler(motorFSM);
+		handler.sendEmptyMessage(Event.START.ordinal());
+
+		timer.connect(handler);
+		sensorReader.connect(handler);
+		sensorReader.start();
+
+		Looper.loop();
+	}
+
+
+	public void start() {
+		isRunning = true;
+		main = new Thread(null, this, "PurpleMow");
+		main.start();
+	}
+
+	public void stop() {
+		isRunning = false;
+		main.stop();
+	}
+
+	/*
 	public void start() {
 		isRunning = true;
 		sensorReader = new SensorReader(comStream);
@@ -138,7 +227,7 @@ public class MainFSM implements Runnable {
 			}
 		});
 	}
-
+*/
 	private void changeState(State newState) {
 		Log.d(this.getClass().getName(), "Change state from " + state + ", to " + newState);
 		state = newState;

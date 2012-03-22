@@ -1,6 +1,6 @@
 package se.purplescout.purplemow.simulator;
 
-import se.purplescout.purplemow.core.fsm.MainFSM;
+import se.purplescout.purplemow.core.MainFSM;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
