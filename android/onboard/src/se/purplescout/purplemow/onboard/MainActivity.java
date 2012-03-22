@@ -1,13 +1,13 @@
-package se.purplescout.purplemow;
+package se.purplescout.purplemow.onboard;
 
 import se.purplescout.R;
+import se.purplescout.purplemow.core.fsm.MainFSM;
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.android.future.usb.UsbAccessory;
@@ -16,10 +16,9 @@ import com.android.future.usb.UsbManager;
 public class MainActivity extends Activity {
 	private UsbCommunicator mUsbCommunicator;
 	private PendingIntent mPermissionIntent;
-	private RemoteController mRemoteController;
-	private WifiManager wifi;
-	private WifiManager.MulticastLock mcLock;
-	private MainFsm mainFsm;
+	// private WifiManager wifi;
+	// private WifiManager.MulticastLock mcLock;
+	private MainFSM mainFSM;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -27,6 +26,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		TextView textView = (TextView) findViewById(R.id.textview);
+		Log.i("PurpleMow",
+				"¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤Nu startar det!");
 		mUsbCommunicator = new UsbCommunicator(textView);
 
 		mUsbCommunicator.setUsbManager(UsbManager.getInstance(this));
@@ -40,26 +41,21 @@ public class MainActivity extends Activity {
 			mUsbCommunicator.openAccessory(accessory);
 		}
 
-		//Kör igång huvudtråden
-		mainFsm = new MainFsm(mUsbCommunicator.getComStream());
-		mainFsm.start();
-		//mRemoteController = new RemoteController(mUsbCommunicator, textView);
+		// mRemoteController = new RemoteController(mUsbCommunicator, textView);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		mUsbCommunicator.resume(mPermissionIntent);
-		mcLock.acquire(); // tells android to process multicast packets
-		mRemoteController.start((TextView) findViewById(R.id.textview));
+		// mcLock.acquire(); // tells android to process multicast packets
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		mUsbCommunicator.closeAccessory();
-		mcLock.release(); // stop processing packets
-		mRemoteController.halt();
+		// mcLock.release(); // stop processing packets
 	}
 
 	@Override
@@ -71,9 +67,8 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-		mcLock = wifi.createMulticastLock("remoteControlReceiver");
-		mRemoteController.start((TextView) findViewById(R.id.textview));
+		// wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		// mcLock = wifi.createMulticastLock("remoteControlReceiver");
 	}
 
 }
