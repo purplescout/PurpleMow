@@ -95,7 +95,7 @@ public class MainFSM implements Runnable {
 				case MOWING:
 					// logToTextView("Doing MOWING");
 					int val = sensorReader.getLatestDistanceValue();
-					if (val > 420) {
+					if (val > 400) {
 						// Avoid left or right? Dunno yet since there is only one sensor. Do it randomly for now.
 						boolean right = randoimizer.nextBoolean();
 						if (right) {
