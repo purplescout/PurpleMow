@@ -76,11 +76,12 @@ public class MainFSM implements Runnable {
 
 				// Printa bara om diffen är tillräckligt stor
 				int diff = oldDistance - sensorReader.getLatestDistanceValue();
-				if (Math.abs(diff) > 10) {
-					String msg = String.format("Avstånd %d", sensorReader.getLatestDistanceValue());
-					logToTextView(msg);
-					oldDistance = sensorReader.getLatestDistanceValue();
-				}
+				// if (Math.abs(diff) > 10) {
+				// String msg = String.format("Avstånd %d", sensorReader.getLatestDistanceValue());
+				// logToTextView(msg);
+				// oldDistance = sensorReader.getLatestDistanceValue();
+				// }
+
 				switch (state) {
 				case IDLE:
 					// logToTextView("Doing IDLE");

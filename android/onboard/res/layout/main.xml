@@ -4,12 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:overScrollMode="ifContentScrolls" 
-         >
-        
+    <ScrollView  android:layout_width="fill_parent" android:layout_height="wrap_content" android:overScrollMode="ifContentScrolls"  >
         <TextView
             android:id="@+id/textview"
             android:layout_width="fill_parent"

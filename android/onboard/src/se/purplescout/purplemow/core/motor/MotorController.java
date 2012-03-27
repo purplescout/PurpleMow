@@ -27,8 +27,8 @@ public class MotorController {
 	 * @throws IOException
 	 */
 	public void stop() throws IOException {
-		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, STOP);
-		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO2, STOP);
+		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.MOTOR_RIGHT, STOP);
+		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.MOTOR_LEFT2, STOP);
 		sleep();
 	}
 
@@ -56,8 +56,8 @@ public class MotorController {
 			getComStream().sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 1);
 		}
 		sleep();
-		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, FULL_SPEED);
-		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO2, FULL_SPEED);
+		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.MOTOR_RIGHT, FULL_SPEED);
+		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.MOTOR_LEFT2, FULL_SPEED);
 	}
 
 	public void turnRight(State state) throws IOException {
@@ -82,8 +82,8 @@ public class MotorController {
 		}
 		sleep();
 		
-		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, FULL_SPEED);
-		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO2, FULL_SPEED);
+		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.MOTOR_RIGHT, FULL_SPEED);
+		getComStream().sendCommand(ComStream.SERVO_COMMAND, ComStream.MOTOR_LEFT2, FULL_SPEED);
 	}
 
 	public void sleep() {
