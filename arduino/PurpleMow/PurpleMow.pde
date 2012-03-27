@@ -7,6 +7,8 @@
 #include <Usb.h>
 #include <AndroidAccessory.h>
 
+#include "commands.h"
+
 #define  MOTOR_RIGHT            8
 #define  MOTOR_LEFT             9
 #define  CUTTER                 11
@@ -28,30 +30,6 @@
 #define ONBOARD_LED             13
 
 #define I2C_ADDRESS             0x35
-
-// pos 0 in message
-#define CMD_SEND                0x1
-#define CMD_WRITE               0x2
-#define CMD_RELAY               0x3
-#define CMD_READ                0x4
-
-// pos 1 in message, if message[0] == WRITE
-#define CMD_MOTOR_RIGHT         0x0
-#define CMD_MOTOR_LEFT          0x1
-#define CMD_CUTTER              0x2
-
-// pos 1 in message, if message[0] == RELAY
-#define CMD_RELAY_RIGHT         0x0
-#define CMD_RELAY_LEFT          0x1
-
-// pos 1 in message, if message[0] == READ
-#define CMD_RANGE_SENSOR        0x0
-#define CMD_MOIST_SENSOR        0x1
-#define CMD_VOLTAGE_SENSOR      0x2
-#define CMD_BWF_LEFT_SENSOR     0x3
-#define CMD_BWF_RIGHT_SENSOR    0x4
-
-#define MAX_MSG_SIZE            4
 
 // private functions
 void i2c_receive(int bytes);
@@ -196,6 +174,10 @@ int process_command(byte* msg, int length)
             case CMD_BWF_RIGHT_SENSOR:
                 val = analogRead(BWF_SENSOR_LEFT);
                 break;
+
+            case CMD_BWF_REFERENCE:
+                val = analogRead(BWF_SENSOR_REFERENCE);
+                break;
         }
 
         if ( val > -1 )
@@ -215,11 +197,18 @@ void i2c_receive(int bytes)
 {
     int i = 0;
 
-    if ( bytes >= MAX_MSG_SIZE )
+    if ( bytes >= MAX_MSG_SIZE + 1 )
     {
-        while ( --bytes >= 0 )
+        char c;
+        c = Wire.receive();
+
+        if ( c != CMD_I2C_MAGIC )
         {
-            char c;
+            return;
+        }
+
+        while ( --bytes > 0 )
+        {
             c = Wire.receive();
             if ( i < MAX_MSG_SIZE )
             {
