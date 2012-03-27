@@ -3,17 +3,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "include/linux/i2c-dev.h"
 
 #include <stdlib.h>  // exit
 
 #include "raspi_i2c.h"
 
-#define I2C_DEVICE "/dev/i2c-1"
+#define I2C_DEVICE "/dev/i2c-2"
 //#define I2C_DEVICE "/dev/i2c-4"
-#define I2C_ADDRESS 0x50
-
-static int test_command(void);
+#define I2C_ADDRESS 0x35
 
 int i2c_fd = -1;
 
@@ -37,31 +36,56 @@ int purple_io_init()
         return 2;
     }
 
-    test_command();
+    return 0;
+}
+
+int io_test_command_1(int i)
+{
+    int res;
+    uint8_t data[5] = { 11, 12, 13 ,14, i };
+    int length = sizeof(data)/sizeof(data[0]);
+
+//    res = i2c_smbus_write_byte(i2c_fd, i);
+    res = i2c_smbus_write_block_data(i2c_fd, 6, length, data);
+
+    printf("res1: %x\n", res);
+
+    usleep(1000);
 
     return 0;
 }
 
-static int test_command()
+int io_test_command_2()
 {
-    int res;
-    unsigned char block[256];
     int i;
+    int res;
+    uint8_t data[I2C_SMBUS_BLOCK_MAX] = { 11, 12, 13 ,14, 15 };
+    int length = sizeof(data)/sizeof(data[0]);
 
-    i = 0;
-    while ( i < 256 )
+    res = i2c_smbus_write_byte(i2c_fd, 5);
+    usleep(1000);
+#if 1
+    data[0] = i2c_smbus_read_byte(i2c_fd);
+    data[1] = i2c_smbus_read_byte(i2c_fd);
+    data[2] = i2c_smbus_read_byte(i2c_fd);
+#else
+    res = i2c_smbus_read_block_data(i2c_fd, 4, data);
+#endif // 0
+
+    if ( res < 0 )
     {
-        block[i] = res = i2c_smbus_read_byte_data(i2c_fd, i);
-
-        if ( res >= 'a' && res <= 'z' ||
-             res >= 'A' && res <= 'Z' ||
-             res >= '0' && res <= '9' )
-            printf("res: %x %c\n", res, res);
-
-        i++;
+        printf("failed to read, %x\n", res);
     }
 
-    exit(0);
+    printf("res5: %x\n", res);
+#if 1
+    for ( i = 0; i < 3; i++ )
+    {
+        printf("data[%d]: %x\n", i, data[i]);
+    }
+#endif // 0
+
+    usleep(1000);
 
     return 0;
 }

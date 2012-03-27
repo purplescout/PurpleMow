@@ -1,0 +1,1 @@
+while [ true ]; do if [ -c /dev/ttyACM0 ] ; then screen /dev/ttyACM0; fi; sleep 1; done
