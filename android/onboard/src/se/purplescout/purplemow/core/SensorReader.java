@@ -1,6 +1,7 @@
 package se.purplescout.purplemow.core;
 
 import java.io.IOException;
+
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -15,14 +16,14 @@ public class SensorReader implements Runnable {
 	private byte hiB;
 	private byte loB;
 	private Integer latestBWFValue = 0;
-	
+
 	public SensorReader(ComStream comStream) {
 		this.comStream = comStream;
 	}
 
 	public void start() {
 		Thread thread = new Thread(null, this, "SensorReader");
-		thread.start();	
+		thread.start();
 	}
 
 	public void connect(Handler handler) {
@@ -49,7 +50,8 @@ public class SensorReader implements Runnable {
 		try {
 			byte[] buffer = new byte[4];
 			comStream.read(buffer);
-//			Log.e(this.getClass().getName(), String.format("Värden från läsaren före bitshift\n MSB: %h | LSB: %h", buffer[2], buffer[3]));
+			// Log.e(this.getClass().getName(), String.format("Värden från läsaren före bitshift\n MSB: %h | LSB: %h",
+			// buffer[2], buffer[3]));
 			// int val = buffer[2] << 8;
 			// val += buffer[3];
 			byte hi = buffer[2];
@@ -57,10 +59,13 @@ public class SensorReader implements Runnable {
 			this.hiB = hi;
 			this.loB = lo;
 			int val = composeInt(hi, lo);
-//			Log.e(this.getClass().getName(), "Transformerat värde: " + val);
+			// Log.e(this.getClass().getName(), "Transformerat värde: " + val);
 			latestDistanceValue = val;
-
-			Message msg = messageQueue.obtainMessage(buffer[0], val, 0);
+			int event = 0;
+			if (buffer[0] == ComStream.RANGE_SENSOR) {
+				event = Event.DIST_SENSOR.ordinal();
+			}
+			Message msg = messageQueue.obtainMessage(event, val, 0);
 			messageQueue.sendMessageDelayed(msg, 100);
 		} catch (IOException e) {
 			Log.e(this.getClass().getName(), e.getMessage());
