@@ -1,7 +1,7 @@
 package se.purplescout.purplemow.onboard;
 
 import se.purplescout.R;
-import se.purplescout.purplemow.core.fsm.MainFSM;
+import se.purplescout.purplemow.core.MainFSM;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
