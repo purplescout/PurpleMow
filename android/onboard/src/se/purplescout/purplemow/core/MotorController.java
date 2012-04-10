@@ -17,8 +17,8 @@ public class MotorController {
 	}
 
 	void move(int speed) throws IOException {
-		comStream.sendCommand(ComStream.SERVO_COMMAND, ComStream.MOTOR_RIGHT, speed);
-		comStream.sendCommand(ComStream.SERVO_COMMAND, ComStream.MOTOR_LEFT2, speed);
+		comStream.sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, speed);
+		comStream.sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO2, speed);
 
 		moving = (speed > 0);
 	}
@@ -44,6 +44,7 @@ public class MotorController {
 			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 1);
 			break;
 		}
+		// sleep(300);
 	}
 
 	void testPattern() {

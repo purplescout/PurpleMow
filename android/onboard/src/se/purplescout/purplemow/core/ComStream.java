@@ -5,9 +5,9 @@ import java.io.IOException;
 public abstract class ComStream {
 
 	public static final byte SERVO_COMMAND = 0x2;
-	public static final byte MOTOR_RIGHT = 0;
-	public static final byte MOTOR_LEFT2 = 1;
-	public static final byte CUTTER = 2;
+	public static final byte SERVO1 = 0;
+	public static final byte SERVO2 = 1;
+	public static final byte SERVO3 = 2;
 
 	public static final byte RELAY_COMMAND = 0x3;
 	public static final byte RELAY1 = 0;

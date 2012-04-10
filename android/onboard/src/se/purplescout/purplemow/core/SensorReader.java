@@ -1,9 +1,11 @@
 package se.purplescout.purplemow.core;
 
 import java.io.IOException;
+
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.TextView;
 
 public class SensorReader implements Runnable {
 
@@ -15,14 +17,19 @@ public class SensorReader implements Runnable {
 	private byte hiB;
 	private byte loB;
 	private Integer latestBWFValue = 0;
+	private final TextView textView;
+	private boolean isRunning = true;
 
-	public SensorReader(ComStream comStream) {
+	public SensorReader(ComStream comStream, TextView textView) {
 		this.comStream = comStream;
+		this.textView = textView;
+
 	}
 
 	public void start() {
 		Thread thread = new Thread(null, this, "SensorReader");
 		thread.start();
+		logToTextView("SensorReader started");
 	}
 
 	public void connect(Handler handler) {
@@ -31,8 +38,16 @@ public class SensorReader implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		logToTextView("SensorReader running");
+		while (isRunning()) {
 			readSensor();
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
 	}
 
@@ -46,10 +61,13 @@ public class SensorReader implements Runnable {
 	}
 
 	private void readSensor() {
+		// logToTextView("Entering readSensor()");
 		try {
 			byte[] buffer = new byte[4];
 			comStream.read(buffer);
-//			Log.e(this.getClass().getName(), String.format("Värden från läsaren före bitshift\n MSB: %h | LSB: %h", buffer[2], buffer[3]));
+			logToTextView("Entering readSensor()");
+			// Log.e(this.getClass().getName(), String.format("Värden från läsaren före bitshift\n MSB: %h | LSB: %h",
+			// buffer[2], buffer[3]));
 			// int val = buffer[2] << 8;
 			// val += buffer[3];
 			byte hi = buffer[2];
@@ -57,10 +75,10 @@ public class SensorReader implements Runnable {
 			this.hiB = hi;
 			this.loB = lo;
 			int val = composeInt(hi, lo);
-//			Log.e(this.getClass().getName(), "Transformerat värde: " + val);
+			// Log.e(this.getClass().getName(), "Transformerat värde: " + val);
 			latestDistanceValue = val;
-
-			Message msg = messageQueue.obtainMessage(buffer[0], val, 0);
+			logToTextView("Sensor data read: " + val + ". Bytes are: " + buffer[0] + ", " + buffer[1] + ", " + buffer[2] + ", " + buffer[3] + ", ");
+			Message msg = messageQueue.obtainMessage(buffer[1], val, 0);
 			messageQueue.sendMessageDelayed(msg, 100);
 		} catch (IOException e) {
 			Log.e(this.getClass().getName(), e.getMessage());
@@ -89,6 +107,24 @@ public class SensorReader implements Runnable {
 
 	public byte getLoB() {
 		return loB;
+	}
+
+	private void logToTextView(final String msg) {
+		textView.post(new Runnable() {
+
+			@Override
+			public void run() {
+				textView.append(msg + "\n");
+			}
+		});
+	}
+
+	public boolean isRunning() {
+		return isRunning;
+	}
+
+	public void setRunning(boolean isRunning) {
+		this.isRunning = isRunning;
 	}
 
 }
