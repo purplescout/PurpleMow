@@ -15,7 +15,7 @@ public class SensorReader extends TimerTask {
 	private int nextSensorToRead;
 
 	private Integer latestDistanceValue = 0;
-	private Integer latestBWFValue = 0;
+	private Integer latestBWFValue = 1024;
 
 	public SensorReader(final ComStream comStream) {
 		this.comStream = comStream;
@@ -27,14 +27,14 @@ public class SensorReader extends TimerTask {
 				readSensor(latestDistanceValue);
 			}
 		});
-//		sensors.add(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				requestSensor(ComStream.BWF_SENSOR_LEFT);
-//				readSensor(latestBWFValue);
-//			}
-//		});
+		sensors.add(new Runnable() {
+
+			@Override
+			public void run() {
+				requestSensor(ComStream.BWF_SENSOR_LEFT);
+				readSensor(latestBWFValue);
+			}
+		});
 		//... etc
 	}
 

@@ -64,19 +64,26 @@ public class MainFSM implements Runnable {
 				Log.i(this.getClass().getName(), "Entering " + state + " state");
 				switch (state) {
 				case IDLE:
-					int val = sensorReader.getLatestDistanceValue();
-					Log.i(this.getClass().getName(), "Current Distance: " + Integer.toString(val));
-//					event = eventQueue.take();
-//					if (event.type == EventType.START) {
-//						motorFSMQueue.add(new Event(EventType.MOVE_FORWARD));
-//						Log.i(this.getClass().getName(), "Enter MOWING state");
-//						changeState(State.MOWING);
-//					}
+					event = eventQueue.take();
+					if (event.type == EventType.START) {
+						motorFSMQueue.add(new Event(EventType.MOVE_FORWARD));
+						Log.i(this.getClass().getName(), "Enter MOWING state");
+						changeState(State.MOWING);
+					}
 					break;
 				case MOWING:
-					val = sensorReader.getLatestDistanceValue();
-					Log.i(this.getClass().getName(), Integer.toString(val));
-					if (val < 100) {
+					int dist = sensorReader.getLatestDistanceValue();
+					int bwf = sensorReader.getLatestBWFValue();
+					Log.i(this.getClass().getName(), "dist = " + Integer.toString(dist));
+					Log.i(this.getClass().getName(), "bwf = " + Integer.toString(bwf));
+					text.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							
+						}
+					});
+					if (dist < 100 || bwf > 960) {
 						motorFSMQueue.add(new Event(EventType.AVOID_OBSTACLE_LEFT));
 						Log.i(this.getClass().getName(), "Enter AVOIDING_OBSTACLE state");
 						changeState(State.AVOIDING_OBSTACLE);
