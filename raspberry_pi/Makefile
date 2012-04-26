@@ -1,29 +1,32 @@
 
-CFLAGS=-ggdb -DSIMULATOR
-LDFLAGS=-pthread
-CXXFLAGS=$(CFLAGS)
+CFLAGS = -ggdb
+CFLAGS += -DSIMULATOR
+LDFLAGS = -pthread -lrt
+CXXFLAGS = $(CFLAGS)
 
 # unset VERBOSE to turn on verbosity
-VERBOSE=@
+VERBOSE = @
 
-CC_PATH=~/x-tools7h/arm-unknown-linux-gnueabi/bin
-CC_PREFIX=arm-unknown-linux-gnueabi-
-#CC=$(CC_PATH)/$(CC_PREFIX)gcc
-CC=gcc
+CC_PATH = ~/x-tools7h/arm-unknown-linux-gnueabi/bin
+CC_PREFIX = arm-unknown-linux-gnueabi-
+#CC = $(CC_PATH)/$(CC_PREFIX)gcc
+CC = gcc
 
-ECHO=echo
-RM=rm
+ECHO = echo
+RM = rm
 
-purplemow_src=purplemow.c \
-			  raspi_i2c.c \
-			  auto_management.c \
-			  cli.c \
-			  dcn.c
+purplemow_src = purplemow.c \
+				raspi_i2c.c \
+				auto_management.c \
+				cli.c \
+				dcn.c \
+				messages.c \
+				test_thread.c
 
-BIN=purplemow
-OBJ=$(purplemow_src:.c=.o)
+BIN = purplemow
+OBJ = $(purplemow_src:.c=.o)
 
-Q=$(VERBOSE)
+Q = $(VERBOSE)
 MAKEFLAGS += --no-print-directory
 
 all: $(BIN)

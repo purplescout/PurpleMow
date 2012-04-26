@@ -9,13 +9,22 @@
 #include <stdlib.h>  // exit
 
 #include "raspi_i2c.h"
+#include "../arduino/PurpleMow/commands.h"
 
 #define I2C_DEVICE "/dev/i2c-2"
 //#define I2C_DEVICE "/dev/i2c-4"
 #define I2C_ADDRESS 0x35
 
 int i2c_fd = -1;
+static struct timeval last_command;
 
+#ifdef SIMULATOR
+int purple_io_init()
+{
+    // Nothing to do in simulator
+    return 0;
+}
+#else
 int purple_io_init()
 {
     int res;
@@ -36,9 +45,38 @@ int purple_io_init()
         return 2;
     }
 
+    gettimeofday(&last_command, NULL);
+
     return 0;
 }
+#endif // SIMULATOR
 
+static int wait_for_command()
+{
+}
+
+#ifdef SIMULATOR
+int io_send_command(uint8_t* msg, int length)
+{
+    return 0;
+}
+#else
+int io_send_command(uint8_t* msg, int length)
+{
+    int res;
+
+    if ( length != MAX_MSG_SIZE )
+    {
+        return 1;
+    }
+
+    res = i2c_smbus_write_block_data(i2c_fd, CMD_I2C_MAGIC, length, msg);
+
+    return 0;
+}
+#endif // SIMULATOR
+
+#ifdef SIMULATOR
 int io_test_command_1(int i)
 {
     int res;
@@ -89,3 +127,4 @@ int io_test_command_2()
 
     return 0;
 }
+#endif // SIMULATOR
