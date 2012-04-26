@@ -1,114 +1,159 @@
 
+#include <stdio.h>
+#include <string.h>
+
 #include "communicator.h"
+#include "raspi_io.h"
 
 #define DELAY 1
-
-enum direction {
-    forward,
-    backward,
-    right,
-    left,
-    undefined,
-};
-
-enum command {
-    start,
-    stop,
-};
 
 struct communicator {
     enum direction direction;
     enum command motor;
+    int speed;
 };
 
-struct communicator this = { 0 };
+static struct communicator this = { 0 };
 
 static void move(enum direction direction);
 static void turn(enum direction direction);
+static int command_move(char *args);
 
-void communicator_init()
+error_code communicator_init()
 {
-    this.direction = undefined;
+    this.direction = direction_undefined;
+    this.motor = command_stop;
+    this.speed = 255;
+
+    cli_register_command("move", command_move);
+
+    return err_OK;
 }
 
-void move_forward()
+static int command_move(char *args)
 {
-    move(forward);
+    if ( strcmp("forward", args) == 0 ) {
+        move_forward();
+    } else if ( strcmp("backward", args) == 0 ) {
+        move_backward();
+    } else if ( strcmp("left", args) == 0 ) {
+        turn_left();
+    } else if ( strcmp("right", args) == 0 ) {
+        turn_right();
+    } else if ( strcmp("stop", args) == 0 ) {
+        stop();
+    } else if ( strncmp("speed", args, strlen("speed")) == 0 ) {
+        char *c;
+        int speed;
+        c = strchr(args, ' ');
+        if ( c != NULL ) {
+            *c = '\0';
+            c++;
+            speed = atoi(c);
+            this.speed = speed > 255 ? 255 : speed;
+            printf("New speed: %d\n", this.speed);
+        }
+    } else {
+        printf("Valid arguments: forward, backward, left, right, stop, speed [0-255]\n");
+    }
+    return 0;
 }
 
-void move_backward()
+error_code move_forward()
 {
-    move(backward);
+    move(direction_forward);
+    return err_OK;
 }
 
-void turn_left()
+error_code move_backward()
 {
-    turn(left);
+    move(direction_backward);
+    return err_OK;
 }
 
-void turn_right()
+error_code turn_left()
 {
-    turn(right);
+    turn(direction_left);
+    return err_OK;
+}
+
+error_code turn_right()
+{
+    turn(direction_right);
+    return err_OK;
 }
 
 static void move(enum direction direction)
 {
     if ( direction != this.direction )
     {
-        command_motor(left, stop);
-        command_motor(right, stop);
+        // Stop motors
+        command_motor(direction_left, command_stop, 0);
+        command_motor(direction_right, command_stop, 0);
 
         sleep(DELAY);
 
-        command_relay(left, direction);
-        command_relay(right, direction);
+        // Change direction on relays
+        command_relay(direction_left, direction);
+        command_relay(direction_right, direction);
 
         sleep(DELAY);
 
         this.direction = direction;
     }
 
-    command_motor(left, start);
-    command_motor(right, start);
+    // Move forward
+    command_motor(direction_left, command_start, this.speed);
+    command_motor(direction_right, command_start, this.speed);
 
-    this.motor = start;
+    this.motor = command_start;
 }
 
-void stop()
+error_code stop()
 {
-    command_motor(left, stop);
-    command_motor(right, stop);
+    command_motor(direction_left, command_stop, 0);
+    command_motor(direction_right, command_stop, 0);
 
-    this.motor = stop;
+    this.motor = command_stop;
+    return err_OK;
 }
 
 static void turn(enum direction direction)
 {
-    command_motor(left, stop);
-    command_motor(right, stop);
+    // Stop motors
+    command_motor(direction_left, command_stop, 0);
+    command_motor(direction_right, command_stop, 0);
 
     sleep(DELAY);
 
-    if ( this.direction == forward )
+    // Change direction on one relay
+    if ( this.direction == direction_forward )
     {
-        command_relay(direction == right ? right : left, backward);
+        command_relay(direction == direction_right ? direction_right : direction_left, direction_backward);
     }
 
-    if ( this.direction == backward )
+    if ( this.direction == direction_backward )
     {
-        command_relay(direction == right ? left : right, forward);
+        command_relay(direction == direction_right ? direction_left : direction_right, direction_forward);
     }
 
-    command_motor(left, start);
-    command_motor(right, start);
+    // Do the turn
+    command_motor(direction_left, command_start, this.speed);
+    command_motor(direction_right, command_start, this.speed);
 
     sleep(2);
 
-    command_relay(left, this.direction);
-    command_relay(right, this.direction);
+    // Stop
+    command_motor(direction_left, command_stop, 0);
+    command_motor(direction_right, command_stop, 0);
+
+    // Reset the relays
+    command_relay(direction_left, this.direction);
+    command_relay(direction_right, this.direction);
 
     sleep(DELAY);
 
-    command_motor(left, this.motor);
-    command_motor(right, this.motor);
+    // Continue forward
+    command_motor(direction_left, this.motor, this.speed);
+    command_motor(direction_right, this.motor, this.speed);
 }

@@ -10,14 +10,14 @@
 
 static void get_queue_name(enum queue queue_number, char* queue_name, int len);
 
-int message_open(struct message_item *this, enum queue queue_number)
+error_code message_open(struct message_item *this, enum queue queue_number)
 {
     char queue_name[32];
     mqd_t queue;
 
     if ( this == NULL )
     {
-        return -1;
+        return err_WRONG_ARGUMENT;
     }
 
     get_queue_name(queue_number, queue_name, sizeof(queue_name));
@@ -35,10 +35,10 @@ int message_open(struct message_item *this, enum queue queue_number)
     snprintf(this->name, sizeof(this->name), "%s", queue_name);
     this->queue_number = queue_number;
 
-    return 0;
+    return err_OK;
 }
 
-int message_send(char *buffer, int len, enum queue receive_queue)
+error_code message_send(char *buffer, int len, enum queue receive_queue)
 {
     char queue_name[32];
     mqd_t queue;
@@ -46,7 +46,7 @@ int message_send(char *buffer, int len, enum queue receive_queue)
 
     if ( len == 0 )
     {
-        return 0;
+        return err_OK;
     }
 
     get_queue_name(receive_queue, queue_name, sizeof(queue_name));
@@ -72,10 +72,10 @@ int message_send(char *buffer, int len, enum queue receive_queue)
         exit(1);
     }
 
-    return 0;
+    return err_OK;
 }
 
-int message_receive(struct message_item *this, char* buffer, int* len)
+error_code message_receive(struct message_item *this, char* buffer, int* len)
 {
     char* local_buffer;
     int local_len;
@@ -109,7 +109,7 @@ int message_receive(struct message_item *this, char* buffer, int* len)
 
     memcpy(buffer, local_buffer, *len);
 
-    return 0;
+    return err_OK;
 }
 
 static void get_queue_name(enum queue queue_number, char* queue_name, int len)

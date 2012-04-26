@@ -1,13 +1,15 @@
 #ifndef COMMUNICATOR_H
 #define COMMUNICATOR_H
 
-void communicator_init();
+#include "error_codes.h"
 
-void stop();
-void move_forward();
-void move_backward();
-void turn_left();
-void turn_right();
+error_code communicator_init();
+
+error_code stop();
+error_code move_forward();
+error_code move_backward();
+error_code turn_left();
+error_code turn_right();
 
 
 #endif // COMMUNICATOR_H

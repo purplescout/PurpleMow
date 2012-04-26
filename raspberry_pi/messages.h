@@ -3,6 +3,8 @@
 
 #include <mqueue.h>
 
+#include "error_codes.h"
+
 #define MESSAGE_SIZE 64
 
 enum queue
@@ -35,8 +37,8 @@ struct message_item
     mqd_t       queue;
 };
 
-int message_open(struct message_item *this, enum queue queue_number);
-int message_send(char *buffer, int len, enum queue receive_queue);
-int message_receive(struct message_item *this, char* buffer, int* len);
+error_code message_open(struct message_item *this, enum queue queue_number);
+error_code message_send(char *buffer, int len, enum queue receive_queue);
+error_code message_receive(struct message_item *this, char* buffer, int* len);
 
 #endif // MESSAGES_H

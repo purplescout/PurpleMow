@@ -15,12 +15,12 @@
 #define BUFFER_SIZE 1024
 
 static void* multicast_listen(void *threadid);
-static int parse_command(char *command);
+static error_code parse_command(char *command);
 
 static int fd = -1;
 static pthread_t thread;
 
-int multicast_init()
+error_code multicast_init()
 {
     struct ip_mreq mreq;
     int res;
@@ -31,7 +31,7 @@ int multicast_init()
     if ( fd == -1 )
     {
         perror("creating socket");
-        return -1;
+        return err_SOCKET;
     }
 
     memset(&addr, 0, sizeof(addr));
@@ -44,7 +44,7 @@ int multicast_init()
     if ( res == -1 )
     {
         perror("binding multicast socket");
-        return -1;
+        return err_SOCKET;
     }
 
     mreq.imr_multiaddr.s_addr = inet_addr(M_ADDRESS);
@@ -55,18 +55,19 @@ int multicast_init()
     if ( res == -1 )
     {
         perror("setsockopt on multicast socket");
-        return -1;
+        return err_CONFIGURE_DEVICE;
     }
+    return err_OK;
 }
 
-int multicast_start()
+error_code multicast_start()
 {
     int res;
 
     if ( fd == -1 )
     {
         fprintf(stderr, "Not initialized\n");
-        return -1;
+        return err_SOCKET;
     }
 
     res = pthread_create(&thread, NULL, multicast_listen, NULL);
@@ -74,10 +75,10 @@ int multicast_start()
     if ( res != 0 )
     {
         fprintf(stderr, "Failed to create thread\n");
-        return -1;
+        return err_THREAD;
     }
 
-    return 0;
+    return err_OK;
 }
 
 static void* multicast_listen(void *threadid)
@@ -105,7 +106,7 @@ static void* multicast_listen(void *threadid)
     }
 }
 
-static int parse_command(char *command)
+static error_code parse_command(char *command)
 {
     char buffer[128] = { 0 };
 
@@ -147,7 +148,7 @@ static int parse_command(char *command)
         if ( fd == -1 )
         {
             perror("creating socket");
-            return -1;
+            return err_SOCKET;
         }
 
         memset(&addr, 0, sizeof(addr));
@@ -159,4 +160,6 @@ static int parse_command(char *command)
 
         written = sendto(fd, buffer, strlen(buffer), 0, (struct sockaddr*)&addr, addrlen);
     }
+
+    return err_OK;
 }

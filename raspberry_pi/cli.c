@@ -19,8 +19,8 @@ struct cli_item
 // functions
 static void* cli_listen(void *threadid);
 static int parse_command(char *command);
-static int list_add(struct cli_item* item);
-static int list_remove(char *command);
+static error_code list_add(struct cli_item* item);
+static error_code list_remove(char *command);
 
 // cli commands
 static int command_help(char *args);
@@ -33,19 +33,20 @@ static struct cli_item* list_head;
 static pthread_t thread;
 static pthread_mutex_t list_mutex;
 
-int cli_init()
+error_code cli_init()
 {
     pthread_mutex_init(&list_mutex, NULL);
     list_head = NULL;
 
+    cli_register_command("?", command_help);
     cli_register_command("help", command_help);
     cli_register_command("echo", command_echo);
     cli_register_command("exit", command_exit);
 
-    return 0;
+    return err_OK;
 }
 
-int cli_start()
+error_code cli_start()
 {
     int res;
 
@@ -54,10 +55,10 @@ int cli_start()
     if ( res != 0 )
     {
         fprintf(stderr, "Failed to create thread\n");
-        return -1;
+        return err_THREAD;
     }
 
-    return 0;
+    return err_OK;
 }
 
 static void* cli_listen(void *threadid)
@@ -132,10 +133,10 @@ static int parse_command(char *command)
     }
 }
 
-static int list_add(struct cli_item* item)
+static error_code list_add(struct cli_item* item)
 {
     struct cli_item* current;
-    int result = 0;
+    int result = err_OK;
 
     pthread_mutex_lock(&list_mutex);
 
@@ -156,7 +157,7 @@ static int list_add(struct cli_item* item)
             {
                 // command already reigstered
                 current = NULL;
-                result = 1;
+                result = err_ALREADY_REGISTERED;
             }
             else if ( cmp < 0 )
             {
@@ -197,10 +198,10 @@ static int list_add(struct cli_item* item)
     return result;
 }
 
-static int list_remove(char *command)
+static error_code list_remove(char *command)
 {
     struct cli_item *current;
-    int result = 1;
+    int result = err_NOT_REGISTERED;
 
     pthread_mutex_lock(&list_mutex);
 
@@ -214,7 +215,7 @@ static int list_remove(char *command)
                 current->prev->next = current->next;
             if ( current->next != NULL )
                 current->next->prev = current->prev;
-            result = 0;
+            result = err_OK;
             current = NULL;
         }
     }
@@ -224,7 +225,7 @@ static int list_remove(char *command)
     return result;
 }
 
-int cli_register_command(char *command, int(*function)(char *arg))
+error_code cli_register_command(char *command, int(*function)(char *arg))
 {
     struct cli_item* new_cmd;
 
@@ -232,7 +233,7 @@ int cli_register_command(char *command, int(*function)(char *arg))
 
     if ( new_cmd == NULL )
     {
-        return 1;
+        return err_OUT_OF_MEMORY;
     }
 
     snprintf(new_cmd->command, sizeof(new_cmd->command), "%s", command);
@@ -241,7 +242,7 @@ int cli_register_command(char *command, int(*function)(char *arg))
     return list_add(new_cmd);
 }
 
-int cli_unregister_command(char *command)
+error_code cli_unregister_command(char *command)
 {
     return list_remove(command);
 }

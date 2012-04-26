@@ -12,12 +12,12 @@ char uuid[40] = { 0 };
 struct IP ip;
 static int initialized = 0;
 
-int dcn_init()
+error_code dcn_init()
 {
     if ( initialized )
     {
         fprintf(stderr, "DCN: Already initialized\n");
-        return -1;
+        return err_ALREADY_INITIALIZED;
     }
     // TODO: generate an uuid
     snprintf(uuid, sizeof(uuid) - 1, "12345678-1234-1234-1234-123456789012");
@@ -31,18 +31,20 @@ int dcn_init()
     snprintf(sysname, sizeof(sysname) - 1, "PurpleScout");
 
     initialized = 1;
+
+    return err_OK;
 }
 
-int dcn_get_ip(struct IP *buffer)
+error_code dcn_get_ip(struct IP *buffer)
 {
     if ( !initialized )
     {
-        return -1;
+        return err_NOT_INITIALIZED;
     }
 
     if ( buffer == NULL )
     {
-        return -1;
+        return err_WRONG_ARGUMENT;
     }
 
     buffer->ip[0] = ip.ip[0];
@@ -50,67 +52,67 @@ int dcn_get_ip(struct IP *buffer)
     buffer->ip[2] = ip.ip[2];
     buffer->ip[3] = ip.ip[3];
 
-    return 0;
+    return err_OK;
 }
 
-int dcn_get_uuid(char *buffer, int length)
+error_code dcn_get_uuid(char *buffer, int length)
 {
     if ( !initialized )
     {
-        return -1;
+        return err_NOT_INITIALIZED;
     }
 
     if ( buffer == NULL )
     {
-        return -1;
+        return err_WRONG_ARGUMENT;
     }
 
     if ( length < strlen(uuid) + 1 )
     {
-        return -1;
+        return err_BUFFER_TOO_SMALL;
     }
 
     strncpy(buffer, uuid, length);
 
-    return 0;
+    return err_OK;
 }
 
-int dcn_get_version(int *major, int *minor)
+error_code dcn_get_version(int *major, int *minor)
 {
     if ( major == NULL )
     {
-        return -1;
+        return err_WRONG_ARGUMENT;
     }
 
     if ( minor == NULL )
     {
-        return -1;
+        return err_WRONG_ARGUMENT;
     }
 
     *major = MAJOR_VERSION;
     *minor = MINOR_VERSION;
 
-    return 0;
+    return err_OK;
 }
 
-int dcn_get_sysname(char *buffer, int length)
+error_code dcn_get_sysname(char *buffer, int length)
 {
     if ( !initialized )
     {
-        return -1;
+        return err_NOT_INITIALIZED;
     }
 
     if ( buffer == NULL )
     {
-        return -1;
+        return err_WRONG_ARGUMENT;
     }
 
     if ( length < strlen(sysname) + 1 )
     {
-        return -1;
+        return err_BUFFER_TOO_SMALL;
     }
 
     strncpy(buffer, sysname, length);
 
-    return 0;
+    return err_OK;
 }

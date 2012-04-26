@@ -68,4 +68,5 @@ static int command_sendmsg(char* args)
         printf("Sending to thread: %s\n", args);
         message_send(args, strlen(args) + 1, Q_TEST);
     }
+    return 0;
 }

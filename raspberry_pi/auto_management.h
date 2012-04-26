@@ -1,7 +1,9 @@
 #ifndef AUTO_MANAGEMENT_H
 #define AUTO_MANAGEMENT_H
 
-int multicast_init(void);
-int multicast_start(void);
+#include "error_codes.h"
+
+error_code multicast_init(void);
+error_code multicast_start(void);
 
 #endif // AUTO_MANAGEMENT_H
