@@ -281,3 +281,34 @@ static int command_echo(char *args)
 
     return 0;
 }
+
+int cli_read_int(char *args)
+{
+    char *start;
+    char *end;
+    int value;
+
+    start = strchr(args, ' ');
+
+    if ( start == NULL ) {
+        // nothing in string
+        return 0;
+    }
+
+    end = strchr(start+1, ' ');
+
+    if ( end != NULL ) {
+        // temporarily end the string here
+        *end = '\0';
+    }
+
+    value = atoi(start+1);
+
+    if ( end != NULL ) {
+        // temporarily end the string here
+        *end = ' ';
+    }
+
+    return value;
+}
+

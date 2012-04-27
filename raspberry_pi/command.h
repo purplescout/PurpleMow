@@ -14,4 +14,13 @@ enum command {
     command_stop,
 };
 
+enum sensor {
+    sensor_range,
+    sensor_moist,
+    sensor_voltage,
+    sensor_bwf_left,
+    sensor_bwf_right,
+    sensor_bwf_reference,
+};
+
 #endif // COMMAND_H

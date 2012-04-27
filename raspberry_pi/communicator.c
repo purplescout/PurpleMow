@@ -37,6 +37,8 @@ static void* communicator_worker(void *threadid);
 
 static void move(enum direction direction);
 static void turn(enum direction direction);
+
+// cli commands
 static int command_move(char *args);
 
 static error_code move_forward();
@@ -174,16 +176,9 @@ static int command_move(char *args)
     } else if ( strcmp("stop", args) == 0 ) {
         communicator_stop();
     } else if ( strncmp("speed", args, strlen("speed")) == 0 ) {
-        char *c;
         int speed;
-        c = strchr(args, ' ');
-        if ( c != NULL ) {
-            *c = '\0';
-            c++;
-            speed = atoi(c);
-            communicator_set_speed(speed);
-            printf("New speed: %d\n", this.speed);
-        }
+        speed = cli_read_int(args);
+        communicator_set_speed(speed);
     } else {
         printf("Valid arguments: forward, backward, left, right, stop, speed [0-255]\n");
     }
@@ -225,14 +220,14 @@ static void move(enum direction direction)
     if ( direction != this.direction )
     {
         // Stop motors
-        command_motor(direction_left, command_stop, 0);
-        command_motor(direction_right, command_stop, 0);
+        io_command_motor(direction_left, command_stop, 0);
+        io_command_motor(direction_right, command_stop, 0);
 
         sleep(DELAY);
 
         // Change direction on relays
-        command_relay(direction_left, direction);
-        command_relay(direction_right, direction);
+        io_command_relay(direction_left, direction);
+        io_command_relay(direction_right, direction);
 
         sleep(DELAY);
 
@@ -240,16 +235,16 @@ static void move(enum direction direction)
     }
 
     // Move forward
-    command_motor(direction_left, command_start, this.speed);
-    command_motor(direction_right, command_start, this.speed);
+    io_command_motor(direction_left, command_start, this.speed);
+    io_command_motor(direction_right, command_start, this.speed);
 
     this.motor = command_start;
 }
 
 static error_code stop()
 {
-    command_motor(direction_left, command_stop, 0);
-    command_motor(direction_right, command_stop, 0);
+    io_command_motor(direction_left, command_stop, 0);
+    io_command_motor(direction_right, command_stop, 0);
 
     this.motor = command_stop;
     return err_OK;
@@ -258,39 +253,39 @@ static error_code stop()
 static void turn(enum direction direction)
 {
     // Stop motors
-    command_motor(direction_left, command_stop, 0);
-    command_motor(direction_right, command_stop, 0);
+    io_command_motor(direction_left, command_stop, 0);
+    io_command_motor(direction_right, command_stop, 0);
 
     sleep(DELAY);
 
     // Change direction on one relay
     if ( this.direction == direction_forward )
     {
-        command_relay(direction == direction_right ? direction_right : direction_left, direction_backward);
+        io_command_relay(direction == direction_right ? direction_right : direction_left, direction_backward);
     }
 
     if ( this.direction == direction_backward )
     {
-        command_relay(direction == direction_right ? direction_left : direction_right, direction_forward);
+        io_command_relay(direction == direction_right ? direction_left : direction_right, direction_forward);
     }
 
     // Do the turn
-    command_motor(direction_left, command_start, this.speed);
-    command_motor(direction_right, command_start, this.speed);
+    io_command_motor(direction_left, command_start, this.speed);
+    io_command_motor(direction_right, command_start, this.speed);
 
     sleep(2);
 
     // Stop
-    command_motor(direction_left, command_stop, 0);
-    command_motor(direction_right, command_stop, 0);
+    io_command_motor(direction_left, command_stop, 0);
+    io_command_motor(direction_right, command_stop, 0);
 
     // Reset the relays
-    command_relay(direction_left, this.direction);
-    command_relay(direction_right, this.direction);
+    io_command_relay(direction_left, this.direction);
+    io_command_relay(direction_right, this.direction);
 
     sleep(DELAY);
 
     // Continue forward
-    command_motor(direction_left, this.motor, this.speed);
-    command_motor(direction_right, this.motor, this.speed);
+    io_command_motor(direction_left, this.motor, this.speed);
+    io_command_motor(direction_right, this.motor, this.speed);
 }
