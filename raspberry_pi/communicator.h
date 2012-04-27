@@ -4,12 +4,13 @@
 #include "error_codes.h"
 
 error_code communicator_init();
+error_code communicator_start();
 
-error_code stop();
-error_code move_forward();
-error_code move_backward();
-error_code turn_left();
-error_code turn_right();
+error_code communicator_stop();
+error_code communicator_move_forward();
+error_code communicator_move_backward();
+error_code communicator_turn_left();
+error_code communicator_turn_right();
 
 
 #endif // COMMUNICATOR_H

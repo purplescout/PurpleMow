@@ -4,6 +4,7 @@
 #include <stdlib.h>  // exit
 #include <pthread.h>
 
+#include "error_codes.h"
 #include "cli.h"
 
 #define BUFFER_SIZE 256
@@ -65,12 +66,16 @@ static void* cli_listen(void *threadid)
 {
     char buffer[BUFFER_SIZE] = { 0 };
 
-    while ( 1 )
-    {
+    while ( 1 ) {
+        int result;
         printf("> ");
         fgets(buffer, sizeof(buffer), stdin);
 
-        parse_command(buffer);
+        result = parse_command(buffer);
+
+        if ( result == err_UNKNOWN_COMMAND ) {
+            printf("Unknown command: %s\n", buffer);
+        }
     }
 }
 
@@ -93,14 +98,16 @@ static int parse_command(char *command)
         size--;
     }
 
+    if ( strlen(command) == 0 ) {
+        return err_OK;
+    }
+
     i = 0;
-    while ( command[i] != ' ' )
-    {
+    while ( command[i] != ' ' ) {
         i++;
     }
 
-    if ( i+1 < size )
-    {
+    if ( i+1 < size ) {
         command[i] = '\0';
         args = &command[i+1];
     }
@@ -108,29 +115,25 @@ static int parse_command(char *command)
     pthread_mutex_lock(&list_mutex);
 
     current = list_head;
-    while ( current != NULL )
-    {
-        if ( strcmp(command, current->command) == 0)
-        {
+    while ( current != NULL ) {
+        if ( strcmp(command, current->command) == 0) {
             function = current->function;
             current = NULL;
         }
-        else
-        {
+        else {
             current = current->next;
         }
     }
 
     pthread_mutex_unlock(&list_mutex);
 
-    if ( function == NULL )
-    {
-        printf("Unknown command: %s\n", command);
+    if ( function == NULL ) {
+        return err_UNKNOWN_COMMAND;
     }
-    else
-    {
-        function(args);
-    }
+
+    function(args);
+
+    return err_OK;
 }
 
 static error_code list_add(struct cli_item* item)

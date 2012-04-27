@@ -38,7 +38,7 @@ error_code message_open(struct message_item *this, enum queue queue_number)
     return err_OK;
 }
 
-error_code message_send(char *buffer, int len, enum queue receive_queue)
+error_code message_send(void *buffer, int len, enum queue receive_queue)
 {
     char queue_name[32];
     mqd_t queue;
@@ -75,7 +75,7 @@ error_code message_send(char *buffer, int len, enum queue receive_queue)
     return err_OK;
 }
 
-error_code message_receive(struct message_item *this, char* buffer, int* len)
+error_code message_receive(struct message_item *this, void* buffer, int* len)
 {
     char* local_buffer;
     int local_len;

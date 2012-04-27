@@ -14,6 +14,7 @@ typedef enum error_code {
     err_OUT_OF_MEMORY,
     err_ALREADY_REGISTERED,
     err_NOT_REGISTERED,
+    err_UNKNOWN_COMMAND,
 } error_code;
 
 #define SUCCESS(x) (x) == err_OK

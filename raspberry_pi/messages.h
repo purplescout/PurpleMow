@@ -10,6 +10,7 @@
 enum queue
 {
     Q_TEST,
+    Q_COMMUNICATOR,
 };
 
 enum queue_prio
@@ -38,7 +39,7 @@ struct message_item
 };
 
 error_code message_open(struct message_item *this, enum queue queue_number);
-error_code message_send(char *buffer, int len, enum queue receive_queue);
-error_code message_receive(struct message_item *this, char* buffer, int* len);
+error_code message_send(void *buffer, int len, enum queue receive_queue);
+error_code message_receive(struct message_item *this, void* buffer, int* len);
 
 #endif // MESSAGES_H

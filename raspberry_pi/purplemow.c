@@ -12,7 +12,7 @@
 #define DO_I2C      1
 #define DO_COMM     1
 #define DO_NET      0
-#define DO_THREADS  0
+#define DO_TEST_THREADS  0
 
 int main(int argc, char **argv)
 {
@@ -27,6 +27,10 @@ int main(int argc, char **argv)
     }
 #endif // DO_ARGS
 
+    /*************
+     *  I N I T  *
+     *************/
+
     cli_init();
 
 #if DO_I2C
@@ -35,19 +39,27 @@ int main(int argc, char **argv)
 #endif // DO_I2C
 
 #if DO_COMM
-    // communicator
     communicator_init();
 #endif // DO_COMM
 
-#if DO_THREADS
+#if DO_TEST_THREADS
     test_thread_init();
-#endif // DO_THREADS
+#endif // DO_TEST_THREADS
+
+    /**************
+     *  S T A R T *
+     **************/
 
     cli_start();
 
-#if DO_THREADS
+#if DO_COMM
+    communicator_start();
+#endif // DO_COMM
+
+
+#if DO_TEST_THREADS
     test_thread_start();
-#endif // DO_THREADS
+#endif // DO_TEST_THREADS
 
 
 #if DO_NET
