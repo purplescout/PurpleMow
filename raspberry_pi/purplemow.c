@@ -13,6 +13,7 @@
 #define DO_COMM     1
 #define DO_NET      0
 #define DO_TEST_THREADS  0
+#define DO_SEN_RANGE 1
 
 int main(int argc, char **argv)
 {
@@ -42,6 +43,15 @@ int main(int argc, char **argv)
     communicator_init();
 #endif // DO_COMM
 
+#if DO_SEN_RANGE
+    sensor_range_init();
+#endif // DO_SEN_RANGE
+
+#if DO_NET
+    dcn_init();
+    multicast_init();
+#endif // DO_NET
+
 #if DO_TEST_THREADS
     test_thread_init();
 #endif // DO_TEST_THREADS
@@ -61,11 +71,12 @@ int main(int argc, char **argv)
     test_thread_start();
 #endif // DO_TEST_THREADS
 
+#if DO_SEN_RANGE
+    sensor_range_start();
+#endif // DO_SEN_RANGE
 
 #if DO_NET
-    dcn_init();
-
-    multicast_init();
+    dcn_start();
     multicast_start();
 #endif // DO_NET
 

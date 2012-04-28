@@ -1,8 +1,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <pthread.h>
 
+#include "thread.h"
 #include "messages.h"
 #include "communicator.h"
 #include "raspi_io.h"
@@ -16,10 +16,14 @@ enum msg_communicator {
     msg_right,
     msg_speed,
     msg_stop,
+    msg_sensor,
 };
 
 struct communicator_message {
+    enum msg_type           type;
     enum msg_communicator   message;
+    enum sensor             sensor;
+    enum queue              queue;
     int                     data;
 };
 
@@ -33,7 +37,7 @@ struct communicator {
 
 static struct communicator this = { 0 };
 
-static void* communicator_worker(void *threadid);
+static void* communicator_worker(void *data);
 
 static void move(enum direction direction);
 static void turn(enum direction direction);
@@ -47,6 +51,7 @@ static error_code turn_left();
 static error_code turn_right();
 static error_code set_speed(int speed);
 static error_code stop();
+static error_code sensor(enum sensor sensor, enum queue rsp_queue);
 
 error_code communicator_init()
 {
@@ -63,19 +68,18 @@ error_code communicator_init()
 
 error_code communicator_start()
 {
-    int res;
+    error_code result;
 
-    res = pthread_create(&this.thread, NULL, communicator_worker, NULL);
+    result = thread_start(&this.thread, communicator_worker);
 
-    if ( res != 0 ) {
-        fprintf(stderr, "Failed to create thread\n");
-        return err_THREAD;
+    if ( FAILURE(result) ) {
+        return result;
     }
 
     return err_OK;
 }
 
-static void* communicator_worker(void *threadid)
+static void* communicator_worker(void *data)
 {
     struct communicator_message msg;
     int len;
@@ -107,6 +111,9 @@ static void* communicator_worker(void *threadid)
                 case msg_stop:
                     stop();
                     break;
+                case msg_sensor:
+                    sensor(msg.sensor, msg.queue);
+                    break;
                 default:
                     break;
             }
@@ -114,9 +121,21 @@ static void* communicator_worker(void *threadid)
     }
 }
 
+error_code communicator_read(enum sensor sensor, enum queue rsp_queue)
+{
+    struct communicator_message msg;
+    msg.type = MSG_COMMUNICATOR;
+    msg.message = msg_sensor;
+    msg.sensor = sensor;
+    msg.queue = rsp_queue;
+    message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
+    return err_OK;
+}
+
 error_code communicator_set_speed(int speed)
 {
     struct communicator_message msg;
+    msg.type = MSG_COMMUNICATOR;
     msg.message = msg_speed;
     msg.data = speed;
     message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
@@ -126,6 +145,7 @@ error_code communicator_set_speed(int speed)
 error_code communicator_stop()
 {
     struct communicator_message msg;
+    msg.type = MSG_COMMUNICATOR;
     msg.message = msg_stop;
     message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
     return err_OK;
@@ -134,6 +154,7 @@ error_code communicator_stop()
 error_code communicator_move_forward()
 {
     struct communicator_message msg;
+    msg.type = MSG_COMMUNICATOR;
     msg.message = msg_forward;
     message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
     return err_OK;
@@ -142,6 +163,7 @@ error_code communicator_move_forward()
 error_code communicator_move_backward()
 {
     struct communicator_message msg;
+    msg.type = MSG_COMMUNICATOR;
     msg.message = msg_backward;
     message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
     return err_OK;
@@ -150,6 +172,7 @@ error_code communicator_move_backward()
 error_code communicator_turn_left()
 {
     struct communicator_message msg;
+    msg.type = MSG_COMMUNICATOR;
     msg.message = msg_left;
     message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
     return err_OK;
@@ -158,6 +181,7 @@ error_code communicator_turn_left()
 error_code communicator_turn_right()
 {
     struct communicator_message msg;
+    msg.type = MSG_COMMUNICATOR;
     msg.message = msg_right;
     message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
     return err_OK;
@@ -239,6 +263,22 @@ static void move(enum direction direction)
     io_command_motor(direction_right, command_start, this.speed);
 
     this.motor = command_start;
+}
+
+static error_code sensor(enum sensor sensor, enum queue rsp_queue)
+{
+    int value = 0;
+    struct msg_sensor_data msg;
+
+    io_command_read(sensor, &value);
+
+    msg.type = MSG_SENSOR_DATA;
+    msg.sensor = sensor;
+    msg.value = value;
+
+    message_send(&msg, sizeof(msg), rsp_queue);
+
+    return err_OK;
 }
 
 static error_code stop()

@@ -4,8 +4,8 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdio.h>
-#include <pthread.h>
 
+#include "thread.h"
 #include "auto_management.h"
 #include "dcn.h"
 
@@ -14,11 +14,15 @@
 #define M_ADDRESS "225.0.0.45"
 #define BUFFER_SIZE 1024
 
+struct multicast {
+    int         fd;
+    pthread_t   thread;
+};
+
 static void* multicast_listen(void *threadid);
 static error_code parse_command(char *command);
 
-static int fd = -1;
-static pthread_t thread;
+static struct multicast this;
 
 error_code multicast_init()
 {
@@ -26,9 +30,9 @@ error_code multicast_init()
     int res;
     struct sockaddr_in addr;
 
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    this.fd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    if ( fd == -1 )
+    if ( this.fd == -1 )
     {
         perror("creating socket");
         return err_SOCKET;
@@ -39,7 +43,7 @@ error_code multicast_init()
     addr.sin_port = htons(M_PORT);
     addr.sin_addr.s_addr = inet_addr(M_ADDRESS);
 
-    res = bind(fd,(struct sockaddr *)&addr, sizeof(addr));
+    res = bind(this.fd,(struct sockaddr *)&addr, sizeof(addr));
 
     if ( res == -1 )
     {
@@ -50,7 +54,7 @@ error_code multicast_init()
     mreq.imr_multiaddr.s_addr = inet_addr(M_ADDRESS);
     mreq.imr_interface.s_addr = INADDR_ANY;
 
-    res = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+    res = setsockopt(this.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
     if ( res == -1 )
     {
@@ -62,20 +66,19 @@ error_code multicast_init()
 
 error_code multicast_start()
 {
-    int res;
+    error_code result;
 
-    if ( fd == -1 )
+    if ( this.fd == -1 )
     {
         fprintf(stderr, "Not initialized\n");
         return err_SOCKET;
     }
 
-    res = pthread_create(&thread, NULL, multicast_listen, NULL);
 
-    if ( res != 0 )
-    {
-        fprintf(stderr, "Failed to create thread\n");
-        return err_THREAD;
+    result = thread_start(&this.thread, multicast_listen);
+
+    if ( FAILURE(result) ) {
+        return result;
     }
 
     return err_OK;
@@ -92,7 +95,7 @@ static void* multicast_listen(void *threadid)
     {
         addrlen = sizeof(addr);
 
-        read = recvfrom(fd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&addr, &addrlen);
+        read = recvfrom(this.fd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&addr, &addrlen);
 
         if ( read < sizeof(buffer) )
         {

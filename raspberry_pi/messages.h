@@ -11,6 +11,12 @@ enum queue
 {
     Q_TEST,
     Q_COMMUNICATOR,
+    Q_SENSOR_RANGE,
+};
+
+enum msg_type {
+    MSG_COMMUNICATOR,
+    MSG_SENSOR_DATA,
 };
 
 enum queue_prio

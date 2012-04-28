@@ -35,6 +35,11 @@ error_code dcn_init()
     return err_OK;
 }
 
+error_code dcn_start()
+{
+    return err_OK;
+}
+
 error_code dcn_get_ip(struct IP *buffer)
 {
     if ( !initialized )

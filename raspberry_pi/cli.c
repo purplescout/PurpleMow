@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>  // exit
-#include <pthread.h>
 
+#include "thread.h"
 #include "error_codes.h"
 #include "cli.h"
 
@@ -15,6 +15,11 @@ struct cli_item
     int                 (*function)(char *arg);
     struct cli_item*    next;
     struct cli_item*    prev;
+};
+
+struct cli {
+    pthread_t       thread;
+    pthread_mutex_t list_mutex;
 };
 
 // functions
@@ -31,12 +36,11 @@ static int command_echo(char *args);
 // private variables
 static struct cli_item* list_head;
 
-static pthread_t thread;
-static pthread_mutex_t list_mutex;
+static struct cli this;
 
 error_code cli_init()
 {
-    pthread_mutex_init(&list_mutex, NULL);
+    pthread_mutex_init(&this.list_mutex, NULL);
     list_head = NULL;
 
     cli_register_command("?", command_help);
@@ -49,14 +53,12 @@ error_code cli_init()
 
 error_code cli_start()
 {
-    int res;
+    error_code result;
 
-    res = pthread_create(&thread, NULL, cli_listen, NULL);
+    result = thread_start(&this.thread, cli_listen);
 
-    if ( res != 0 )
-    {
-        fprintf(stderr, "Failed to create thread\n");
-        return err_THREAD;
+    if ( FAILURE(result) ) {
+        return result;
     }
 
     return err_OK;
@@ -112,7 +114,7 @@ static int parse_command(char *command)
         args = &command[i+1];
     }
 
-    pthread_mutex_lock(&list_mutex);
+    pthread_mutex_lock(&this.list_mutex);
 
     current = list_head;
     while ( current != NULL ) {
@@ -125,7 +127,7 @@ static int parse_command(char *command)
         }
     }
 
-    pthread_mutex_unlock(&list_mutex);
+    pthread_mutex_unlock(&this.list_mutex);
 
     if ( function == NULL ) {
         return err_UNKNOWN_COMMAND;
@@ -141,7 +143,7 @@ static error_code list_add(struct cli_item* item)
     struct cli_item* current;
     int result = err_OK;
 
-    pthread_mutex_lock(&list_mutex);
+    pthread_mutex_lock(&this.list_mutex);
 
     if ( list_head == NULL )
     {
@@ -196,7 +198,7 @@ static error_code list_add(struct cli_item* item)
         } while ( current != NULL );
     }
 
-    pthread_mutex_unlock(&list_mutex);
+    pthread_mutex_unlock(&this.list_mutex);
 
     return result;
 }
@@ -206,7 +208,7 @@ static error_code list_remove(char *command)
     struct cli_item *current;
     int result = err_NOT_REGISTERED;
 
-    pthread_mutex_lock(&list_mutex);
+    pthread_mutex_lock(&this.list_mutex);
 
     current = list_head;
     while ( current != NULL )
@@ -223,7 +225,7 @@ static error_code list_remove(char *command)
         }
     }
 
-    pthread_mutex_unlock(&list_mutex);
+    pthread_mutex_unlock(&this.list_mutex);
 
     return result;
 }
@@ -254,7 +256,7 @@ static int command_help(char *args)
 {
     struct cli_item *current;
 
-    pthread_mutex_lock(&list_mutex);
+    pthread_mutex_lock(&this.list_mutex);
 
     current = list_head;
     while ( current != NULL )
@@ -263,7 +265,7 @@ static int command_help(char *args)
         current = current->next;
     }
 
-    pthread_mutex_unlock(&list_mutex);
+    pthread_mutex_unlock(&this.list_mutex);
 
     return 0;
 }

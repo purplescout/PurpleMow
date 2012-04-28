@@ -2,11 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <pthread.h>
 
+#include "error_codes.h"
+#include "thread.h"
 #include "test_thread.h"
 #include "messages.h"
 #include "cli.h"
+
+struct test_thread {
+    pthread_t           thread;
+    struct message_item message_handle;
+};
 
 // private functions
 static void* worker(void *threadid);
@@ -18,29 +24,28 @@ static int command_sendmsg(char* args);
 static pthread_t thread;
 static pthread_mutex_t list_mutex;
 
-static struct message_item message_handle;
 
-int test_thread_init()
+static struct test_thread this;
+
+error_code test_thread_init()
 {
     cli_register_command("send", command_sendmsg);
-    message_open(&message_handle, Q_TEST);
+    message_open(&this.message_handle, Q_TEST);
 
-    return 0;
+    return err_OK;
 }
 
-int test_thread_start()
+error_code test_thread_start()
 {
-    int res;
+    error_code result;
 
-    res = pthread_create(&thread, NULL, worker, NULL);
+    result = thread_start(&this.thread, worker);
 
-    if ( res != 0 )
-    {
-        fprintf(stderr, "Failed to create thread\n");
-        return -1;
+    if ( FAILURE(result) ) {
+        return result;
     }
 
-    return 0;
+    return err_OK;
 }
 
 static void* worker(void *threadid)
@@ -52,7 +57,7 @@ static void* worker(void *threadid)
     while ( 1 )
     {
         len = sizeof(buffer);
-        result = message_receive(&message_handle, buffer, &len);
+        result = message_receive(&this.message_handle, buffer, &len);
 
         if (result == 0)
         {
