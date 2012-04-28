@@ -1,10 +1,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "raspi_io.h"
 #include "auto_management.h"
 #include "dcn.h"
+#include "messages.h"
 
 #include "test_thread.h"
 
@@ -14,6 +16,14 @@
 #define DO_NET      0
 #define DO_TEST_THREADS  0
 #define DO_SEN_RANGE 1
+
+static void process_events();
+
+struct purplemow {
+    struct message_item message_handler;
+};
+
+static struct purplemow this;
 
 int main(int argc, char **argv)
 {
@@ -80,8 +90,24 @@ int main(int argc, char **argv)
     multicast_start();
 #endif // DO_NET
 
+    process_events();
+}
+
+static void process_events()
+{
+    error_code result;
+    char msg[128];
+    int len;
+
+    result = message_open(&this.message_handler, Q_MAIN);
+
     while ( 1 )
     {
-        sleep(30);
+        memset(&msg, 0, sizeof(msg) );
+        len = sizeof(msg);
+        result = message_receive(&this.message_handler, &msg, &len);
+
+        if ( SUCCESS(result) ) {
+        }
     }
 }

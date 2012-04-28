@@ -68,8 +68,7 @@ static void* sensor_range_worker(void *data)
         len = sizeof(msg);
         result = message_receive(&this.message_handle, &msg, &len);
 
-        if ( SUCCESS(result) )
-        {
+        if ( SUCCESS(result) ) {
         }
     }
 }

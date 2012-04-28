@@ -9,6 +9,7 @@
 
 enum queue
 {
+    Q_MAIN,
     Q_TEST,
     Q_COMMUNICATOR,
     Q_SENSOR_RANGE,
