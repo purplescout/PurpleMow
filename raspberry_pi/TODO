@@ -1,5 +1,5 @@
 Makefile:
-[ ] .d files
+[x] .d files
 
 IO:
 2 relays
@@ -7,7 +7,6 @@ IO:
 1 blade
 
 remote cli:
-[ ] proprietary?
 [ ] web page
 
 multicast:
@@ -18,10 +17,24 @@ multicast:
 
 dcn:
 [ ] generera uuid
-[ ] satt sysname
-[ ] hamta ip
-[ ] satta ip, manuellt/dhcp
-[ ] versionsnummer fran git
+[ ] set sysname
+[x] get ip
+[ ] set ip, manually/dhcp
+[ ] version number from git?
 
+sensors:
+[ ] poll range
+[ ] bwf
+
+messages:
+[ ] generic message, head and body
+[ ] head looks the same for all messages
+[ ] head contains length of body
+
+main:
+[ ] getopts
+[ ] detach
+[ ] handle range data
+[ ] send commands
 
 [ ] 

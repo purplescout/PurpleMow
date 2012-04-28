@@ -134,10 +134,10 @@ static error_code parse_command(char *command)
                                          uuid,
                                          major,
                                          minor,
-                                         ip.ip[0],
-                                         ip.ip[1],
-                                         ip.ip[2],
-                                         ip.ip[3]);
+                                         ip.address.v4[0],
+                                         ip.address.v4[1],
+                                         ip.address.v4[2],
+                                         ip.address.v4[3]);
     }
 
     if ( strlen(buffer) > 0 )

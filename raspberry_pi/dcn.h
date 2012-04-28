@@ -1,10 +1,25 @@
 #ifndef DCN_H
 #define DCN_H
 
+#include <stdint.h>
+
 #include "error_codes.h"
 
+enum ip_family {
+    ip_family_4,
+    ip_family_6,
+};
+
 struct IP {
-    unsigned char ip[4];
+    enum ip_family  family;
+    union {
+        uint8_t     v4[4];
+        uint8_t     v6[16];
+    } address;
+    union {
+        uint8_t     v4[4];
+        uint8_t     v6[16];
+    } netmask;
 };
 
 error_code dcn_init();

@@ -6,8 +6,7 @@
 #include "messages.h"
 #include "poller.h"
 
-#define POLL_INTERVAL_SEC   0
-#define POLL_INTERVAL_USEC  500000
+#define POLL_INTERVAL   500000
 
 struct sensor_range {
     struct message_item message_handle;
@@ -32,7 +31,7 @@ error_code sensor_range_init()
     if ( FAILURE(result) )
         return result;
 
-    result = poller_create(&this.poller, POLL_INTERVAL_SEC, POLL_INTERVAL_USEC, sensor_range_poll, NULL);
+    result = poller_create(&this.poller, poller_sleep_usec, POLL_INTERVAL, sensor_range_poll, NULL);
 
     if ( FAILURE(result) )
         return result;

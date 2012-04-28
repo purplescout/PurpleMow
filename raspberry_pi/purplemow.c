@@ -13,6 +13,7 @@
 #define DO_ARGS     0
 #define DO_I2C      1
 #define DO_COMM     1
+#define DO_DCN      1
 #define DO_NET      0
 #define DO_TEST_THREADS  0
 #define DO_SEN_RANGE 1
@@ -57,8 +58,11 @@ int main(int argc, char **argv)
     sensor_range_init();
 #endif // DO_SEN_RANGE
 
-#if DO_NET
+#if DO_DCN
     dcn_init();
+#endif // DO_DCN
+
+#if DO_NET
     multicast_init();
 #endif // DO_NET
 
@@ -85,8 +89,11 @@ int main(int argc, char **argv)
     sensor_range_start();
 #endif // DO_SEN_RANGE
 
-#if DO_NET
+#if DO_DCN
     dcn_start();
+#endif // DO_DCN
+
+#if DO_NET
     multicast_start();
 #endif // DO_NET
 
