@@ -23,7 +23,7 @@ struct cli {
 };
 
 // functions
-static void* cli_listen(void *threadid);
+static void* cli_listen(void *data);
 static int parse_command(char *command);
 static error_code list_add(struct cli_item* item);
 static error_code list_remove(char *command);
@@ -64,7 +64,7 @@ error_code cli_start()
     return err_OK;
 }
 
-static void* cli_listen(void *threadid)
+static void* cli_listen(void *data)
 {
     char buffer[BUFFER_SIZE] = { 0 };
 

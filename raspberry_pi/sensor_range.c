@@ -4,20 +4,38 @@
 #include "error_codes.h"
 #include "communicator.h"
 #include "messages.h"
+#include "poller.h"
+
+#define POLL_INTERVAL_SEC   0
+#define POLL_INTERVAL_USEC  500000
 
 struct sensor_range {
     struct message_item message_handle;
     pthread_t           thread;
+    struct poller       poller;
 };
 
 // Thread
 static void* sensor_range_worker(void *data);
 
+// Poller
+static error_code sensor_range_poll(void *data);
+
 static struct sensor_range this;
 
 error_code sensor_range_init()
 {
-    message_open(&this.message_handle, Q_SENSOR_RANGE);
+    error_code result;
+
+    result = message_open(&this.message_handle, Q_SENSOR_RANGE);
+
+    if ( FAILURE(result) )
+        return result;
+
+    result = poller_create(&this.poller, POLL_INTERVAL_SEC, POLL_INTERVAL_USEC, sensor_range_poll, NULL);
+
+    if ( FAILURE(result) )
+        return result;
 
     return err_OK;
 }
@@ -28,9 +46,13 @@ error_code sensor_range_start()
 
     result = thread_start(&this.thread, sensor_range_worker);
 
-    if ( FAILURE(result) ) {
+    if ( FAILURE(result) )
         return result;
-    }
+
+    result = poller_start(&this.poller);
+
+    if ( FAILURE(result) )
+        return result;
 
     return err_OK;
 }
@@ -50,4 +72,8 @@ static void* sensor_range_worker(void *data)
         {
         }
     }
+}
+
+static error_code sensor_range_poll(void *data)
+{
 }

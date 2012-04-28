@@ -15,7 +15,7 @@ struct test_thread {
 };
 
 // private functions
-static void* worker(void *threadid);
+static void* worker(void *data);
 
 // cli commands
 static int command_sendmsg(char* args);
@@ -48,7 +48,7 @@ error_code test_thread_start()
     return err_OK;
 }
 
-static void* worker(void *threadid)
+static void* worker(void *data)
 {
     char buffer[MESSAGE_SIZE] = { 0 };
     int len;

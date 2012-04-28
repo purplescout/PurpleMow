@@ -24,6 +24,7 @@ purplemow_src = purplemow.c \
 				communicator.c \
 				sensor_range.c \
 				thread.c \
+				poller.c \
 				test_thread.c
 
 BIN = purplemow

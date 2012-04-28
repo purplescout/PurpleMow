@@ -19,7 +19,7 @@ struct multicast {
     pthread_t   thread;
 };
 
-static void* multicast_listen(void *threadid);
+static void* multicast_listen(void *data);
 static error_code parse_command(char *command);
 
 static struct multicast this;
@@ -84,7 +84,7 @@ error_code multicast_start()
     return err_OK;
 }
 
-static void* multicast_listen(void *threadid)
+static void* multicast_listen(void *data)
 {
     int read;
     char buffer[BUFFER_SIZE] = { 0 };
