@@ -9,9 +9,9 @@
 #define POLL_INTERVAL   500000
 
 struct sensor_range {
-    struct message_item message_handle;
-    pthread_t           thread;
-    struct poller       poller;
+    struct message_queue    message_handle;
+    pthread_t               thread;
+    struct poller           poller;
 };
 
 // Thread
@@ -58,16 +58,18 @@ error_code sensor_range_start()
 
 static void* sensor_range_worker(void *data)
 {
-    struct msg_sensor_data msg;
+    struct message_item         msg_buff;
+    struct message_sensor_data  *msg;
     int len;
     error_code result;
 
     while ( 1 ) {
-        memset(&msg, 0, sizeof(msg) );
-        len = sizeof(msg);
-        result = message_receive(&this.message_handle, &msg, &len);
+        memset(&msg_buff, 0, sizeof(msg_buff) );
+        len = sizeof(msg_buff);
+        result = message_receive(&this.message_handle, &msg_buff, &len);
 
         if ( SUCCESS(result) ) {
+            msg = (struct message_sensor_data*)&msg_buff;
         }
     }
 }

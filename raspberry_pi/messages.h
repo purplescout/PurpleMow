@@ -5,10 +5,13 @@
 
 #include "error_codes.h"
 
-#define MESSAGE_SIZE 64
+#define MAX_MESSAGE_SIZE 128
 
-enum queue
-{
+#define message_create(in_var, in_msg, in_type) \
+    (in_var).head.type = (in_type); \
+    (in_var).head.length = sizeof(in_msg);
+
+enum queue {
     Q_MAIN,
     Q_TEST,
     Q_COMMUNICATOR,
@@ -18,10 +21,10 @@ enum queue
 enum msg_type {
     MSG_COMMUNICATOR,
     MSG_SENSOR_DATA,
+    MSG_TEST,
 };
 
-enum queue_prio
-{
+enum queue_prio {
     PRIO_HIGH_01    = 9,
     PRIO_HIGH       = 10,
     PRIO_HIGH_1     = 11,
@@ -38,15 +41,29 @@ enum queue_prio
     PRIO_LOW_2      = 32,
 };
 
-struct message_item
-{
+struct message_queue {
     enum queue  queue_number;
     char        name[32];
     mqd_t       queue;
 };
 
-error_code message_open(struct message_item *this, enum queue queue_number);
-error_code message_send(void *buffer, int len, enum queue receive_queue);
-error_code message_receive(struct message_item *this, void* buffer, int* len);
+struct message_head {
+    enum msg_type   type;
+    int             length;
+};
+
+struct message_body {
+    char            data[MAX_MESSAGE_SIZE];
+};
+
+struct message_item {
+    struct message_head head;
+    struct message_body body;
+};
+
+error_code message_open(struct message_queue *this, enum queue queue_number);
+error_code message_send(void *data, enum queue receive_queue);
+error_code message_send_prio(void *data, enum queue receive_queue, enum queue_prio prio);
+error_code message_receive(struct message_queue *this, struct message_item* msg, int* len);
 
 #endif // MESSAGES_H

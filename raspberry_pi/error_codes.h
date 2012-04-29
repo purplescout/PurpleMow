@@ -15,6 +15,7 @@ typedef enum error_code {
     err_ALREADY_REGISTERED,
     err_NOT_REGISTERED,
     err_UNKNOWN_COMMAND,
+    err_MESSAGE,
 } error_code;
 
 #define SUCCESS(x) (x) == err_OK

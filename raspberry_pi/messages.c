@@ -10,7 +10,7 @@
 
 static void get_queue_name(enum queue queue_number, char* queue_name, int len);
 
-error_code message_open(struct message_item *this, enum queue queue_number)
+error_code message_open(struct message_queue *this, enum queue queue_number)
 {
     char queue_name[32];
     mqd_t queue;
@@ -38,16 +38,20 @@ error_code message_open(struct message_item *this, enum queue queue_number)
     return err_OK;
 }
 
-error_code message_send(void *buffer, int len, enum queue receive_queue)
+error_code message_send(void *data, enum queue receive_queue)
 {
+    return message_send_prio(data, receive_queue, PRIO_NORMAL);
+}
+
+error_code message_send_prio(void *data, enum queue receive_queue, enum queue_prio prio)
+{
+    struct message_item *msg;
     char queue_name[32];
     mqd_t queue;
     mqd_t result;
+    int length;
 
-    if ( len == 0 )
-    {
-        return err_OK;
-    }
+    msg = (struct message_item*)data;
 
     get_queue_name(receive_queue, queue_name, sizeof(queue_name));
     queue = mq_open(queue_name, O_WRONLY);
@@ -60,7 +64,10 @@ error_code message_send(void *buffer, int len, enum queue receive_queue)
         exit(1);
     }
 
-    result = mq_send(queue, buffer, min(len, MESSAGE_SIZE), PRIO_NORMAL);
+    result = mq_send(queue,
+                     (char*)msg,
+                     min(msg->head.length, sizeof(*msg)),
+                     prio);
 
     result = mq_close(queue);
 
@@ -75,10 +82,11 @@ error_code message_send(void *buffer, int len, enum queue receive_queue)
     return err_OK;
 }
 
-error_code message_receive(struct message_item *this, void* buffer, int* len)
+error_code message_receive(struct message_queue *this, struct message_item* msg, int* len)
 {
     char* local_buffer;
     int local_len;
+    struct message_item *local_msg;
     mqd_t result;
     struct mq_attr mq_attr;
 
@@ -107,7 +115,12 @@ error_code message_receive(struct message_item *this, void* buffer, int* len)
 
     *len = min(*len, result);
 
-    memcpy(buffer, local_buffer, *len);
+    local_msg = (struct message_item*)local_buffer;
+
+    if ( *len != local_msg->head.length )
+        return err_MESSAGE;
+
+    memcpy(msg, local_buffer, *len);
 
     return err_OK;
 }

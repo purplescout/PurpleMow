@@ -10,8 +10,8 @@
 #include "cli.h"
 
 struct test_thread {
-    pthread_t           thread;
-    struct message_item message_handle;
+    pthread_t               thread;
+    struct message_queue    message_handle;
 };
 
 // private functions
@@ -50,28 +50,31 @@ error_code test_thread_start()
 
 static void* worker(void *data)
 {
-    char buffer[MESSAGE_SIZE] = { 0 };
+    struct message_item msg;
     int len;
-    int result;
+    error_code result;
 
     while ( 1 )
     {
-        len = sizeof(buffer);
-        result = message_receive(&this.message_handle, buffer, &len);
+        len = sizeof(msg.body);
+        result = message_receive(&this.message_handle, &msg, &len);
 
-        if (result == 0)
-        {
-            printf("Got (in test thread): %s\n", buffer);
+        if ( SUCCESS(result) ) {
+            printf("Got (in test thread): %s\n", msg.body.data);
         }
     }
 }
 
 static int command_sendmsg(char* args)
 {
-    if ( strlen(args) > 0 )
-    {
+    struct message_item msg;
+
+    if ( strlen(args) > 0 ) {
         printf("Sending to thread: %s\n", args);
-        message_send(args, strlen(args) + 1, Q_TEST);
+        msg.head.type = MSG_TEST;
+        msg.head.length = strlen(args) + 1 + sizeof(msg.head);
+        strncpy(msg.body.data, args, sizeof(msg.body.data) );
+        message_send(&msg, Q_TEST);
     }
     return 0;
 }

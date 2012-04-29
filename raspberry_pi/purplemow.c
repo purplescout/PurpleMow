@@ -21,7 +21,7 @@
 static void process_events();
 
 struct purplemow {
-    struct message_item message_handler;
+    struct message_queue    message_handler;
 };
 
 static struct purplemow this;
@@ -103,16 +103,16 @@ int main(int argc, char **argv)
 static void process_events()
 {
     error_code result;
-    char msg[128];
+    struct message_item msg_buff;
     int len;
 
     result = message_open(&this.message_handler, Q_MAIN);
 
     while ( 1 )
     {
-        memset(&msg, 0, sizeof(msg) );
-        len = sizeof(msg);
-        result = message_receive(&this.message_handler, &msg, &len);
+        memset(&msg_buff, 0, sizeof(msg_buff) );
+        len = sizeof(msg_buff);
+        result = message_receive(&this.message_handler, &msg_buff, &len);
 
         if ( SUCCESS(result) ) {
         }

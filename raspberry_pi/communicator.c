@@ -9,30 +9,12 @@
 
 #define DELAY 1
 
-enum msg_communicator {
-    msg_forward,
-    msg_backward,
-    msg_left,
-    msg_right,
-    msg_speed,
-    msg_stop,
-    msg_sensor,
-};
-
-struct communicator_message {
-    enum msg_type           type;
-    enum msg_communicator   message;
-    enum sensor             sensor;
-    enum queue              queue;
-    int                     data;
-};
-
 struct communicator {
-    enum                direction direction;
-    enum                command motor;
-    int                 speed;
-    struct message_item message_handle;
-    pthread_t           thread;
+    enum                    direction direction;
+    enum                    command motor;
+    int                     speed;
+    struct message_queue    message_handle;
+    pthread_t               thread;
 };
 
 static struct communicator this = { 0 };
@@ -81,38 +63,40 @@ error_code communicator_start()
 
 static void* communicator_worker(void *data)
 {
-    struct communicator_message msg;
+    struct message_item         msg_buff;
+    struct message_communicator *msg;
     int len;
     error_code result;
 
     while ( 1 ) {
-        memset(&msg, 0, sizeof(msg) );
-        len = sizeof(msg);
-        result = message_receive(&this.message_handle, &msg, &len);
+        memset(&msg_buff, 0, sizeof(msg_buff) );
+        len = sizeof(msg_buff);
+        result = message_receive(&this.message_handle, &msg_buff, &len);
 
         if ( SUCCESS(result) )
         {
-            switch ( msg.message ) {
-                case msg_forward:
+            msg = (struct message_communicator*)&msg_buff;
+            switch ( msg->body.message ) {
+                case msg_communicator_forward:
                     move_forward();
                     break;
-                case msg_backward:
+                case msg_communicator_backward:
                     move_backward();
                     break;
-                case msg_left:
+                case msg_communicator_left:
                     turn_left();
                     break;
-                case msg_right:
+                case msg_communicator_right:
                     turn_right();
                     break;
-                case msg_speed:
-                    set_speed(msg.data);
+                case msg_communicator_speed:
+                    set_speed(msg->body.data);
                     break;
-                case msg_stop:
+                case msg_communicator_stop:
                     stop();
                     break;
-                case msg_sensor:
-                    sensor(msg.sensor, msg.queue);
+                case msg_communicator_sensor:
+                    sensor(msg->body.sensor, msg->body.queue);
                     break;
                 default:
                     break;
@@ -123,67 +107,88 @@ static void* communicator_worker(void *data)
 
 error_code communicator_read(enum sensor sensor, enum queue rsp_queue)
 {
-    struct communicator_message msg;
-    msg.type = MSG_COMMUNICATOR;
-    msg.message = msg_sensor;
-    msg.sensor = sensor;
-    msg.queue = rsp_queue;
-    message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
+    struct message_communicator msg;
+    message_create(msg, struct message_communicator, MSG_COMMUNICATOR);
+
+    msg.body.message = msg_communicator_sensor;
+    msg.body.sensor = sensor;
+    msg.body.queue = rsp_queue;
+
+    message_send(&msg, Q_COMMUNICATOR);
+
     return err_OK;
 }
 
 error_code communicator_set_speed(int speed)
 {
-    struct communicator_message msg;
-    msg.type = MSG_COMMUNICATOR;
-    msg.message = msg_speed;
-    msg.data = speed;
-    message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
+    struct message_communicator msg;
+    message_create(msg, struct message_communicator, MSG_COMMUNICATOR);
+
+    msg.body.message = msg_communicator_speed;
+    msg.body.data = speed;
+
+    message_send(&msg, Q_COMMUNICATOR);
+
     return err_OK;
 }
 
 error_code communicator_stop()
 {
-    struct communicator_message msg;
-    msg.type = MSG_COMMUNICATOR;
-    msg.message = msg_stop;
-    message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
+    struct message_communicator msg;
+    message_create(msg, struct message_communicator, MSG_COMMUNICATOR);
+
+    msg.body.message = msg_communicator_stop;
+
+    message_send(&msg, Q_COMMUNICATOR);
+
     return err_OK;
 }
 
 error_code communicator_move_forward()
 {
-    struct communicator_message msg;
-    msg.type = MSG_COMMUNICATOR;
-    msg.message = msg_forward;
-    message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
+    struct message_communicator msg;
+    message_create(msg, struct message_communicator, MSG_COMMUNICATOR);
+
+    msg.body.message = msg_communicator_forward;
+
+    message_send(&msg, Q_COMMUNICATOR);
+
     return err_OK;
 }
 
 error_code communicator_move_backward()
 {
-    struct communicator_message msg;
-    msg.type = MSG_COMMUNICATOR;
-    msg.message = msg_backward;
-    message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
+    struct message_communicator msg;
+    message_create(msg, struct message_communicator, MSG_COMMUNICATOR);
+
+    msg.body.message = msg_communicator_backward;
+
+    message_send(&msg, Q_COMMUNICATOR);
+
     return err_OK;
 }
 
 error_code communicator_turn_left()
 {
-    struct communicator_message msg;
-    msg.type = MSG_COMMUNICATOR;
-    msg.message = msg_left;
-    message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
+    struct message_communicator msg;
+    message_create(msg, struct message_communicator, MSG_COMMUNICATOR);
+
+    msg.body.message = msg_communicator_left;
+
+    message_send(&msg, Q_COMMUNICATOR);
+
     return err_OK;
 }
 
 error_code communicator_turn_right()
 {
-    struct communicator_message msg;
-    msg.type = MSG_COMMUNICATOR;
-    msg.message = msg_right;
-    message_send(&msg, sizeof(msg), Q_COMMUNICATOR);
+    struct message_communicator msg;
+    message_create(msg, struct message_communicator, MSG_COMMUNICATOR);
+
+    msg.body.message = msg_communicator_right;
+
+    message_send(&msg, Q_COMMUNICATOR);
+
     return err_OK;
 }
 
@@ -268,15 +273,16 @@ static void move(enum direction direction)
 static error_code sensor(enum sensor sensor, enum queue rsp_queue)
 {
     int value = 0;
-    struct msg_sensor_data msg;
+    struct message_sensor_data msg;
 
     io_command_read(sensor, &value);
 
-    msg.type = MSG_SENSOR_DATA;
-    msg.sensor = sensor;
-    msg.value = value;
+    message_create(msg, struct message_sensor_data, MSG_SENSOR_DATA);
 
-    message_send(&msg, sizeof(msg), rsp_queue);
+    msg.body.sensor = sensor;
+    msg.body.value = value;
+
+    message_send(&msg, rsp_queue);
 
     return err_OK;
 }

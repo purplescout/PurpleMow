@@ -25,6 +25,8 @@ dcn:
 sensors:
 [ ] poll range
 [ ] bwf
+[ ] send range to main
+[ ] send bwf to main
 
 messages:
 [ ] generic message, head and body
@@ -35,6 +37,11 @@ main:
 [ ] getopts
 [ ] detach
 [ ] handle range data
-[ ] send commands
+[ ] send commands to communicator
+[ ] cli commands to override main FSM
+[ ] signal handler for ctrl-c
+
+arduino:
+[ ] heartbeat, enable, disable
 
 [ ] 
