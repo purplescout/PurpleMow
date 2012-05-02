@@ -8,6 +8,24 @@
 
 #define POLL_INTERVAL   500000
 
+/**
+ * @defgroup sensor Sensor
+ *
+ * Sensors Group.
+ *
+ * @ingroup purplemow
+ */
+
+/**
+ * @defgroup sensor_range
+ * @ingroup sensor
+ *
+ * Range sensor Group.
+ */
+
+/**
+ * @ingroup sensor_range
+ */
 struct sensor_range {
     struct message_queue    message_handle;
     pthread_t               thread;
@@ -22,6 +40,12 @@ static error_code sensor_range_poll(void *data);
 
 static struct sensor_range this;
 
+/**
+ * Initialize sensor_range.
+ *
+ * @ingroup sensor_range
+ * @return                  Success status.
+ */
 error_code sensor_range_init()
 {
     error_code result;
@@ -39,6 +63,12 @@ error_code sensor_range_init()
     return err_OK;
 }
 
+/**
+ * Start the sensor_range.
+ *
+ * @ingroup sensor_range
+ * @return                  Success status.
+ */
 error_code sensor_range_start()
 {
     error_code result;
@@ -56,6 +86,15 @@ error_code sensor_range_start()
     return err_OK;
 }
 
+/**
+ * Handles incoming messages.
+ *
+ * @ingroup sensor_range
+ *
+ * @param[in] data  Data to the thread.
+ *
+ * @return          Return value from thread.
+ */
 static void* sensor_range_worker(void *data)
 {
     struct message_item         msg_buff;
@@ -74,6 +113,15 @@ static void* sensor_range_worker(void *data)
     }
 }
 
+/**
+ * Handler for poller. Sends a read request on range sensor.
+ *
+ * @ingroup sensor_range
+ *
+ * @param[in] data          Data from the poller
+ *
+ * @return                  Success status.
+ */
 static error_code sensor_range_poll(void *data)
 {
 }

@@ -25,6 +25,20 @@
 // private functions
 static int setup_port(FILE *export, char *port);
 
+/**
+ * @defgroup raspi_gpio Raspberry PI GPIO
+ * GPIO ports on Raspberry PI
+ *
+ * @ingroup io
+ */
+
+/**
+ * Initialize the GPIO ports.
+ *
+ * @ingroup raspi_gpio
+ *
+ * @return          Success status
+ */
 int purple_io_init()
 {
     FILE *fp;
@@ -69,6 +83,16 @@ int purple_io_init()
     }
 }
 
+/**
+ * Setup the GPIO ports and return a FILE* to the GPIOs.
+ *
+ * @ingroup raspi_gpio
+ *
+ * @param[out] export   Returned FILE*
+ * @param[in]  port     GPIO port
+ *
+ * @return              Success status
+ */
 static int setup_port(FILE *export, char *port)
 {
     FILE *fp;

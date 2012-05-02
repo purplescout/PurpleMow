@@ -18,14 +18,41 @@
 #define DO_TEST_THREADS  0
 #define DO_SEN_RANGE 1
 
+/**
+ * @defgroup purplemow PurpleMow
+ * PurpleMow.
+ */
+
+/**
+ * @defgroup purplemow_main PurpleMow
+ * Main thread with the main FSM.
+ *
+ * @ingroup purplemow
+ */
+
 static void process_events();
 
+/**
+ * purplemow
+ *
+ * @ingroup purplemow_main
+ */
 struct purplemow {
     struct message_queue    message_handler;
 };
 
 static struct purplemow this;
 
+/**
+ * Main function, initializes and starts all the modules.
+ *
+ * @ingroup purplemow_main
+ *
+ * @param[in] argc      Agrument count
+ * @param[in] argv      Argument vector
+ *
+ * @return              Success status
+ */
 int main(int argc, char **argv)
 {
     int state;
@@ -100,6 +127,12 @@ int main(int argc, char **argv)
     process_events();
 }
 
+/**
+ * Main FSM in purplemowi.
+ * Handles incoming messages and takes decisions depending on them,
+ *
+ * @ingroup purplemow_main
+ */
 static void process_events()
 {
     error_code result;

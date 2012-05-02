@@ -9,6 +9,18 @@
 
 #define DELAY 1
 
+/**
+ * @defgroup communicator Communicator
+ * Communicator. All messages to hardware should go through this module.
+ *
+ * @ingroup purplemow
+ */
+
+/**
+ * Communicator
+ *
+ * @ingroup communicator
+ */
 struct communicator {
     enum                    direction direction;
     enum                    command motor;
@@ -35,6 +47,13 @@ static error_code set_speed(int speed);
 static error_code stop();
 static error_code sensor(enum sensor sensor, enum queue rsp_queue);
 
+/**
+ * Initialize the communicator.
+ *
+ * @ingroup communicator
+ *
+ * @return          Success status
+ */
 error_code communicator_init()
 {
     this.direction = direction_undefined;
@@ -48,6 +67,13 @@ error_code communicator_init()
     return err_OK;
 }
 
+/**
+ * Start the communicator.
+ *
+ * @ingroup communicator
+ *
+ * @return          Success status
+ */
 error_code communicator_start()
 {
     error_code result;
@@ -61,6 +87,15 @@ error_code communicator_start()
     return err_OK;
 }
 
+/**
+ * Handles incoming messages.
+ *
+ * @ingroup communicator
+ *
+ * @parami[in] data     Data ti the thread
+ *
+ * @return              Return value from thread
+ */
 static void* communicator_worker(void *data)
 {
     struct message_item         msg_buff;
@@ -105,6 +140,16 @@ static void* communicator_worker(void *data)
     }
 }
 
+/**
+ * Send a read request to communicator on specified sensor.
+ *
+ * @ingroup communicator
+ *
+ * @param[in] sensor        Sensor to read
+ * @param[in] rsp_queue     Queue to send the response to
+ *
+ * @return                  Success status
+ */
 error_code communicator_read(enum sensor sensor, enum queue rsp_queue)
 {
     struct message_communicator msg;
@@ -119,6 +164,15 @@ error_code communicator_read(enum sensor sensor, enum queue rsp_queue)
     return err_OK;
 }
 
+/**
+ * Send a set speed request to communicator, used for the motor speed.
+ *
+ * @ingroup communicator
+ *
+ * @param[in] speed     Speed to set
+ *
+ * @return              Success status
+ */
 error_code communicator_set_speed(int speed)
 {
     struct message_communicator msg;
@@ -132,6 +186,13 @@ error_code communicator_set_speed(int speed)
     return err_OK;
 }
 
+/**
+ * Send a request to stop the motors to communicator.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 error_code communicator_stop()
 {
     struct message_communicator msg;
@@ -144,6 +205,13 @@ error_code communicator_stop()
     return err_OK;
 }
 
+/**
+ * Send a request to move forward to the communicator.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 error_code communicator_move_forward()
 {
     struct message_communicator msg;
@@ -156,6 +224,13 @@ error_code communicator_move_forward()
     return err_OK;
 }
 
+/**
+ * Send a request to move backward to the communicator.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 error_code communicator_move_backward()
 {
     struct message_communicator msg;
@@ -168,6 +243,13 @@ error_code communicator_move_backward()
     return err_OK;
 }
 
+/**
+ * Send a request to turn left to the communicator.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 error_code communicator_turn_left()
 {
     struct message_communicator msg;
@@ -180,6 +262,13 @@ error_code communicator_turn_left()
     return err_OK;
 }
 
+/**
+ * Send a request to turn right to the communicator.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 error_code communicator_turn_right()
 {
     struct message_communicator msg;
@@ -192,6 +281,15 @@ error_code communicator_turn_right()
     return err_OK;
 }
 
+/**
+ * The command <b>move</b>, control the movement.
+ *
+ * @ingroup communicator
+ *
+ * @param[in] args      Arguments
+ *
+ * @return              Success status
+ */
 static int command_move(char *args)
 {
     if ( strcmp("forward", args) == 0 ) {
@@ -214,36 +312,80 @@ static int command_move(char *args)
     return 0;
 }
 
+/**
+ * Move forward.
+ *
+ * @ingroup communicator
+ *
+ * @return          Success status
+ */
 static error_code move_forward()
 {
     move(direction_forward);
     return err_OK;
 }
 
+/**
+ * Move backward.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 static error_code move_backward()
 {
     move(direction_backward);
     return err_OK;
 }
 
+/**
+ * Turn left.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 static error_code turn_left()
 {
     turn(direction_left);
     return err_OK;
 }
 
+/**
+ * Turn right.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 static error_code turn_right()
 {
     turn(direction_right);
     return err_OK;
 }
 
+/**
+ * Set speed.
+ *
+ * @ingroup communicator
+ *
+ * @param[in] speed     Speed to set
+ *
+ * @return              Success status
+ */
 static error_code set_speed(int speed)
 {
     this.speed = speed > 255 ? 255 : speed;
     return err_OK;
 }
 
+/**
+ * Send commands to IO.
+ *
+ * @ingroup communicator
+ *
+ * @param[in] direction     Direction to update to
+ */
 static void move(enum direction direction)
 {
     if ( direction != this.direction )
@@ -270,6 +412,16 @@ static void move(enum direction direction)
     this.motor = command_start;
 }
 
+/**
+ * Read a sensor and send response to response eueue
+ *
+ * @ingroup communicator
+ *
+ * @param[in] sensor        Sensor to read
+ * @param[in] rsp_queue     Queue to send response to
+ *
+ * @return                  Success status
+ */
 static error_code sensor(enum sensor sensor, enum queue rsp_queue)
 {
     int value = 0;
@@ -287,6 +439,13 @@ static error_code sensor(enum sensor sensor, enum queue rsp_queue)
     return err_OK;
 }
 
+/**
+ * Send commands to IO to stop all motors.
+ *
+ * @ingroup communicator
+ *
+ * @return              Success status
+ */
 static error_code stop()
 {
     io_command_motor(direction_left, command_stop, 0);
@@ -296,6 +455,13 @@ static error_code stop()
     return err_OK;
 }
 
+/**
+ * Send commands to make a turn.
+ *
+ * @ingroup communicator
+ *
+ * @param[in] direction     Direction to turn
+ */
 static void turn(enum direction direction)
 {
     // Stop motors

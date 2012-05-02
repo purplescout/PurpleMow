@@ -9,6 +9,21 @@
 #define M_ADDRESS "225.0.0.45"
 #define BUFFER_SIZE 1024
 
+/**
+ * @defgroup mlisten
+ * Test program that listens to a multicast address and prints received data as strings.
+ */
+
+/**
+ * Main
+ *
+ * @ingroup mlisten
+ *
+ * @param[in] argc      Argument count
+ * @param[in] argv      Argument vector
+ *
+ * @return              Success status
+ */
 int main(int argc, char **argv)
 {
     int fd;

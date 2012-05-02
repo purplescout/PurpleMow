@@ -18,6 +18,13 @@
 //#define I2C_DEVICE "/dev/i2c-4"
 #define I2C_ADDRESS 0x35
 
+/**
+ * @defgroup raspi_i2c Raspberry PI I2C
+ * I2C implementation for the IO Interface.
+ *
+ * @ingroup io
+ */
+
 // cli commands
 static error_code command_i2c(char *args);
 static error_code command_i2c_read(char *args);
@@ -26,6 +33,11 @@ static error_code command_i2c_read(char *args);
 static error_code i2c_send_command(uint8_t* msg, int length);
 static error_code i2c_read_data(uint8_t* msg, int length);
 
+/**
+ * i2c
+ *
+ * @ingroup raspi_i2c
+ */
 struct i2c
 {
     int fd;
@@ -44,6 +56,13 @@ struct i2c
 
 static struct i2c this = { .fd = -1, .debug = 0 };
 
+/**
+ * Initialize the i2c.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @return          Success status
+ */
 error_code purple_io_init()
 {
 #ifdef SIMULATOR
@@ -73,6 +92,15 @@ error_code purple_io_init()
     return err_OK;
 }
 
+/**
+ * The command <b>i2c</b>, debugging options for I2C
+ *
+ * @ingroup raspi_i2c
+ *
+ * @param[in] args  Arguments
+ *
+ * @return          Success status
+ */
 static error_code command_i2c(char *args)
 {
     if ( strcmp("debug", args) == 0 ) {
@@ -134,6 +162,15 @@ static error_code command_i2c(char *args)
     return err_OK;
 }
 
+/**
+ * The command <b>i2c_read</b>, modify readable values in simulator mode.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @param[in] args  Arguments
+ *
+ * @return          Success status
+ */
 static error_code command_i2c_read(char *args)
 {
     int value = 0;
@@ -164,11 +201,28 @@ static error_code command_i2c_read(char *args)
     return err_OK;
 }
 
+/**
+ * @brief TODO
+ *
+ * @ingroup raspi_i2c
+ *
+ * @return      Success status
+ */
 static error_code wait_for_command()
 {
     return err_OK;
 }
 
+/**
+ * Send a message over I2C to I/O board.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @param[in] msg       Message to send
+ * @param[in] length    Length of message
+ *
+ * @return              Success status
+ */
 static error_code i2c_send_command(uint8_t* msg, int length)
 {
     int i;
@@ -196,6 +250,16 @@ static error_code i2c_send_command(uint8_t* msg, int length)
     return err_OK;
 }
 
+/**
+ * Read a message from I2C.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @param[out] msg      Buffer to write to
+ * @param[in]  length   Length of buffer
+ *
+ * @return              Success status
+ */
 static error_code i2c_read_data(uint8_t* msg, int length)
 {
 #ifdef SIMULATOR
@@ -243,6 +307,15 @@ static error_code i2c_read_data(uint8_t* msg, int length)
 }
 
 #ifdef SIMULATOR
+/**
+ * Test command.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @param[in] i     Value to send
+ *
+ * @return          Success status
+ */
 error_code io_test_command_1(int i)
 {
     int res;
@@ -259,6 +332,13 @@ error_code io_test_command_1(int i)
     return err_OK;
 }
 
+/**
+ * Test command.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @return          Success status
+ */
 error_code io_test_command_2()
 {
     int i;
@@ -293,6 +373,17 @@ error_code io_test_command_2()
 }
 #endif // SIMULATOR
 
+/**
+ * Send a command to a motor.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @param[in] direction     Which motor to send the command to
+ * @param[in] command       Command to send
+ * @param[in] speed         Speed to send
+ *
+ * @return                  Success status
+ */
 error_code io_command_motor(enum direction direction, enum command command, int speed)
 {
     int error = err_OK;
@@ -319,7 +410,7 @@ error_code io_command_motor(enum direction direction, enum command command, int 
             msg[2] = speed;
             break;
         case command_stop:
-            msg[2] = speed;
+            msg[2] = 0;
             break;
         default:
             error = err_WRONG_ARGUMENT;
@@ -333,6 +424,16 @@ error_code io_command_motor(enum direction direction, enum command command, int 
     return error;
 }
 
+/**
+ * Send a command to a relay.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @param[in] direction     Which relay to send the command to
+ * @param[in] command       Command to send
+ *
+ * @return                  Success status
+ */
 error_code io_command_relay(enum direction direction, enum direction command)
 {
     int error = err_OK;
@@ -371,6 +472,16 @@ error_code io_command_relay(enum direction direction, enum direction command)
     return error;
 }
 
+/**
+ * Read a value from the I/O board.
+ *
+ * @ingroup raspi_i2c
+ *
+ * @param[in] sensor        Sensor to read
+ * @param[out] value        Read value
+ *
+ * @return                  Success status
+ */
 error_code io_command_read(enum sensor sensor, int *value)
 {
     int error = err_OK;

@@ -9,6 +9,19 @@
 #include "messages.h"
 #include "cli.h"
 
+/**
+ * @defgroup test_thread Test thread
+ * Test thread used to test message sending.
+ * Use the cli command send.
+ *
+ * @ingroup purplemow
+ */
+
+/**
+ * test_thread
+ *
+ * @ingroup test_thread
+ */
 struct test_thread {
     pthread_t               thread;
     struct message_queue    message_handle;
@@ -27,6 +40,13 @@ static pthread_mutex_t list_mutex;
 
 static struct test_thread this;
 
+/**
+ * Initialize the test_thread.
+ *
+ * @ingroup test_thread
+ *
+ * @return          Success status
+ */
 error_code test_thread_init()
 {
     cli_register_command("send", command_sendmsg);
@@ -35,6 +55,13 @@ error_code test_thread_init()
     return err_OK;
 }
 
+/**
+ * Start the test_thread.
+ *
+ * @ingroup test_thread
+ *
+ * @return          Success status
+ */
 error_code test_thread_start()
 {
     error_code result;
@@ -48,6 +75,16 @@ error_code test_thread_start()
     return err_OK;
 }
 
+/**
+ * Handles incoming messages.
+ * Prints all data as a string.
+ *
+ * @ingroup test_thread
+ *
+ * @param[in] data  Data to the thread
+ *
+ * @return          Return value from thread
+ */
 static void* worker(void *data)
 {
     struct message_item msg;
@@ -65,6 +102,15 @@ static void* worker(void *data)
     }
 }
 
+/**
+ * The command <b>send</b>, send an argument to the test_thread.
+ *
+ * @ingroup test_thread
+ *
+ * @param[in] args      Arbuments
+ *
+ * @return              Success status
+ */
 static int command_sendmsg(char* args)
 {
     struct message_item msg;

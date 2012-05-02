@@ -9,6 +9,18 @@
 
 #define BUFFER_SIZE 256
 
+/**
+ * @defgroup cli CLI
+ * CLI
+ *
+ * @ingroup purplemow
+ */
+
+/**
+ * A CLI item.
+ *
+ * @ingroup cli
+ */
 struct cli_item
 {
     char                command[32];
@@ -17,6 +29,11 @@ struct cli_item
     struct cli_item*    prev;
 };
 
+/**
+ * CLI
+ *
+ * @ingroup cli
+ */
 struct cli {
     pthread_t       thread;
     pthread_mutex_t list_mutex;
@@ -24,7 +41,7 @@ struct cli {
 
 // functions
 static void* cli_listen(void *data);
-static int parse_command(char *command);
+static error_code parse_command(char *command);
 static error_code list_add(struct cli_item* item);
 static error_code list_remove(char *command);
 
@@ -38,6 +55,13 @@ static struct cli_item* list_head;
 
 static struct cli this;
 
+/**
+ * Initialized the cli.
+ *
+ * @ingroup cli
+ *
+ * @return  Success status
+ */
 error_code cli_init()
 {
     pthread_mutex_init(&this.list_mutex, NULL);
@@ -51,6 +75,13 @@ error_code cli_init()
     return err_OK;
 }
 
+/**
+ * Start the cli
+ *
+ * @ingroup cli
+ *
+ * @return  Success status
+ */
 error_code cli_start()
 {
     error_code result;
@@ -64,6 +95,15 @@ error_code cli_start()
     return err_OK;
 }
 
+/**
+ * Handles incoming messages.
+ *
+ * @ingroup cli
+ *
+ * @param[in] data  Data to the thread
+ *
+ * @return          Return value from thread
+ */
 static void* cli_listen(void *data)
 {
     char buffer[BUFFER_SIZE] = { 0 };
@@ -81,7 +121,16 @@ static void* cli_listen(void *data)
     }
 }
 
-static int parse_command(char *command)
+/**
+ * Parse a command and execute registered callback function.
+ *
+ * @ingroup cli
+ *
+ * @param[in] command   Command to parse
+ *
+ * @return              Success status
+ */
+static error_code parse_command(char *command)
 {
     int size;
     struct cli_item* current;
@@ -138,6 +187,15 @@ static int parse_command(char *command)
     return err_OK;
 }
 
+/**
+ * Add a cli item to the command list.
+ *
+ * @ingroup cli
+ *
+ * @param[in] item  Item to be added
+ *
+ * @return          Success status
+ */
 static error_code list_add(struct cli_item* item)
 {
     struct cli_item* current;
@@ -203,6 +261,15 @@ static error_code list_add(struct cli_item* item)
     return result;
 }
 
+/**
+ * Remove a command from the command list.
+ *
+ * @ingroup cli
+ *
+ * @param[in] command   Command to remove
+ *
+ * @return              Success status
+ */
 static error_code list_remove(char *command)
 {
     struct cli_item *current;
@@ -230,6 +297,16 @@ static error_code list_remove(char *command)
     return result;
 }
 
+/**
+ * Register a command with a callback function.
+ *
+ * @ingroup cli
+ *
+ * @param[in] command   Command to register
+ * @param[in] function  Callback function
+ *
+ * @return              Success status
+ */
 error_code cli_register_command(char *command, int(*function)(char *arg))
 {
     struct cli_item* new_cmd;
@@ -247,11 +324,30 @@ error_code cli_register_command(char *command, int(*function)(char *arg))
     return list_add(new_cmd);
 }
 
+/**
+ * Unregister a command and remove it from the command list.
+ *
+ * @ingroup cli
+ *
+ * @param[in] command   Command to unregister
+ *
+ * @return              Success status
+ */
 error_code cli_unregister_command(char *command)
 {
     return list_remove(command);
 }
 
+/**
+ * The command <b>help<b>, show a list of all registered commands.
+ *
+ * @private
+ * @ingroup cli
+ *
+ * @param[in] args  Arguments
+ *
+ * @return          Success status
+ */
 static int command_help(char *args)
 {
     struct cli_item *current;
@@ -270,6 +366,15 @@ static int command_help(char *args)
     return 0;
 }
 
+/**
+ * The command <b>exit</b>, exits the program.
+ *
+ * @ingroup cli
+ *
+ * @param[in] args  Arguments
+ *
+ * @return          Success status
+ */
 static int command_exit(char *args)
 {
     exit(0);
@@ -277,6 +382,15 @@ static int command_exit(char *args)
     return 1;
 }
 
+/**
+ * The command <b>echo</b>, echo back the argument.
+ *
+ * @ingroup cli
+ *
+ * @param[in] args  Arguments
+ *
+ * @return          Success status
+ */
 static int command_echo(char *args)
 {
     printf("%s\n", args);
@@ -284,6 +398,16 @@ static int command_echo(char *args)
     return 0;
 }
 
+/**
+ * Parse args for the first number and returns it in an int.
+ * The number must have a space in front of it and either a space or EOL after it.
+ *
+ * @ingroup cli
+ *
+ * @param[in] args  Argument to parse
+ *
+ * @return          The found value or 0
+ */
 int cli_read_int(char *args)
 {
     char *start;

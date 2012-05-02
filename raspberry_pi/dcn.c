@@ -13,12 +13,29 @@
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 1
 
+/**
+ * @defgroup dcn
+ * DCN
+ *
+ * @ingroup purplemow
+ */
+
+/**
+ * A linked list item.
+ *
+ * @ingroup dcn
+ */
 struct ip_item {
     char*           if_name;
     struct IP       ip;
     struct ip_item* next;
 };
 
+/**
+ * Dcn item
+ *
+ * @ingroup dcn
+ */
 struct dcn {
     char                sysname[32];
     char                uuid[40];
@@ -35,9 +52,17 @@ static int get_bits(uint8_t byte);
 
 static struct dcn this = { .initialized = 0 };
 
+// Commands
 static int command_show_ip(char *args);
 static int command_show_ips(char *args);
 
+/**
+ * Initialize dcn
+ *
+ * @ingroup dcn
+ *
+ * @return      Success status
+ */
 error_code dcn_init()
 {
     if ( this.initialized )
@@ -61,11 +86,27 @@ error_code dcn_init()
     return err_OK;
 }
 
+/**
+ * Start dcn
+ *
+ * @ingroup dcn
+ *
+ * @return      Success status
+ */
 error_code dcn_start()
 {
     return err_OK;
 }
 
+/**
+ * Get the main IP
+ *
+ * @ingroup dcn
+ *
+ * @param[out] buffer   Returend value
+ *
+ * @return              Success status
+ */
 error_code dcn_get_ip(struct IP *buffer)
 {
     if ( !this.initialized )
@@ -82,6 +123,16 @@ error_code dcn_get_ip(struct IP *buffer)
     return err_OK;
 }
 
+/**
+ * Get the uuid.
+ *
+ * @ingroup dcn
+ *
+ * @param[out] buffer   The returned value
+ * @param[in] length    Length of buffer
+ *
+ * @return              Success status
+ */
 error_code dcn_get_uuid(char *buffer, int length)
 {
     if ( !this.initialized )
@@ -104,6 +155,16 @@ error_code dcn_get_uuid(char *buffer, int length)
     return err_OK;
 }
 
+/**
+ * Get the version number.
+ *
+ * @ingroup dcn
+ *
+ * @param[out] major    Major version number
+ * @param[out] minor    Minor version number
+ *
+ * @return              Success status
+ */
 error_code dcn_get_version(int *major, int *minor)
 {
     if ( major == NULL )
@@ -122,6 +183,16 @@ error_code dcn_get_version(int *major, int *minor)
     return err_OK;
 }
 
+/**
+ * Get the system name.
+ *
+ * @ingroup dcn
+ *
+ * @param[out] buffer   The returned sysname
+ * @param[in] length    Length of buffer
+ *
+ * @return              Success status
+ */
 error_code dcn_get_sysname(char *buffer, int length)
 {
     if ( !this.initialized )
@@ -144,6 +215,13 @@ error_code dcn_get_sysname(char *buffer, int length)
     return err_OK;
 }
 
+/**
+ * Find all configured IP addresses and update this.
+ *
+ * @ingroup dcn
+ *
+ * @return      Success status
+ */
 static error_code find_ips()
 {
     struct ifaddrs *if_addr;
@@ -220,6 +298,15 @@ static error_code find_ips()
     return err_OK;
 }
 
+/**
+ * Empty the list of IP addresses.
+ *
+ * @ingroup dcn
+ *
+ * @param[in] ip_item   List to empty
+ *
+ * @return              Success status
+ */
 static error_code free_ip_list(struct ip_item *ip_item)
 {
     struct ip_item *current = NULL;
@@ -238,6 +325,13 @@ static error_code free_ip_list(struct ip_item *ip_item)
     return err_OK;
 }
 
+/**
+ * Find the main IP, default to first IP that is not bound to the lo interface.
+ *
+ * @ingroup dcn
+ *
+ * @return      Success status
+ */
 static error_code find_main_ip()
 {
     struct ip_item *current;
@@ -272,6 +366,15 @@ static error_code find_main_ip()
     return err_OK;
 }
 
+/**
+ * The command <b>ip</b>, print the main IP address.
+ *
+ * @ingroup dcn
+ *
+ * @param[in] args  Agruments
+ *
+ * @return          Success status
+ */
 static int command_show_ips(char *args)
 {
     struct ip_item  *current;
@@ -299,6 +402,15 @@ static int command_show_ips(char *args)
     return 0;
 }
 
+/**
+ * The command <b>ips</b>, print all found IP addresses.
+ *
+ * @ingroup dcn
+ *
+ * @param[in] args  Arguments
+ *
+ * @return          Success status
+ */
 static int command_show_ip(char *args)
 {
     struct IP   ip;
@@ -324,6 +436,15 @@ static int command_show_ip(char *args)
     return 0;
 }
 
+/**
+ * Get the number of bits set in the netmask in an IP address.
+ *
+ * @ingroup dcn
+ *
+ * @param[in] ip    IP address with netmask
+ *
+ * @return          Number of bits set
+ */
 static int get_netmask(struct IP *ip)
 {
     int bits = 0;
@@ -347,6 +468,15 @@ static int get_netmask(struct IP *ip)
     return bits;
 }
 
+/**
+ * Get number of bits set in byte. Only considers consecutive set bits from left.
+ *
+ * @ingroup dcn
+ *
+ * @param[in] byte  Byte to check
+ *
+ * @return          Number of bits set
+ */
 static int get_bits(uint8_t byte)
 {
     switch ( byte ) {

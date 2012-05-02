@@ -14,6 +14,18 @@
 #define M_ADDRESS "225.0.0.45"
 #define BUFFER_SIZE 1024
 
+/**
+ * @defgroup auto_management Auto Management
+ * Auto Management.
+ *
+ * @ingroup purplemow
+ */
+
+/**
+ * multicast
+ *
+ * @ingroup auto_management
+ */
 struct multicast {
     int         fd;
     pthread_t   thread;
@@ -24,6 +36,13 @@ static error_code parse_command(char *command);
 
 static struct multicast this;
 
+/**
+ * Initialize the multicast.
+ *
+ * @ingroup auto_management
+ *
+ * @return          Success status
+ */
 error_code multicast_init()
 {
     struct ip_mreq mreq;
@@ -64,6 +83,13 @@ error_code multicast_init()
     return err_OK;
 }
 
+/**
+ * Start the multicast.
+ *
+ * @ingroup auto_management
+ *
+ * @return          Success status
+ */
 error_code multicast_start()
 {
     error_code result;
@@ -84,6 +110,15 @@ error_code multicast_start()
     return err_OK;
 }
 
+/**
+ * Handle incoming commands on multicast socket.
+ *
+ * @ingroup auto_management
+ *
+ * @param[in] data  Data to the thread
+ *
+ * @return          Success status
+ */
 static void* multicast_listen(void *data)
 {
     int read;
@@ -109,6 +144,13 @@ static void* multicast_listen(void *data)
     }
 }
 
+/**
+ * Parse a command.
+ *
+ * @param[in] command   String to parse for command
+ *
+ * @return              Success status
+ */
 static error_code parse_command(char *command)
 {
     char buffer[128] = { 0 };
