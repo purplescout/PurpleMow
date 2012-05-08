@@ -93,7 +93,8 @@ error_code purple_io_init()
 }
 
 /**
- * The command <b>i2c</b>, debugging options for I2C
+ * The command <b>i2c</b>, debugging options for I2C.
+ * Modify readable values in simulator mode.
  *
  * @ingroup raspi_i2c
  *
@@ -163,7 +164,7 @@ static error_code command_i2c(char *args)
 }
 
 /**
- * The command <b>i2c_read</b>, modify readable values in simulator mode.
+ * The command <b>i2c_read</b>, readable values from I2C.
  *
  * @ingroup raspi_i2c
  *

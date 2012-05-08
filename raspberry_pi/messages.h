@@ -21,6 +21,7 @@ enum queue {
 enum msg_type {
     MSG_COMMUNICATOR,
     MSG_SENSOR_DATA,
+    MSG_SENSOR_DECISION,
     MSG_TEST,
 };
 

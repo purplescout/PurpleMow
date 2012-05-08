@@ -27,6 +27,7 @@ struct communicator {
     int                     speed;
     struct message_queue    message_handle;
     pthread_t               thread;
+    int                     debug;
 };
 
 static struct communicator this = { 0 };
@@ -59,6 +60,7 @@ error_code communicator_init()
     this.direction = direction_undefined;
     this.motor = command_stop;
     this.speed = 255;
+    this.debug = 0;
 
     cli_register_command("move", command_move);
 
@@ -306,6 +308,12 @@ static int command_move(char *args)
         int speed;
         speed = cli_read_int(args);
         communicator_set_speed(speed);
+    } else if ( strcmp("debug", args) == 0 ) {
+        printf("Enabled communicator debugging\n");
+        this.debug = 1;
+    } else if ( strcmp("nodebug", args) == 0 ) {
+        printf("Disabled communicator debugging\n");
+        this.debug = 0;
     } else {
         printf("Valid arguments: forward, backward, left, right, stop, speed [0-255]\n");
     }
@@ -321,6 +329,8 @@ static int command_move(char *args)
  */
 static error_code move_forward()
 {
+    if ( this.debug )
+        printf("Comm: Moving forward\n");
     move(direction_forward);
     return err_OK;
 }
@@ -334,6 +344,8 @@ static error_code move_forward()
  */
 static error_code move_backward()
 {
+    if ( this.debug )
+        printf("Comm: Moving backward\n");
     move(direction_backward);
     return err_OK;
 }
@@ -347,6 +359,8 @@ static error_code move_backward()
  */
 static error_code turn_left()
 {
+    if ( this.debug )
+        printf("Comm: Turning left\n");
     turn(direction_left);
     return err_OK;
 }
@@ -360,6 +374,8 @@ static error_code turn_left()
  */
 static error_code turn_right()
 {
+    if ( this.debug )
+        printf("Comm: Turning right\n");
     turn(direction_right);
     return err_OK;
 }
