@@ -42,7 +42,7 @@ public class SensorReader implements Runnable {
 		while (isRunning()) {
 			readSensor();
 			try {
-				Thread.sleep(100);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -61,21 +61,15 @@ public class SensorReader implements Runnable {
 	}
 
 	private void readSensor() {
-		// logToTextView("Entering readSensor()");
 		try {
 			byte[] buffer = new byte[4];
 			comStream.read(buffer);
 			logToTextView("Entering readSensor()");
-			// Log.e(this.getClass().getName(), String.format("Värden från läsaren före bitshift\n MSB: %h | LSB: %h",
-			// buffer[2], buffer[3]));
-			// int val = buffer[2] << 8;
-			// val += buffer[3];
 			byte hi = buffer[2];
 			byte lo = buffer[3];
 			this.hiB = hi;
 			this.loB = lo;
 			int val = composeInt(hi, lo);
-			// Log.e(this.getClass().getName(), "Transformerat värde: " + val);
 			latestDistanceValue = val;
 			logToTextView("Sensor data read: " + val + ". Bytes are: " + buffer[0] + ", " + buffer[1] + ", " + buffer[2] + ", " + buffer[3] + ", ");
 			Message msg = messageQueue.obtainMessage(buffer[1], val, 0);
@@ -114,7 +108,9 @@ public class SensorReader implements Runnable {
 
 			@Override
 			public void run() {
-				textView.append(msg + "\n");
+				CharSequence fromTextView = textView.getText();
+				fromTextView = msg + "\n" + fromTextView;
+				textView.setText(fromTextView);
 			}
 		});
 	}

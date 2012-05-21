@@ -63,9 +63,10 @@ public class MotorFSM {
 				sensorReader.requestSensor(ComStream.RANGE_SENSOR);
 				return true;
 			} else if (msg.what == ComStream.RANGE_SENSOR) {
-				logToTextView("ST_MO_FWD, bwf sensor detected: " + msg.arg1 + ": " + msg.what);
+				logToTextView("ST_MO_FWD, range sensor read: " + msg.arg1 + ": " + msg.what);
 				Log.d(this.getClass().getName(), "Range sensor, value = " + msg.arg1);
 				if (msg.arg1 < TOO_DARN_CLOSE) {
+					logToTextView("Nu kör vi!");
 					motorController.move(FULL_SPEED);
 					changeState(State.MOVING_FORWARD);
 					sensorReader.requestSensor(ComStream.RANGE_SENSOR);
@@ -166,11 +167,15 @@ public class MotorFSM {
 	}
 
 	private void logToTextView(final String msg) {
+		Log.d(this.getClass().getName(), msg);
 		textView.post(new Runnable() {
 
 			@Override
 			public void run() {
 				textView.append(msg + "\n");
+				CharSequence fromTextView = textView.getText();
+				fromTextView = msg + "\n" + fromTextView;
+				textView.setText(fromTextView);
 			}
 		});
 	}

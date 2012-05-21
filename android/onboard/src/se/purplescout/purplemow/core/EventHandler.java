@@ -25,8 +25,6 @@ class EventHandler extends Handler {
 
 	@Override
 	public void handleMessage(Message msg) {
-		// Log.d(this.getClass().getName(), "handleMessage, msg = " + msg.what + ", state = " + state);
-
 		if (state != oldState) {
 			logToTextView("Nu jäklars! State " + state.name());
 		}
@@ -94,10 +92,11 @@ class EventHandler extends Handler {
 
 	private void logToTextView(final String msg) {
 		text.post(new Runnable() {
-
 			@Override
 			public void run() {
-				text.append(msg + "\n");
+				CharSequence fromTextView = text.getText();
+				fromTextView = msg + "\n" + fromTextView;
+				text.setText(fromTextView);
 			}
 		});
 	}

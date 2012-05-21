@@ -56,8 +56,8 @@ void setup() {
     pinMode(RELAY_RIGHT, OUTPUT);
     pinMode(RELAY_LEFT, OUTPUT);
     pinMode(RANGE_SENSOR, INPUT);
-    pinMode(MOIST_SENSOR, INPUT);
-    pinMode(VOLTAGE_SENSOR, INPUT);
+    pinMode(MOIST_SENSOR, OUTPUT);
+    pinMode(VOLTAGE_SENSOR, OUTPUT);
     pinMode(BWF_SENSOR_RIGHT, INPUT);
     pinMode(BWF_SENSOR_LEFT, INPUT);
     pinMode(ONBOARD_LED, OUTPUT);
@@ -105,11 +105,14 @@ void loop() {
         }
     } else {
         // reset outputs to default values on disconnect
-        analogWrite(MOTOR_RIGHT, 255);
-        analogWrite(MOTOR_LEFT, 255);
+        analogWrite(MOTOR_RIGHT, 0);
+        analogWrite(MOTOR_LEFT, 0);
         analogWrite(CUTTER, 255);
         digitalWrite(RELAY_RIGHT, LOW);
         digitalWrite(RELAY_LEFT, LOW);
+        digitalWrite(MOIST_SENSOR, LOW);
+        digitalWrite(VOLTAGE_SENSOR, LOW);
+
     }
 }
 
@@ -126,12 +129,12 @@ int process_command(byte* msg, int length)
     if (msg[0] == CMD_WRITE) {
         if (msg[1] == CMD_MOTOR_RIGHT)
         {
-            analogWrite(MOTOR_RIGHT, 255 - msg[2]);
+            analogWrite(MOTOR_RIGHT, msg[2]);
             result = 0;
         }
         else if (msg[1] == CMD_MOTOR_LEFT)
         {
-            analogWrite(MOTOR_LEFT, 255 - msg[2]);
+            analogWrite(MOTOR_LEFT, msg[2]);
             result = 0;
         }
         else if (msg[1] == CMD_CUTTER)
@@ -142,12 +145,15 @@ int process_command(byte* msg, int length)
     } else if (msg[0] == CMD_RELAY) {
         if (msg[1] == CMD_RELAY_RIGHT)
         {
-            digitalWrite(RELAY_RIGHT, msg[2] ? HIGH : LOW);
+            digitalWrite(RELAY_RIGHT, msg[2] ? LOW : HIGH);
+            digitalWrite(RELAY_LEFT, msg[2] ? HIGH : LOW);
+
             result = 0;
         }
         else if (msg[1] == CMD_RELAY_LEFT)
         {
-            digitalWrite(RELAY_LEFT, msg[2] ? HIGH : LOW);
+            digitalWrite(MOIST_SENSOR, msg[2] ? LOW : HIGH);
+            digitalWrite(VOLTAGE_SENSOR, msg[2] ? HIGH : LOW);            
             result = 0;
         }
     } else if (msg[0] == CMD_READ) {
