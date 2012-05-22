@@ -7,9 +7,13 @@
 #include "messages.h"
 #include "poller.h"
 
-#define POLL_INTERVAL   500000
+#define POLL_INTERVAL           500000
 
-#define RANGE_TOO_CLOSE 380
+#define RANGE_TOO_CLOSE         380
+#define RANGE_HYSTERESIS        100
+
+#define RANGE_STATE_TOO_CLOSE   1
+#define RANGE_STATE_OK          0
 
 /**
  * @defgroup sensor Sensor
@@ -150,7 +154,7 @@ static error_code sensor_range_poll(void *data)
  */
 static error_code handle_range_sensor(enum sensor sensor, int value)
 {
-    static int old_value = RANGE_TOO_CLOSE;
+    static int state = RANGE_STATE_TOO_CLOSE;
 
     switch (sensor) {
         case sensor_range:
@@ -159,13 +163,28 @@ static error_code handle_range_sensor(enum sensor sensor, int value)
             return err_UNHANDLED_SENSOR;
     }
 
+#if 0
     if ( old_value < RANGE_TOO_CLOSE && value >= RANGE_TOO_CLOSE ) {
         main_range_too_close();
     } else if ( old_value >= RANGE_TOO_CLOSE && value < RANGE_TOO_CLOSE ) {
         main_range_ok();
     }
+#endif
 
-    old_value = value;
+    switch ( state ) {
+        case RANGE_STATE_TOO_CLOSE:
+            if ( value < RANGE_TOO_CLOSE - RANGE_HYSTERESIS ) {
+                main_range_ok();
+                state = RANGE_STATE_OK;
+            }
+            break;
+        case RANGE_STATE_OK:
+            if ( value >= RANGE_TOO_CLOSE ) {
+                main_range_too_close();
+                state = RANGE_STATE_TOO_CLOSE;
+            }
+            break;
+    }
 
     return err_OK;
 }
