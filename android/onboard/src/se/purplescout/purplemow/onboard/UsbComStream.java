@@ -26,7 +26,7 @@ public class UsbComStream extends ComStream {
 		buffer[0] = command;
 		buffer[1] = target;
 		buffer[2] = (byte) value;
-		Log.w(this.getClass().getSimpleName(), "[" + Byte.toString(buffer[0]) + "," + Byte.toString(buffer[1]) + "," + Byte.toString(buffer[2]) + "]\n");
+//		Log.w(this.getClass().getSimpleName(), "[" + Byte.toString(buffer[0]) + "," + Byte.toString(buffer[1]) + "," + Byte.toString(buffer[2]) + "]\n");
 		if (outputStream != null && buffer[1] != -1) {
 			try {
 				outputStream.write(buffer);

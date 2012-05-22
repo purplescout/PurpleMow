@@ -16,14 +16,14 @@ public class MotorController {
 		this.comStream = comStream;
 	}
 
-	void move(int speed) throws IOException {
+	public void move(int speed) throws IOException {
 		comStream.sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, speed);
 		comStream.sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO2, speed);
 
 		moving = (speed > 0);
 	}
 
-	void setDirection(Direction direction) throws IOException {
+	public void setDirection(Direction direction) throws IOException {
 		assert (!moving);
 
 		switch (direction) {

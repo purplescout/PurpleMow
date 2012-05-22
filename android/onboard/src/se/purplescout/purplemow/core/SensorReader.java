@@ -2,15 +2,18 @@ package se.purplescout.purplemow.core;
 
 import java.io.IOException;
 
+import se.purplescout.purplemow.core.fsm.AbstractFSM;
+import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
+import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
+
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.TextView;
 
-public class SensorReader implements Runnable {
+public class SensorReader extends Thread {
 
 	private ComStream comStream;
-	private Handler messageQueue;
 
 	private Integer latestDistanceValue = 0;
 
@@ -20,34 +23,35 @@ public class SensorReader implements Runnable {
 	private final TextView textView;
 	private boolean isRunning = true;
 
+	AbstractFSM<MainFSMEvent> mainFSM;
+
 	public SensorReader(ComStream comStream, TextView textView) {
 		this.comStream = comStream;
 		this.textView = textView;
-
 	}
 
-	public void start() {
-		Thread thread = new Thread(null, this, "SensorReader");
-		thread.start();
-		logToTextView("SensorReader started");
-	}
-
-	public void connect(Handler handler) {
-		messageQueue = handler;
+	public void setMainFSM(AbstractFSM<MainFSMEvent> fsm) {
+		mainFSM = fsm;
 	}
 
 	@Override
 	public void run() {
-		logToTextView("SensorReader running");
-		while (isRunning()) {
-			readSensor();
-			try {
-				Thread.sleep(200);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 
+		try {
+			logToTextView("SensorReader running");
+			while (isRunning()) {
+				requestSensor(ComStream.RANGE_SENSOR);
+				readSensor();
+
+				Thread.sleep(100);
+
+				requestSensor(ComStream.BWF_SENSOR_RIGHT);
+				readSensor();
+
+				Thread.sleep(100);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -64,16 +68,17 @@ public class SensorReader implements Runnable {
 		try {
 			byte[] buffer = new byte[4];
 			comStream.read(buffer);
-			logToTextView("Entering readSensor()");
 			byte hi = buffer[2];
 			byte lo = buffer[3];
 			this.hiB = hi;
 			this.loB = lo;
 			int val = composeInt(hi, lo);
 			latestDistanceValue = val;
-			logToTextView("Sensor data read: " + val + ". Bytes are: " + buffer[0] + ", " + buffer[1] + ", " + buffer[2] + ", " + buffer[3] + ", ");
-			Message msg = messageQueue.obtainMessage(buffer[1], val, 0);
-			messageQueue.sendMessageDelayed(msg, 100);
+			if (buffer[1] == ComStream.RANGE_SENSOR) {
+				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE, val));
+			} else if (buffer[1] == ComStream.BWF_SENSOR_RIGHT) {
+				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_RIGHT, val));
+			}
 		} catch (IOException e) {
 			Log.e(this.getClass().getName(), e.getMessage());
 			e.printStackTrace();

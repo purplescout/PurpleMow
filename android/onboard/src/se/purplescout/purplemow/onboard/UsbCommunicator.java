@@ -6,7 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import se.purplescout.purplemow.core.ComStream;
-import se.purplescout.purplemow.core.MainFSM;
+import se.purplescout.purplemow.core.SensorReader;
+import se.purplescout.purplemow.core.fsm.MainFSM;
+import se.purplescout.purplemow.core.fsm.MotorFSM;
+import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
+import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
+import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,7 +37,9 @@ public class UsbCommunicator extends BroadcastReceiver {
 	private TextView textView;
 
 	MainFSM mainFSM;
-
+	MotorFSM motorFSM;
+	SensorReader sensorReader;
+	
 	public UsbCommunicator(TextView textView) {
 		this.textView = textView;
 	}
@@ -76,9 +83,20 @@ public class UsbCommunicator extends BroadcastReceiver {
 			fileInputStream = new FileInputStream(fd);
 			fileOutputStream = new FileOutputStream(fd);
 
-			// Kör igång huvudtråden
-			mainFSM = new MainFSM(getComStream(), textView);
+			// Kör igång
+			mainFSM = new MainFSM(textView);
+			motorFSM = new MotorFSM(getComStream(), textView);
+			sensorReader = new SensorReader(getComStream(), textView);
+			mainFSM.setMotorFSM(motorFSM);
+			motorFSM.setMainFSM(mainFSM);
+			sensorReader.setMainFSM(mainFSM);
 			mainFSM.start();
+			motorFSM.start();
+			sensorReader.start();
+			
+			// Bootstrap fsm
+			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD));
+			mainFSM.queueEvent(new MainFSMEvent(EventType.AVOIDING_OBSTACLE_DONE));
 		}
 	}
 

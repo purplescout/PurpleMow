@@ -1,7 +1,6 @@
 package se.purplescout.purplemow.onboard;
 
 import se.purplescout.R;
-import se.purplescout.purplemow.core.MainFSM;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -14,13 +13,10 @@ import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
 public class MainActivity extends Activity {
+	
 	private UsbCommunicator mUsbCommunicator;
 	private PendingIntent mPermissionIntent;
-	// private WifiManager wifi;
-	// private WifiManager.MulticastLock mcLock;
-	private MainFSM mainFSM;
 
-	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
