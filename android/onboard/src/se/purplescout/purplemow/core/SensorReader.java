@@ -36,7 +36,7 @@ public class SensorReader extends Thread {
 
 		try {
 			logToTextView("SensorReader running");
-			while (isRunning()) {
+			while (isRunning) {
 				requestSensor(ComStream.RANGE_SENSOR);
 				readSensor();
 
@@ -117,12 +117,7 @@ public class SensorReader extends Thread {
 		});
 	}
 
-	public boolean isRunning() {
-		return isRunning;
+	public void shutdown() {
+		isRunning = false;
 	}
-
-	public void setRunning(boolean isRunning) {
-		this.isRunning = isRunning;
-	}
-
 }

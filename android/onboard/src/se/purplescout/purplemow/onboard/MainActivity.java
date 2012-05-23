@@ -48,7 +48,6 @@ public class MainActivity extends Activity {
 	public void onPause() {
 		super.onPause();
 		mUsbCommunicator.closeAccessory();
-		// mcLock.release(); // stop processing packets
 	}
 
 	@Override
@@ -56,12 +55,4 @@ public class MainActivity extends Activity {
 		unregisterReceiver(mUsbCommunicator);
 		super.onDestroy();
 	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		// wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-		// mcLock = wifi.createMulticastLock("remoteControlReceiver");
-	}
-
 }

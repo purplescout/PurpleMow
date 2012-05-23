@@ -15,11 +15,10 @@ import android.widget.TextView;
 public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
 	private enum State {
-		STOPPED, MOVING_BACKWARD, TURNING_LEFT, TURNING_RIGHT, MOVING_FORWARD
+		STOPPED, MOVING
 	}
 
 	private State state = State.STOPPED;
-	
 	private MotorController motorController;
 	private final TextView textView;
 	private AbstractFSM<MainFSMEvent> mainFSM;
@@ -40,6 +39,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 			switch (event.getEventType()) {
 			case MOVE_FWD:
 				moveForward();
+				mainFSM.queueEvent(new MainFSMEvent(MainFSMEvent.EventType.STARTED_MOWING));
 				break;
 			case REVERSE:
 				backUp();
@@ -51,11 +51,10 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 				turnRight();
 				break;
 			case STOP:
-				motorController.move(0);
-				changeState(State.STOPPED);
+				stopMotors();
 				break;
 			case EMERGENCY_STOP:
-				motorController.move(0);
+				stopMotors();
 				System.exit(1);
 				break;			
 			default:
@@ -66,11 +65,16 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		}
 	}
 
+	private void stopMotors() throws IOException {
+		motorController.move(0);
+		changeState(State.STOPPED);
+	}
+
 	private void moveForward() throws IOException {
 		if (state == State.STOPPED) {
 			motorController.setDirection(Direction.FORWARD);
 			motorController.move(Constants.FULL_SPEED);
-			changeState(State.MOVING_FORWARD);
+			changeState(State.MOVING);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
 			queueDelayedEvent(new MotorFSMEvent(EventType.MOVE_FWD), 500);
@@ -81,7 +85,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		if (state == State.STOPPED) {
 			motorController.setDirection(Direction.BACKWARD);
 			motorController.move(Constants.FULL_SPEED);
-			changeState(State.MOVING_BACKWARD);
+			changeState(State.MOVING);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
 			queueDelayedEvent(new MotorFSMEvent(EventType.REVERSE), 500);
@@ -92,7 +96,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		if (state == State.STOPPED) {
 			motorController.setDirection(Direction.LEFT);
 			motorController.move(Constants.FULL_SPEED);
-			changeState(State.TURNING_LEFT);
+			changeState(State.MOVING);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
 			queueDelayedEvent(new MotorFSMEvent(EventType.TURN_LEFT), 500);
@@ -103,7 +107,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		if (state == State.STOPPED) {
 			motorController.setDirection(Direction.RIGHT);
 			motorController.move(Constants.FULL_SPEED);
-			changeState(State.TURNING_RIGHT);
+			changeState(State.MOVING);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
 			queueDelayedEvent(new MotorFSMEvent(EventType.TURN_RIGHT), 500);

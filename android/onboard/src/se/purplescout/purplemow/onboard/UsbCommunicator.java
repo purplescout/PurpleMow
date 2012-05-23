@@ -9,9 +9,7 @@ import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
-import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
-import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -98,9 +96,7 @@ public class UsbCommunicator extends BroadcastReceiver {
 		motorFSM.start();
 		sensorReader.start();
 		
-		// Bootstrap fsm
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD));
-		mainFSM.queueEvent(new MainFSMEvent(EventType.AVOIDING_OBSTACLE_DONE));
 	}
 
 	void closeAccessory() {
@@ -115,7 +111,9 @@ public class UsbCommunicator extends BroadcastReceiver {
 			mAccessory = null;
 			fileOutputStream = null;
 			fileInputStream = null;
-			mainFSM.stop();
+			mainFSM.shutdown();
+			motorFSM.shutdown();
+			sensorReader.shutdown();
 		}
 	}
 

@@ -17,8 +17,7 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	private State state = State.IDLE;
 	private AbstractFSM<MotorFSMEvent> motorFSM;
-
-	TextView textView;
+	private TextView textView;
 
 	public MainFSM(TextView textView) {
 		this.textView = textView;
@@ -28,7 +27,7 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 	protected void handleEvent(MainFSMEvent event) {
 		switch (state) {
 		case IDLE:
-			if (event.getEventType() == MainFSMEvent.EventType.AVOIDING_OBSTACLE_DONE) {
+			if (event.getEventType() == MainFSMEvent.EventType.STARTED_MOWING) {
 				changeState(State.MOWING);
 			}
 			break;
@@ -37,26 +36,26 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 				logToTextView("Range: " + event.getValue());
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
-					rainDance();
+					avoidOstacle();
 				}
 			}
 			if (event.getEventType() == EventType.BWF_RIGHT) {
 				logToTextView("BWF: " + event.getValue());
 				if (event.getValue() < Constants.BWF_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
-					rainDance();
+					avoidOstacle();
 				}
 			}
 			break;
 		case AVOIDING_OBSTACLE:
-			if (event.getEventType() == EventType.AVOIDING_OBSTACLE_DONE) {
+			if (event.getEventType() == EventType.STARTED_MOWING) {
 				changeState(State.MOWING);
 			}
 			break;
 		}
 	}
 	
-	private void rainDance() {
+	private void avoidOstacle() {
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
 		
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE), 500);
@@ -68,7 +67,6 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 		}
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 2500);
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD), 3000);
-		queueDelayedEvent(new MainFSMEvent(EventType.AVOIDING_OBSTACLE_DONE), 3200);
 	}
 
 	public void setMotorFSM(AbstractFSM<MotorFSMEvent> fsm) {
