@@ -1,6 +1,5 @@
 package se.purplescout.purplemow.core.fsm.event;
 
-
 public class MotorFSMEvent implements Comparable<MotorFSMEvent>{
 	public enum EventType {
 		EMERGENCY_STOP(10), MOVE_FWD(5), REVERSE(5), TURN_LEFT(5), TURN_RIGHT(5), STOP(5);

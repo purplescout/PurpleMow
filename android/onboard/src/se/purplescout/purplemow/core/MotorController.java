@@ -4,10 +4,11 @@ import static se.purplescout.purplemow.core.Constants.FULL_SPEED;
 
 import java.io.IOException;
 
-import se.purplescout.purplemow.core.Constants.Direction;
-
 public class MotorController {
-
+	public enum Direction {
+		FORWARD, BACKWARD, LEFT, RIGHT
+	}
+	
 	private boolean moving;
 
 	private ComStream comStream;

@@ -24,7 +24,6 @@ import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
 public class UsbCommunicator extends BroadcastReceiver {
-	private static final String TAG = "PurpleMow";
 	static final String ACTION_USB_PERMISSION = "se.purplescout.purplemow.action.USB_PERMISSION";
 
 	private UsbManager mUsbManager;
@@ -84,20 +83,24 @@ public class UsbCommunicator extends BroadcastReceiver {
 			fileOutputStream = new FileOutputStream(fd);
 
 			// Kör igång
-			mainFSM = new MainFSM(textView);
-			motorFSM = new MotorFSM(getComStream(), textView);
-			sensorReader = new SensorReader(getComStream(), textView);
-			mainFSM.setMotorFSM(motorFSM);
-			motorFSM.setMainFSM(mainFSM);
-			sensorReader.setMainFSM(mainFSM);
-			mainFSM.start();
-			motorFSM.start();
-			sensorReader.start();
-			
-			// Bootstrap fsm
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD));
-			mainFSM.queueEvent(new MainFSMEvent(EventType.AVOIDING_OBSTACLE_DONE));
+			bootstrap();
 		}
+	}
+
+	private void bootstrap() {
+		mainFSM = new MainFSM(textView);
+		motorFSM = new MotorFSM(getComStream(), textView);
+		sensorReader = new SensorReader(getComStream(), textView);
+		mainFSM.setMotorFSM(motorFSM);
+		motorFSM.setMainFSM(mainFSM);
+		sensorReader.setMainFSM(mainFSM);
+		mainFSM.start();
+		motorFSM.start();
+		sensorReader.start();
+		
+		// Bootstrap fsm
+		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD));
+		mainFSM.queueEvent(new MainFSMEvent(EventType.AVOIDING_OBSTACLE_DONE));
 	}
 
 	void closeAccessory() {

@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.Constants;
-import se.purplescout.purplemow.core.Constants.Direction;
 import se.purplescout.purplemow.core.MotorController;
+import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType;

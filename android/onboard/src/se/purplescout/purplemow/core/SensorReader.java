@@ -5,9 +5,6 @@ import java.io.IOException;
 import se.purplescout.purplemow.core.fsm.AbstractFSM;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
-
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.widget.TextView;
 

@@ -35,7 +35,7 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 		case MOWING:
 			if (event.getEventType() == EventType.RANGE) {
 				logToTextView("Range: " + event.getValue());
-				if (event.getValue() > Constants.TOO_DARN_CLOSE) {
+				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					rainDance();
 				}

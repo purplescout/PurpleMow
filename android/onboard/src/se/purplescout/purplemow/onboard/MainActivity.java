@@ -36,15 +36,12 @@ public class MainActivity extends Activity {
 			UsbAccessory accessory = (UsbAccessory) getLastNonConfigurationInstance();
 			mUsbCommunicator.openAccessory(accessory);
 		}
-
-		// mRemoteController = new RemoteController(mUsbCommunicator, textView);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		mUsbCommunicator.resume(mPermissionIntent);
-		// mcLock.acquire(); // tells android to process multicast packets
 	}
 
 	@Override
