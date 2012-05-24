@@ -2,7 +2,7 @@ package se.purplescout.purplemow.core.fsm.event;
 
 public class MainFSMEvent implements Comparable<MainFSMEvent> {
 	public enum EventType {
-		BWF_LEFT(5), BWF_RIGHT(5), RANGE(5), STARTED_MOWING(5);
+		BWF_LEFT(5), BWF_RIGHT(5), RANGE(5), STARTED_MOWING(5), REMOTE_CONNECTED(5), REMOTE_DISCONNECTED(5);
 		
 		private int priority;
 

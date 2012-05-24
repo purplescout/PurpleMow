@@ -18,8 +18,8 @@ public class MotorController {
 	}
 
 	public void move(int speed) throws IOException {
-		comStream.sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO1, speed);
-		comStream.sendCommand(ComStream.SERVO_COMMAND, ComStream.SERVO2, speed);
+		comStream.sendCommand(ComStream.MOTOR_COMMAND, ComStream.MOTOR_LEFT, speed);
+		comStream.sendCommand(ComStream.MOTOR_COMMAND, ComStream.MOTOR_RIGHT, speed);
 
 		moving = (speed > 0);
 	}
@@ -29,20 +29,20 @@ public class MotorController {
 
 		switch (direction) {
 		case FORWARD:
-			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY1, 0);
-			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 0);
+			comStream.sendCommand(ComStream.DIRECTION_COMMAND, ComStream.MOTOR_RIGHT, 0);
+			comStream.sendCommand(ComStream.DIRECTION_COMMAND, ComStream.MOTOR_LEFT, 0);
 			break;
 		case BACKWARD:
-			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY1, 1);
-			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 1);
+			comStream.sendCommand(ComStream.DIRECTION_COMMAND, ComStream.MOTOR_RIGHT, 1);
+			comStream.sendCommand(ComStream.DIRECTION_COMMAND, ComStream.MOTOR_LEFT, 1);
 			break;
 		case LEFT:
-			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY1, 1);
-			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 0);
+			comStream.sendCommand(ComStream.DIRECTION_COMMAND, ComStream.MOTOR_RIGHT, 0);
+			comStream.sendCommand(ComStream.DIRECTION_COMMAND, ComStream.MOTOR_LEFT, 1);
 			break;
 		case RIGHT:
-			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY1, 0);
-			comStream.sendCommand(ComStream.RELAY_COMMAND, ComStream.RELAY2, 1);
+			comStream.sendCommand(ComStream.DIRECTION_COMMAND, ComStream.MOTOR_RIGHT, 1);
+			comStream.sendCommand(ComStream.DIRECTION_COMMAND, ComStream.MOTOR_LEFT, 0);
 			break;
 		}
 		// sleep(300);
