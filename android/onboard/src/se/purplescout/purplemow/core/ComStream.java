@@ -17,8 +17,8 @@ public abstract class ComStream {
 	public static final byte RANGE_SENSOR = 0x0;
 	public static final byte MOIST_SENSOR = 0x1;
 	public static final byte VOLTAGE_SENSOR = 0x2;
-	public static final byte BWF_SENSOR_RIGHT = 0x3;
-	public static final byte BWF_SENSOR_LEFT = 0x4;
+	public static final byte BWF_SENSOR_LEFT = 0x3;
+	public static final byte BWF_SENSOR_RIGHT = 0x4;
 
 	public abstract void sendCommand(byte command, byte target, int value) throws IOException;
 

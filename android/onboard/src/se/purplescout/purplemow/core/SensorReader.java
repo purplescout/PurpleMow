@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 public class SensorReader extends Thread {
 
+	private static final int SLEEP_TIME = 100;
+
 	private ComStream comStream;
 
 	private Integer latestDistanceValue = 0;
@@ -40,12 +42,17 @@ public class SensorReader extends Thread {
 				requestSensor(ComStream.RANGE_SENSOR);
 				readSensor();
 
-				Thread.sleep(100);
+				Thread.sleep(SLEEP_TIME);
 
 				requestSensor(ComStream.BWF_SENSOR_RIGHT);
 				readSensor();
 
-				Thread.sleep(100);
+				Thread.sleep(SLEEP_TIME);
+				
+				requestSensor(ComStream.BWF_SENSOR_LEFT);
+				readSensor();
+
+				Thread.sleep(SLEEP_TIME);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -75,6 +82,8 @@ public class SensorReader extends Thread {
 				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE, val));
 			} else if (buffer[1] == ComStream.BWF_SENSOR_RIGHT) {
 				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_RIGHT, val));
+			} else if (buffer[1] == ComStream.BWF_SENSOR_LEFT) {
+				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_LEFT, val));
 			}
 		} catch (IOException e) {
 			Log.e(this.getClass().getName(), e.getMessage());

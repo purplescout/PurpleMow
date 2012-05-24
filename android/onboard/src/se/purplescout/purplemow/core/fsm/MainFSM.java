@@ -33,19 +33,24 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 			break;
 		case MOWING:
 			if (event.getEventType() == EventType.RANGE) {
-				logToTextView("Range: " + event.getValue());
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle();
 				}
-			}
-			if (event.getEventType() == EventType.BWF_RIGHT) {
-				logToTextView("BWF: " + event.getValue());
+			} else if (event.getEventType() == EventType.BWF_RIGHT) {
+				logToTextView("BWF RIGHT: " + event.getValue());
+				if (event.getValue() < Constants.BWF_LIMIT) {
+					changeState(State.AVOIDING_OBSTACLE);
+					avoidOstacle();
+				}
+			} else if (event.getEventType() == EventType.BWF_LEFT) {
+				logToTextView("BWF LEFT: " + event.getValue());
 				if (event.getValue() < Constants.BWF_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle();
 				}
 			}
+
 			break;
 		case AVOIDING_OBSTACLE:
 			if (event.getEventType() == EventType.STARTED_MOWING) {
