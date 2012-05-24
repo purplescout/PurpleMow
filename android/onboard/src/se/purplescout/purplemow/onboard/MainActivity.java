@@ -1,58 +1,78 @@
 package se.purplescout.purplemow.onboard;
 
 import se.purplescout.R;
+import se.purplescout.purplemow.onboard.service.FSMService;
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
-
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 public class MainActivity extends Activity {
+	public interface Display {
+		
+		Button getStartBtn();
+		
+		Button getStopBtn();
+		
+		View getLogView();
+		
+		View getLoaderSpinner();
+	}
 	
-	private UsbCommunicator mUsbCommunicator;
-	private PendingIntent mPermissionIntent;
-
+	Display display;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		TextView textView = (TextView) findViewById(R.id.textview);
-		Log.i("PurpleMow",
-				"¤¤¤¤¤¤Nu startar det!¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤");
-		mUsbCommunicator = new UsbCommunicator(textView);
-
-		mUsbCommunicator.setUsbManager(UsbManager.getInstance(this));
-		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(UsbCommunicator.ACTION_USB_PERMISSION), 0);
-		IntentFilter filter = new IntentFilter(UsbCommunicator.ACTION_USB_PERMISSION);
-		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
-		registerReceiver(mUsbCommunicator, filter);
-
-		if (getLastNonConfigurationInstance() != null) {
-			UsbAccessory accessory = (UsbAccessory) getLastNonConfigurationInstance();
-			mUsbCommunicator.openAccessory(accessory);
-		}
+		Log.i("PurpleMow", "¤¤¤¤¤¤Nu startar det!¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤");
+		
+		display = new MainDisplay(this);
+		bind();	
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		mUsbCommunicator.resume(mPermissionIntent);
+	private void bind() {
+		display.getStartBtn().setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				startFSM();
+			}
+		});
+
+		display.getStopBtn().setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				stopFSM();
+			}
+		});
 	}
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		mUsbCommunicator.closeAccessory();
+	private void startFSM() {
+		display.getLogView().setVisibility(View.GONE);
+		display.getLoaderSpinner().setVisibility(View.VISIBLE);
+		display.getStartBtn().setEnabled(false);
+		display.getStopBtn().setEnabled(true);
+		
+		Intent serviceIntent = new Intent(MainActivity.this, FSMService.class);
+		serviceIntent.fillIn(getIntent(), 0);
+		Log.d(this.getClass().getCanonicalName(), "Starting service: " + FSMService.class.getCanonicalName());
+		startService(serviceIntent);
+		((View) findViewById(R.id.log)).setVisibility(View.VISIBLE);
+		((View) findViewById(R.id.spinner)).setVisibility(View.GONE);
 	}
-
-	@Override
-	public void onDestroy() {
-		unregisterReceiver(mUsbCommunicator);
-		super.onDestroy();
+	
+	private void stopFSM() {
+		display.getLogView().setVisibility(View.VISIBLE);
+		display.getLoaderSpinner().setVisibility(View.GONE);
+		display.getStartBtn().setEnabled(true);
+		display.getStopBtn().setEnabled(false);
+		
+		Intent intent = new Intent(this, FSMService.class);
+		stopService(intent);
 	}
 }

@@ -4,12 +4,57 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <ScrollView  android:layout_width="fill_parent" android:layout_height="wrap_content" android:overScrollMode="ifContentScrolls"  >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp" >
+
+        <Button
+            android:id="@+id/startFSM"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/start_mower" />
+
+        <Button
+            android:id="@+id/stopFSM"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/stop_mower" 
+            android:enabled="false"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="@string/log" />
+
+    <ScrollView
+        android:id="@+id/log"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="ifContentScrolls"
+        android:padding="5dp" >
+
         <TextView
             android:id="@+id/textview"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/hello" />
+            android:layout_height="wrap_content" />
     </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" >
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
 
 </LinearLayout>

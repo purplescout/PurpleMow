@@ -22,6 +22,17 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	private MotorController motorController;
 	private final TextView textView;
 	private AbstractFSM<MainFSMEvent> mainFSM;
+	
+	@Override
+	public void shutdown() {
+		try {
+			stopMotors();
+		} catch (IOException e) {
+			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+		} finally {
+			super.shutdown();
+		}
+	}
 
 	public MotorFSM(ComStream comStream, TextView textView) {
 		this.textView = textView;
