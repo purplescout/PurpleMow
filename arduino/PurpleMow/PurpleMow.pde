@@ -9,9 +9,14 @@
 
 #include "commands.h"
 
-#define  MOTOR_RIGHT            8
-#define  MOTOR_LEFT             9
+#define  MOTOR_RIGHT_PWM        8
+#define  MOTOR_LEFT_PWM         9
 #define  CUTTER                 11
+
+#define  MOTOR_RIGHT_A          22
+#define  MOTOR_RIGHT_B          24
+#define  MOTOR_LEFT_A           28
+#define  MOTOR_LEFT_B           30
 
 #define  RELAY_RIGHT            A0
 #define  RELAY_LEFT             A1
@@ -50,14 +55,16 @@ int i2c_read_pos;
 void setup() {
     Serial.begin(115200);
     Serial.print("\r\nStart");
-    pinMode(MOTOR_RIGHT, OUTPUT);   // sets the pin as output
-    pinMode(MOTOR_LEFT, OUTPUT);   // sets the pin as output
+    pinMode(MOTOR_RIGHT_PWM, OUTPUT);   // sets the pin as output
+    pinMode(MOTOR_LEFT_PWM, OUTPUT);   // sets the pin as output
     pinMode(CUTTER, OUTPUT);   // sets the pin as output
-    pinMode(RELAY_RIGHT, OUTPUT);
-    pinMode(RELAY_LEFT, OUTPUT);
+    pinMode(MOTOR_RIGHT_A, OUTPUT);
+    pinMode(MOTOR_RIGHT_B, OUTPUT);
+    pinMode(MOTOR_LEFT_A, OUTPUT);
+    pinMode(MOTOR_LEFT_B, OUTPUT);
     pinMode(RANGE_SENSOR, INPUT);
-    pinMode(MOIST_SENSOR, OUTPUT);
-    pinMode(VOLTAGE_SENSOR, OUTPUT);
+    pinMode(MOIST_SENSOR, INPUT);
+    pinMode(VOLTAGE_SENSOR, INPUT);
     pinMode(BWF_SENSOR_RIGHT, INPUT);
     pinMode(BWF_SENSOR_LEFT, INPUT);
     pinMode(ONBOARD_LED, OUTPUT);
@@ -105,13 +112,13 @@ void loop() {
         }
     } else {
         // reset outputs to default values on disconnect
-        analogWrite(MOTOR_RIGHT, 0);
-        analogWrite(MOTOR_LEFT, 0);
+        analogWrite(MOTOR_RIGHT_PWM, 0);
+        analogWrite(MOTOR_LEFT_PWM, 0);
         analogWrite(CUTTER, 255);
-        digitalWrite(RELAY_RIGHT, LOW);
-        digitalWrite(RELAY_LEFT, LOW);
-        digitalWrite(MOIST_SENSOR, LOW);
-        digitalWrite(VOLTAGE_SENSOR, LOW);
+        digitalWrite(MOTOR_RIGHT_A, LOW);
+        digitalWrite(MOTOR_RIGHT_B, LOW);
+        digitalWrite(MOTOR_LEFT_A, LOW);
+        digitalWrite(MOTOR_LEFT_B, LOW);
 
     }
 }
@@ -129,12 +136,12 @@ int process_command(byte* msg, int length)
     if (msg[0] == CMD_WRITE) {
         if (msg[1] == CMD_MOTOR_RIGHT)
         {
-            analogWrite(MOTOR_RIGHT, msg[2]);
+            analogWrite(MOTOR_RIGHT_PWM, msg[2]);
             result = 0;
         }
         else if (msg[1] == CMD_MOTOR_LEFT)
         {
-            analogWrite(MOTOR_LEFT, msg[2]);
+            analogWrite(MOTOR_LEFT_PWM, msg[2]);
             result = 0;
         }
         else if (msg[1] == CMD_CUTTER)
@@ -145,15 +152,14 @@ int process_command(byte* msg, int length)
     } else if (msg[0] == CMD_RELAY) {
         if (msg[1] == CMD_RELAY_RIGHT)
         {
-            digitalWrite(RELAY_RIGHT, msg[2] ? LOW : HIGH);
-            digitalWrite(RELAY_LEFT, msg[2] ? HIGH : LOW);
-
+            digitalWrite(MOTOR_RIGHT_A, msg[2] ? HIGH : LOW);
+            digitalWrite(MOTOR_RIGHT_B, msg[2] ? LOW : HIGH);
             result = 0;
         }
         else if (msg[1] == CMD_RELAY_LEFT)
         {
-            digitalWrite(MOIST_SENSOR, msg[2] ? LOW : HIGH);
-            digitalWrite(VOLTAGE_SENSOR, msg[2] ? HIGH : LOW);            
+            digitalWrite(MOTOR_LEFT_A, msg[2] ? HIGH : LOW);            
+            digitalWrite(MOTOR_LEFT_B, msg[2] ? LOW : HIGH);
             result = 0;
         }
     } else if (msg[0] == CMD_READ) {
