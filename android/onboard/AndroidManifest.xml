@@ -5,7 +5,8 @@
     android:versionName="1.0" >
 
     <uses-sdk android:minSdkVersion="10" />
-
+	<uses-permission android:name="android.permission.INTERNET" />
+    
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
@@ -22,7 +23,7 @@
 			<meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
 				android:resource="@xml/accessory_filter" />
         </activity>
-        <service android:name=".purplemow.onboard.service.FSMService" />
+        <service android:name=".purplemow.onboard.MainService" />
     </application>
 
 </manifest>
