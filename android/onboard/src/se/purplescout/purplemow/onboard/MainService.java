@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import se.purplescout.purplemow.core.Constants;
 import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
@@ -100,7 +101,7 @@ public class MainService extends IntentService {
 		motorFSM.start();
 		sensorReader.start();
 
-		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD));
+		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED));
 
 		try {
 			webServer = new WebServer(8080, this, mainFSM, motorFSM);
