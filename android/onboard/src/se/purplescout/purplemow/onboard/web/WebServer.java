@@ -62,21 +62,24 @@ public class WebServer extends NanoHTTPD {
 
 	@Override
 	public Response serveFile(String uri, Properties header, File homeDir, boolean allowDirectoryListing) {
+		String root = "web";
+		if (uri.equals("/")) {
+			uri = "/index.html";
+		}
 		try {
-			if (uri.equals("/") || uri.equals("/index.html")) {
-				InputStream fileStream = context.getAssets().open("web/index.html");
-				return new Response(HTTP_OK, MIME_HTML, fileStream);
-			} else if (uri.equals("/js.js")) {
-				InputStream fileStream = context.getAssets().open("web/js.js");
-				return new Response(HTTP_OK, "application/javascript", fileStream);
-			}
-
-			return new Response(HTTP_NOTFOUND, MIME_PLAINTEXT, "404 Not found");
+			String mimeType = MIME_PLAINTEXT;
+			if (uri.endsWith(".html")) {
+				mimeType = MIME_HTML;
+			} else if (uri.endsWith(".js")) {
+				mimeType = "application/javascript";
+			}		
+			
+			InputStream fileStream = context.getAssets().open(root + uri);
+			return new Response(HTTP_OK, mimeType, fileStream);
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
-
-			return new Response(HTTP_INTERNALERROR, MIME_PLAINTEXT, e.getMessage());
+			return new Response(HTTP_NOTFOUND, MIME_PLAINTEXT, e.getMessage());
 		}
 	}
 }
