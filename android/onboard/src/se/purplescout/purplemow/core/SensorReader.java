@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 public class SensorReader extends Thread {
 
-	private static final int SLEEP_TIME = 200;
+	private static final int SLEEP_TIME = 100;
 
 	private ComStream comStream;
 
@@ -39,8 +39,14 @@ public class SensorReader extends Thread {
 		try {
 			logToTextView("SensorReader running");
 			while (isRunning) {
-				requestSensor(ComStream.RANGE_SENSOR);
-				Log.v(this.getClass().getCanonicalName(), "Requested range sensor");
+				requestSensor(ComStream.RANGE_SENSOR_LEFT);
+				Log.v(this.getClass().getCanonicalName(), "Requested range sensor left");
+				readSensor();
+
+				Thread.sleep(SLEEP_TIME);
+
+				requestSensor(ComStream.RANGE_SENSOR_RIGHT);
+				Log.v(this.getClass().getCanonicalName(), "Requested range sensor right");
 				readSensor();
 
 				Thread.sleep(SLEEP_TIME);
@@ -81,9 +87,9 @@ public class SensorReader extends Thread {
 			this.loB = lo;
 			int val = composeInt(hi, lo);
 			latestDistanceValue = val;
-			if (buffer[1] == ComStream.RANGE_SENSOR) {
+			if (buffer[1] == ComStream.RANGE_SENSOR_LEFT) {
 				Log.v(this.getClass().getCanonicalName(), "Received range sensor: " + val);
-				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE, val));
+				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE_LEFT, val));
 			} else if (buffer[1] == ComStream.BWF_SENSOR_RIGHT) {
 				Log.v(this.getClass().getCanonicalName(), "Received right bwf sensor: " + val);
 				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_RIGHT, val));

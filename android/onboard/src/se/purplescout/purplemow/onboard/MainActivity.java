@@ -23,7 +23,7 @@ import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
 public class MainActivity extends Activity {
-	
+
 	private static final String MAIN = "android.intent.action.MAIN";
 	private static final String ACTION_USB_PERMISSION = "se.purplescout.purplemow.USB_PERMISSION";
 
@@ -51,12 +51,12 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		Log.i("PurpleMow",
-				"¤¤¤¤¤¤Nu startar det!¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤");
+				"¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ Nu startar det! ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤");
 
 		display = new MainDisplay(this);
 
 		bind();
-		
+
 		if (getIntent().getAction().equals(UsbManager.ACTION_USB_ACCESSORY_ATTACHED)) {
 			usbAccessoryIntent = getIntent();
 			display.getStartBtn().setEnabled(true);
@@ -210,9 +210,9 @@ public class MainActivity extends Activity {
 			if (!usbManager.hasPermission(accessory)) {
 				if (!permissionRequestPending) {
 					PendingIntent permissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-                    usbManager.requestPermission(accessory, permissionIntent);
-                    permissionRequestPending = true;
-                }
+					usbManager.requestPermission(accessory, permissionIntent);
+					permissionRequestPending = true;
+				}
 			}
 		} else {
 			display.showNotConnectedPopup();

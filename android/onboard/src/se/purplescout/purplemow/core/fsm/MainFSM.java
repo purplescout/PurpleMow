@@ -35,7 +35,12 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 			}
 			break;
 		case MOWING:
-			if (event.getEventType() == EventType.RANGE) {
+			if (event.getEventType() == EventType.RANGE_LEFT) {
+				if (event.getValue() > Constants.RANGE_LIMIT) {
+					changeState(State.AVOIDING_OBSTACLE);
+					avoidOstacle();
+				}
+			} else if (event.getEventType() == EventType.RANGE_RIGHT) {
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle();
@@ -68,19 +73,19 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 			break;
 		}
 	}
-	
+
 	private void avoidOstacle() {
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
-		
+
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE), 500);
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 1500);
 		if (new Random().nextBoolean()) {
-			motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT) , 2000);
+			motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT), 2000);
 		} else {
-			motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_RIGHT) , 2000);
+			motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_RIGHT), 2000);
 		}
-		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 2500);
-		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD), 3000);
+		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 3000);
+		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD), 3500);
 	}
 
 	public void setMotorFSM(AbstractFSM<MotorFSMEvent> fsm) {
@@ -91,7 +96,7 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 		Log.d(this.getClass().getName(), "Change state from " + state + ", to " + newState);
 		state = newState;
 	}
-	
+
 	private void logToTextView(final String msg) {
 		Log.d(this.getClass().getCanonicalName(), msg + " " + Thread.currentThread().getId());
 		textView.post(new Runnable() {
