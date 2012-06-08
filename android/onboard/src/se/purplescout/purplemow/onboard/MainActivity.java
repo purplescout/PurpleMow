@@ -55,12 +55,13 @@ public class MainActivity extends Activity {
 
 		display = new MainDisplay(this);
 
+		bind();
+
 		if (getIntent().getAction().equals(UsbManager.ACTION_USB_ACCESSORY_ATTACHED)) {
 			usbAccessoryIntent = getIntent();
-			bind();
 			display.getStartBtn().setEnabled(true);
 		} else if (getIntent().getAction().equals(MAIN)) {
-			setupUsbConnection();
+			display.showNotConnectedPopup();
 		}
 	}
 
@@ -103,23 +104,23 @@ public class MainActivity extends Activity {
 			}
 		}, new IntentFilter(UsbManager.ACTION_USB_ACCESSORY_DETACHED));
 
-//		this.registerReceiver(new BroadcastReceiver() {
-//
-//			@Override
-//			public void onReceive(Context context, Intent intent) {
-//				String action = intent.getAction();
-//				if (ACTION_USB_PERMISSION.equals(action)) {
-//					synchronized (this) {
-//						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-//							usbAccessoryIntent = intent;
-//							onAccessGranted.run();
-//						} else {
-//							Log.d(MainActivity.this.getClass().getCanonicalName(), "permission denied for accessory " + accessory.toString());
-//						}
-//					}
-//				}
-//			}
-//		}, filter);
+		this.registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String action = intent.getAction();
+				if (ACTION_USB_PERMISSION.equals(action)) {
+					synchronized (this) {
+						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+							usbAccessoryIntent = intent;
+							display.getStartBtn().setEnabled(true);
+						} else {
+							Log.d(MainActivity.this.getClass().getCanonicalName(), "permission denied for accessory ");
+						}
+					}
+				}
+			}
+		}, new IntentFilter(ACTION_USB_PERMISSION));
 	}
 
 	private void startFSM() {
@@ -201,52 +202,17 @@ public class MainActivity extends Activity {
 		return accessory;
 	}
 
-	private void requestPermissionForUsbAccessory(UsbManager manager, final UsbAccessory accessory, final Runnable onAccessGranted) {
-		PendingIntent permissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-		registerReceiver(new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				String action = intent.getAction();
-				if (ACTION_USB_PERMISSION.equals(action)) {
-					synchronized (this) {
-						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-							usbAccessoryIntent = intent;
-							onAccessGranted.run();
-						} else {
-							Log.d(MainActivity.this.getClass().getCanonicalName(), "permission denied for accessory " + accessory.toString());
-						}
-					}
-				}
-			}
-		}, filter);
-
-		manager.requestPermission(accessory, permissionIntent);
-	}
-
 	private void setupUsbConnection() {
 		UsbManager usbManager = UsbManager.getInstance(this);
 		final UsbAccessory accessory = findUsbAccessory(usbManager);
 
 		if (accessory != null) {
-			if (usbManager.hasPermission(accessory)) {
-
-			} else {
+			if (!usbManager.hasPermission(accessory)) {
 				if (!permissionRequestPending) {
 					PendingIntent permissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-					IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
                     usbManager.requestPermission(accessory, permissionIntent);
                     permissionRequestPending = true;
                 }
-//				requestPermissionForUsbAccessory(manager, accessory, new Runnable() {
-//
-//					@Override
-//					public void run() {
-//						bind();
-//						display.getStartBtn().setEnabled(true);
-//					}
-//				});
 			}
 		} else {
 			display.showNotConnectedPopup();
