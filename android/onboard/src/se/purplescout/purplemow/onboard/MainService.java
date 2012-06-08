@@ -5,9 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
-
 import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
@@ -22,11 +19,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.widget.TextView;
+
+import com.android.future.usb.UsbAccessory;
+import com.android.future.usb.UsbManager;
 
 public class MainService extends IntentService {
 
 	private static final int NOTIFICATION_FLAG = 0;
+	private static final String ACTION_LOG_MSG = "se.purplescout.purplemow.LOG_MSG";
 
 	MainFSM mainFSM;
 	MotorFSM motorFSM;
@@ -79,10 +79,18 @@ public class MainService extends IntentService {
 		notification.flags |= Notification.FLAG_NO_CLEAR;
 		notificationManager.notify(NOTIFICATION_FLAG, notification);
 
-		TextView textView = new TextView(getApplicationContext());
-		mainFSM = new MainFSM(textView);
-		motorFSM = new MotorFSM(comStream, textView);
-		sensorReader = new SensorReader(comStream, textView);
+		GuiLogCallback logCallback = new GuiLogCallback() {
+
+			@Override
+			public void post(String msg) {
+				Intent intent = new Intent(ACTION_LOG_MSG);
+				intent.putExtra(ACTION_LOG_MSG, msg);
+				MainService.this.getApplicationContext().sendBroadcast(intent);
+			}
+		};
+		mainFSM = new MainFSM(logCallback);
+		motorFSM = new MotorFSM(comStream, logCallback);
+		sensorReader = new SensorReader(comStream, logCallback);
 		mainFSM.setMotorFSM(motorFSM);
 		motorFSM.setMainFSM(mainFSM);
 		sensorReader.setMainFSM(mainFSM);

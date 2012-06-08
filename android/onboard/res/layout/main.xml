@@ -41,7 +41,7 @@
         android:padding="5dp" >
 
         <TextView
-            android:id="@+id/textview"
+            android:id="@+id/logText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
     </ScrollView>
