@@ -28,20 +28,30 @@ public class WebServer extends NanoHTTPD {
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Properties files) {
 		if (uri.equalsIgnoreCase("/command")) {
+			String valueString = parms.getProperty("value");
+			int value;
+			try {
+				value = Integer.parseInt(valueString);
+			} catch (NumberFormatException e) {
+				return new Response(HTTP_BADREQUEST, MIME_PLAINTEXT, e.getMessage());
+			} catch (NullPointerException e) {
+				return new Response(HTTP_BADREQUEST, MIME_PLAINTEXT, e.getMessage());
+			}
+			
 			if (parms.getProperty("cmd").equals("connect")) {
 				mainFSM.queueEvent(new MainFSMEvent(MainFSMEvent.EventType.REMOTE_CONNECTED));
 			} else if (parms.getProperty("cmd").equals("disconnect")) {
 				mainFSM.queueEvent(new MainFSMEvent(MainFSMEvent.EventType.REMOTE_DISCONNECTED));
 			} else if (parms.getProperty("cmd").equals("forward")) {
-				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD));
+				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, value));
 			} else if (parms.getProperty("cmd").equals("left")) {
-				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT));
+				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT, value));
 			} else if (parms.getProperty("cmd").equals("stop")) {
-				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
+				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP, value));
 			} else if (parms.getProperty("cmd").equals("right")) {
-				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_RIGHT));
+				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_RIGHT, value));
 			} else if (parms.getProperty("cmd").equals("backward")) {
-				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE));
+				motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE, value));
 			}
 
 			return new Response(HTTP_OK, MIME_PLAINTEXT, "Moving " + parms.getProperty("cmd"));

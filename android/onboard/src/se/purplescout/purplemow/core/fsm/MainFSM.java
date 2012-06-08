@@ -77,15 +77,15 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 	private void avoidOstacle() {
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
 
-		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE), 500);
+		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE, Constants.FULL_SPEED), 500);
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 1500);
 		if (new Random().nextBoolean()) {
-			motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT), 2000);
+			motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT, Constants.FULL_SPEED), 2000);
 		} else {
-			motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_RIGHT), 2000);
+			motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_RIGHT, Constants.FULL_SPEED), 2000);
 		}
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 3000);
-		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD), 3500);
+		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED), 3500);
 	}
 
 	public void setMotorFSM(AbstractFSM<MotorFSMEvent> fsm) {

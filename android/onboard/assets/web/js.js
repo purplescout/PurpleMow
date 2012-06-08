@@ -14,7 +14,8 @@ var bindCmd = function(button, command) {
 			url : "command",
 			type : "POST",
 			data : {
-				cmd : command
+				cmd : command,
+				value: updateSpeed(command)
 			},
 			success : function(result) {
 				$("#text").text(result)
@@ -40,6 +41,7 @@ var bindConnect = function(button) {
 				$("#disconnect").removeAttr("disabled")
 				$("#connect").attr("disabled", "disabled");
 				$("#text").text("");
+				resetSpeed();
 			}
 		})
 	})
@@ -66,3 +68,47 @@ var bindDisconnect = function(button) {
 		})
 	})
 }
+
+var speed = {};
+
+var updateSpeed = function(command) {
+	var currSpeed = speed[command];
+	resetSpeed();
+	if (command == "stop") {
+		return speed[command];
+	}
+	if (currSpeed < 3) {
+		speed[command] = currSpeed + 1;
+	} else {
+		speed[command] = 3;
+	}
+	showSpeedMeter(command, speed[command]);
+	
+	return speed[command]
+}
+
+var showSpeedMeter = function(command, val) {
+	for (i = 1; i <= val; i++) {
+		$("#" + command + "_" + i).css("visibility", "visible");
+	}
+}
+
+var hideSpeedMeter = function(command) {
+    $("#" + command + "_1").css("visibility", "hidden");
+    $("#" + command + "_2").css("visibility", "hidden");
+    $("#" + command + "_3").css("visibility", "hidden");
+}
+
+var resetSpeed = function () {
+    speed["forward"] = 0;
+    hideSpeedMeter("forward");
+    speed["left"] = 0;
+    hideSpeedMeter("left");
+    speed["right"] = 0;
+    hideSpeedMeter("right");
+    speed["backward"] = 0;
+    hideSpeedMeter("backward");
+    speed["stop"] = -1;
+}
+
+
