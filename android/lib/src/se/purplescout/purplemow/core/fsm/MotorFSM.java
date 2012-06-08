@@ -9,8 +9,8 @@ import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType;
+import se.purplescout.purplemow.onboard.GuiLogCallback;
 import android.util.Log;
-import android.widget.TextView;
 
 public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
@@ -20,7 +20,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
 	private State state = State.STOPPED;
 	private MotorController motorController;
-	private final TextView textView;
+	private final GuiLogCallback logCallback;
 	private AbstractFSM<MainFSMEvent> mainFSM;
 
 	@Override
@@ -34,8 +34,8 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		}
 	}
 
-	public MotorFSM(ComStream comStream, TextView textView) {
-		this.textView = textView;
+	public MotorFSM(ComStream comStream, GuiLogCallback logCallback) {
+		this.logCallback = logCallback;
 		this.motorController = new MotorController(comStream);
 	}
 	
@@ -134,16 +134,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
 	private void logToTextView(final String msg) {
 		Log.d(this.getClass().getName(), msg + " " + Thread.currentThread().getId());
-		textView.post(new Runnable() {
-
-			@Override
-			public void run() {
-				textView.append(msg + "\n");
-				CharSequence fromTextView = textView.getText();
-				fromTextView = msg + "\n" + fromTextView;
-				textView.setText(fromTextView);
-			}
-		});
+		logCallback.post(msg);
 	}
 
 }

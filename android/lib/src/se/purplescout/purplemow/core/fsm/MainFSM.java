@@ -6,8 +6,8 @@ import se.purplescout.purplemow.core.Constants;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
+import se.purplescout.purplemow.onboard.GuiLogCallback;
 import android.util.Log;
-import android.widget.TextView;
 
 public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
@@ -17,10 +17,10 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	private State state = State.IDLE;
 	private AbstractFSM<MotorFSMEvent> motorFSM;
-	private TextView textView;
+	private GuiLogCallback guiLogCallback;
 
-	public MainFSM(TextView textView) {
-		this.textView = textView;
+	public MainFSM(GuiLogCallback log) {
+		this.guiLogCallback = log;
 	}
 
 	@Override
@@ -99,15 +99,6 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	private void logToTextView(final String msg) {
 		Log.d(this.getClass().getCanonicalName(), msg + " " + Thread.currentThread().getId());
-		textView.post(new Runnable() {
-
-			@Override
-			public void run() {
-				textView.append(msg + "\n");
-				CharSequence fromTextView = textView.getText();
-				fromTextView = msg + "\n" + fromTextView;
-				textView.setText(fromTextView);
-			}
-		});
+		guiLogCallback.post(msg);
 	}
 }

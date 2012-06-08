@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
@@ -26,6 +27,7 @@ public class MainActivity extends Activity {
 
 	private static final String MAIN = "android.intent.action.MAIN";
 	private static final String ACTION_USB_PERMISSION = "se.purplescout.purplemow.USB_PERMISSION";
+	private static final String ACTION_LOG_MSG = "se.purplescout.purplemow.LOG_MSG";
 
 	public interface Display {
 
@@ -34,6 +36,8 @@ public class MainActivity extends Activity {
 		Button getStopBtn();
 
 		View getLogView();
+
+		TextView getLogText();
 
 		View getLoaderSpinner();
 
@@ -108,19 +112,19 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				String action = intent.getAction();
-				if (ACTION_USB_PERMISSION.equals(action)) {
-					synchronized (this) {
-						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-							usbAccessoryIntent = intent;
-							display.getStartBtn().setEnabled(true);
-						} else {
-							Log.d(MainActivity.this.getClass().getCanonicalName(), "permission denied for accessory ");
-						}
-					}
-				}
+				determineUsbPermission(intent);
 			}
 		}, new IntentFilter(ACTION_USB_PERMISSION));
+
+		this.registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String log = display.getLogText().getText().toString();
+				log = intent.getExtras().getString(ACTION_LOG_MSG) + "\n" + log;
+				display.getLogText().setText(log);
+			}
+		}, new IntentFilter(ACTION_LOG_MSG));
 	}
 
 	private void startFSM() {
@@ -216,6 +220,20 @@ public class MainActivity extends Activity {
 			}
 		} else {
 			display.showNotConnectedPopup();
+		}
+	}
+
+	private void determineUsbPermission(Intent intent) {
+		String action = intent.getAction();
+		if (ACTION_USB_PERMISSION.equals(action)) {
+			synchronized (this) {
+				if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+					usbAccessoryIntent = intent;
+					display.getStartBtn().setEnabled(true);
+				} else {
+					Log.d(MainActivity.this.getClass().getCanonicalName(), "permission denied for accessory ");
+				}
+			}
 		}
 	}
 }

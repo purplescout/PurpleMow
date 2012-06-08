@@ -6,12 +6,14 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainDisplay implements MainActivity.Display {
 
 	private Button startBtn;
 	private Button stopBtn;
 	private View logView;
+	private TextView logText;
 	private View loaderSpinner;
 	private AlertDialog popup;
 
@@ -20,6 +22,7 @@ public class MainDisplay implements MainActivity.Display {
 		stopBtn = ((Button) activity.findViewById(R.id.stopFSM));
 		logView = ((View) activity.findViewById(R.id.log));
 		loaderSpinner = ((View) activity.findViewById(R.id.spinner));
+		logText = (TextView) activity.findViewById(R.id.logText);
 
 		createPopup(activity);
 	}
@@ -66,5 +69,10 @@ public class MainDisplay implements MainActivity.Display {
 	@Override
 	public void hideNotConnectedPopup() {
 		popup.hide();
+	}
+
+	@Override
+	public TextView getLogText() {
+		return logText;
 	}
 }

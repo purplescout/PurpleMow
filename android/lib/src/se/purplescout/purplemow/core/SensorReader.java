@@ -5,8 +5,8 @@ import java.io.IOException;
 import se.purplescout.purplemow.core.fsm.AbstractFSM;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
+import se.purplescout.purplemow.onboard.GuiLogCallback;
 import android.util.Log;
-import android.widget.TextView;
 
 public class SensorReader extends Thread {
 
@@ -19,14 +19,14 @@ public class SensorReader extends Thread {
 	private byte hiB;
 	private byte loB;
 	private Integer latestBWFValue = 0;
-	private final TextView textView;
+	private final GuiLogCallback guiLogCallback;
 	private boolean isRunning = true;
 
 	AbstractFSM<MainFSMEvent> mainFSM;
 
-	public SensorReader(ComStream comStream, TextView textView) {
+	public SensorReader(ComStream comStream, GuiLogCallback logCallback) {
 		this.comStream = comStream;
-		this.textView = textView;
+		this.guiLogCallback = logCallback;
 	}
 
 	public void setMainFSM(AbstractFSM<MainFSMEvent> fsm) {
@@ -127,15 +127,7 @@ public class SensorReader extends Thread {
 	}
 
 	private void logToTextView(final String msg) {
-		textView.post(new Runnable() {
-
-			@Override
-			public void run() {
-				CharSequence fromTextView = textView.getText();
-				fromTextView = msg + "\n" + fromTextView;
-				textView.setText(fromTextView);
-			}
-		});
+		guiLogCallback.post(msg);
 	}
 
 	public void shutdown() {
