@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 
 #include "messages.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 /**
  * @defgroup message Message

@@ -18,6 +18,13 @@ typedef enum error_code {
     err_MESSAGE,
     err_UNHANDLED_SENSOR,
     err_FILE,
+    err_NO_ITEM,
+    err_EMPTY_LIST,
+    err_ALREADY_IN_LIST,
+    err_NO_MORE_ITEMS,
+    err_LESS_THAN,
+    err_GREATER_THAN,
+    err_EQUAL,
 } error_code;
 
 #define SUCCESS(x) (x) == err_OK

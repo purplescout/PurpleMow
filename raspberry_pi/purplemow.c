@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "purplemow.h"
 
+#include "test.h"
 #include "test_thread.h"
 
 #define DO_ARGS     0
@@ -17,8 +18,10 @@
 #define DO_COMM     1
 #define DO_DCN      1
 #define DO_NET      0
-#define DO_TEST_THREADS  0
 #define DO_SEN_RANGE 1
+
+#define DO_TEST          0
+#define DO_TEST_THREADS  0
 
 /**
  * @defgroup purplemow PurpleMow
@@ -107,6 +110,10 @@ int main(int argc, char **argv)
     multicast_init();
 #endif // DO_NET
 
+#if DO_TEST
+    test_init();
+#endif // DO_TEST
+
 #if DO_TEST_THREADS
     test_thread_init();
 #endif // DO_TEST_THREADS
@@ -129,6 +136,9 @@ int main(int argc, char **argv)
     communicator_start();
 #endif // DO_COMM
 
+#if DO_TEST
+    test_start();
+#endif // DO_TEST
 
 #if DO_TEST_THREADS
     test_thread_start();

@@ -25,7 +25,9 @@ purplemow_src = purplemow.c \
 				sensor_range.c \
 				thread.c \
 				poller.c \
-				utils.c \
+				utils/utils.c \
+				utils/list.c \
+				test.c \
 				test_thread.c
 
 BIN = purplemow
@@ -50,9 +52,12 @@ $(BIN): $(OBJ)
 clean:
 	$(Q) $(ECHO) " [ removing *.o ]"
 	$(Q) $(RM) -f *.o
+	$(Q) $(RM) -f utils/*.o
 	$(Q) $(ECHO) " [ removing *.d ]"
 	$(Q) $(RM) -f *.d
+	$(Q) $(RM) -f utils/*.d
 	$(Q) $(RM) -f *.d.????
+	$(Q) $(RM) -f utils/*.d.????
 	$(Q) $(ECHO) " [ removing $(BIN) ]"
 	$(Q) $(RM) -f $(BIN)
 

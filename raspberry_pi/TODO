@@ -6,6 +6,14 @@ IO:
 2 engines
 1 blade
 
+general:
+[ ] init should register which phases it shall run in
+
+list:
+[x] iterator for get_next?
+[ ] iterator for add/remove before/after
+[ ] find with comparator, return iterator
+
 remote cli:
 [ ] web page
 
@@ -21,6 +29,14 @@ dcn:
 [x] get ip
 [ ] set ip, manually/dhcp
 [ ] version number from git?
+
+config:
+[ ] read file
+[ ] command to write file
+[ ] write file
+[ ] command to reload file
+[ ] database of configured values
+[ ] config version in file?
 
 sensors:
 [ ] poll range

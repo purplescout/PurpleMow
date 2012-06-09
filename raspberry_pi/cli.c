@@ -56,7 +56,7 @@ static struct cli_item* list_head;
 static struct cli this;
 
 /**
- * Initialized the cli.
+ * Initialize the cli.
  *
  * @ingroup cli
  *
