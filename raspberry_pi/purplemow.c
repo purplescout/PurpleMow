@@ -3,50 +3,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "raspi_io.h"
-#include "auto_management.h"
-#include "dcn.h"
 #include "messages.h"
-#include "utils.h"
 #include "purplemow.h"
 
-#include "test.h"
-#include "test_thread.h"
-
-#define DO_ARGS     0
-#define DO_I2C      1
-#define DO_COMM     1
-#define DO_DCN      1
-#define DO_NET      0
-#define DO_SEN_RANGE 1
-
-#define DO_TEST          0
-#define DO_TEST_THREADS  0
 
 /**
- * @defgroup purplemow PurpleMow
- * PurpleMow.
- */
-
-/**
- * @defgroup purplemow_main PurpleMow
+ * @defgroup purplemow Main FSM
  * Main thread with the main FSM.
- *
- * @ingroup purplemow
  */
 
 // cli commands
 static error_code command_main(char *args);
 
 // Private
-static error_code main_init();
-static void process_events();
 static error_code handle_sensor(enum sensor sensor, enum decision decision);
 
 /**
  * purplemow
  *
- * @ingroup purplemow_main
+ * @ingroup purplemow
  */
 struct purplemow {
     struct message_queue    message_handler;
@@ -56,120 +31,13 @@ struct purplemow {
 static struct purplemow this;
 
 /**
- * Main function, initializes and starts all the modules.
+ * Initialize purplemow.
  *
- * @ingroup purplemow_main
- *
- * @param[in] argc      Agrument count
- * @param[in] argv      Argument vector
- *
- * @return              Success status
- */
-int main(int argc, char **argv)
-{
-    int state;
-
-#if DO_ARGS
-    // args on the command line
-    if ( argc < 2 )
-    {
-        printf("Wrong\n");
-        exit(0);
-    }
-#endif // DO_ARGS
-
-    this.debug = 0;
-
-    /*************
-     *  I N I T  *
-     *************/
-
-    if ( this.debug )
-        printf("Initializing... ");
-
-    cli_init();
-
-#if DO_I2C
-    // i2c stuff
-    purple_io_init();
-#endif // DO_I2C
-
-#if DO_COMM
-    communicator_init();
-#endif // DO_COMM
-
-#if DO_SEN_RANGE
-    sensor_range_init();
-#endif // DO_SEN_RANGE
-
-#if DO_DCN
-    dcn_init();
-#endif // DO_DCN
-
-#if DO_NET
-    multicast_init();
-#endif // DO_NET
-
-#if DO_TEST
-    test_init();
-#endif // DO_TEST
-
-#if DO_TEST_THREADS
-    test_thread_init();
-#endif // DO_TEST_THREADS
-
-    main_init();
-
-    if ( this.debug )
-        printf("OK\n");
-
-    /**************
-     *  S T A R T *
-     **************/
-
-    if ( this.debug )
-        printf("Starting... ");
-
-    cli_start();
-
-#if DO_COMM
-    communicator_start();
-#endif // DO_COMM
-
-#if DO_TEST
-    test_start();
-#endif // DO_TEST
-
-#if DO_TEST_THREADS
-    test_thread_start();
-#endif // DO_TEST_THREADS
-
-#if DO_SEN_RANGE
-    sensor_range_start();
-#endif // DO_SEN_RANGE
-
-#if DO_DCN
-    dcn_start();
-#endif // DO_DCN
-
-#if DO_NET
-    multicast_start();
-#endif // DO_NET
-
-    if ( this.debug )
-        printf("OK\n");
-
-    process_events();
-}
-
-/**
- * Initialize main.
- *
- * @ingroup purplemow_main
+ * @ingroup purplemow
  *
  * @return          Success status
  */
-static error_code main_init()
+error_code purplemow_init()
 {
     error_code result;
 
@@ -184,12 +52,12 @@ static error_code main_init()
 }
 
 /**
- * Main FSM in purplemowi.
+ * Main FSM in purplemow.
  * Handles incoming messages and takes decisions depending on them,
  *
- * @ingroup purplemow_main
+ * @ingroup purplemow
  */
-static void process_events()
+error_code purplemow_start()
 {
     error_code result;
     struct message_item msg_buff;

@@ -907,24 +907,23 @@ error_code list_add_ordered(list_t list_t, void* data, error_code (*comparator)(
         if( status == err_EQUAL )
             status = err_ALREADY_IN_LIST;
 
-        if( status == err_GREATER_THAN )
+        if( status == err_LESS_THAN )
         {
             list_create_item(&item);
             item->data = data;
             list_add_before(iterator.list, iterator.item, item);
             status = err_OK;
-        }
+        } else {
+            iterator.item = iterator.item->next;
 
-        iterator.item = iterator.item->next;
-
-        if( iterator.item == NULL ) {
-            list_create_item(&item);
-            item->data = data;
-            list_add_after(list, list->last, item);
-            list->last = item;
-            status = err_OK;
+            if( iterator.item == NULL ) {
+                list_create_item(&item);
+                item->data = data;
+                list_add_after(list, list->last, item);
+                status = err_OK;
+            }
         }
-    } while( status == err_LESS_THAN );
+    } while( status == err_GREATER_THAN );
 
     list_destroy_iterator_internal(&iterator);
 

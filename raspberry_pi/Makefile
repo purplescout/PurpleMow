@@ -16,6 +16,7 @@ ECHO = echo
 RM = rm
 
 purplemow_src = purplemow.c \
+				purplemow_main.c \
 				raspi_i2c.c \
 				auto_management.c \
 				cli.c \
