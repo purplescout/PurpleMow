@@ -3,6 +3,7 @@ package se.purplescout.purplemow.simulator;
 import java.io.IOException;
 
 import se.purplescout.purplemow.core.ComStream;
+import se.purplescout.purplemow.core.Constants;
 import android.util.Log;
 
 public class SimulatorModel extends ComStream {
@@ -27,14 +28,14 @@ public class SimulatorModel extends ComStream {
 		Log.d(this.getClass().getName(), "sendCommand " + command + ", target = " + target + ", value = " + value);
 		synchronized(this) {
 			switch (command) {
-			case RELAY_COMMAND:
+			case DIRECTION_COMMAND:
 				relays [target] = value;
 				break;
-			case SERVO_COMMAND:
+			case MOTOR_COMMAND:
 				servos [target] = value;
 				break;
-			case 4: // read sensor
-				generateSensorData(target, value);
+			case SENSOR_COMMAND: // read sensor
+				generateSensorData(target);
 				break;
 			}
 		}
@@ -74,15 +75,15 @@ public class SimulatorModel extends ComStream {
 			final double speedFactor = 255*10000.0;
 			final double turnFactor = 255*500.0;
 
-			double speed = timeDelta * servos[SERVO1];
-			if (relays[RELAY1] == 0 && relays[RELAY2] == 0) {
+			double speed = timeDelta * servos[MOTOR_RIGHT];
+			if (relays[MOTOR_RIGHT] == 0 && relays[MOTOR_LEFT] == 0) {
 				x += speed * Math.cos(direction) / speedFactor;
 				y += speed * Math.sin(direction) / speedFactor;
-			} else if (relays[RELAY1] == 1 && relays[RELAY2] == 0) {
+			} else if (relays[MOTOR_RIGHT] == 1 && relays[MOTOR_LEFT] == 0) {
 				direction += speed / turnFactor;
-			} else if (relays[RELAY1] == 0 && relays[RELAY2] == 1) {
+			} else if (relays[MOTOR_RIGHT] == 0 && relays[MOTOR_LEFT] == 1) {
 				direction -= speed / turnFactor;
-			} else if (relays[RELAY1] == 1 && relays[RELAY2] == 1) {
+			} else if (relays[MOTOR_RIGHT] == 1 && relays[MOTOR_LEFT] == 1) {
 				x -= speed * Math.cos(direction) / speedFactor;
 				y -= speed * Math.sin(direction) / speedFactor;
 			}
@@ -103,15 +104,24 @@ public class SimulatorModel extends ComStream {
 		return direction;
 	}
 
-	private void generateSensorData(byte target, int value) {
+	private void generateSensorData(byte target) {
 		synchronized(this) {
 			sensorData = new byte[4];
-			sensorData[0] = 2;
-			if (x < 0.1 || x > 0.9 || y < 0.1 || y > 0.9) {
-				sensorData[3] = (byte) 99;
-			} else {
-				sensorData[3] = (byte) 255;
+			//sensorData[0] = ?;
+			sensorData[1] = target;
+			int value = 0;
+			switch (target) {
+			case BWF_SENSOR_LEFT:
+			case BWF_SENSOR_RIGHT:
+				if (x < 0.1 || x > 0.9 || y < 0.1 || y > 0.9) {
+					value = Constants.BWF_LIMIT - 10;
+				} else {
+					value = Constants.BWF_LIMIT + 10;
+				}
+				break;
 			}
+			sensorData[2] = (byte) (value >> 8);
+			sensorData[3] = (byte) (value & 0xFF);
 			notify();
 		}
 	}	

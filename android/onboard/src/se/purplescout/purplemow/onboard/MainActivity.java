@@ -103,23 +103,23 @@ public class MainActivity extends Activity {
 			}
 		}, new IntentFilter(UsbManager.ACTION_USB_ACCESSORY_DETACHED));
 
-		this.registerReceiver(new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				String action = intent.getAction();
-				if (ACTION_USB_PERMISSION.equals(action)) {
-					synchronized (this) {
-						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-							usbAccessoryIntent = intent;
-							onAccessGranted.run();
-						} else {
-							Log.d(MainActivity.this.getClass().getCanonicalName(), "permission denied for accessory " + accessory.toString());
-						}
-					}
-				}
-			}
-		}, filter);
+//		this.registerReceiver(new BroadcastReceiver() {
+//
+//			@Override
+//			public void onReceive(Context context, Intent intent) {
+//				String action = intent.getAction();
+//				if (ACTION_USB_PERMISSION.equals(action)) {
+//					synchronized (this) {
+//						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+//							usbAccessoryIntent = intent;
+//							onAccessGranted.run();
+//						} else {
+//							Log.d(MainActivity.this.getClass().getCanonicalName(), "permission denied for accessory " + accessory.toString());
+//						}
+//					}
+//				}
+//			}
+//		}, filter);
 	}
 
 	private void startFSM() {
