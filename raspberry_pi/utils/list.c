@@ -39,6 +39,7 @@ struct list {
  * @ingroup list
  */
 struct list_iterator {
+    struct list*        list;
     struct list_item*   item;
 };
 
@@ -46,8 +47,8 @@ struct list_iterator {
 // private functions
 static error_code list_create_item(struct list_item** item);
 static error_code list_destroy_item(struct list_item* item);
-static error_code list_add_after(struct list_item* existing, struct list_item* new);
-static error_code list_add_before(struct list_item* existing, struct list_item* new);
+static error_code list_add_after(struct list* list, struct list_item* existing, struct list_item* new);
+static error_code list_add_before(struct list* list, struct list_item* existing, struct list_item* new);
 static error_code list_create_iterator_internal_first(struct list* list, struct list_iterator* iterator);
 static error_code list_create_iterator_internal_last(struct list* list, struct list_iterator* iterator);
 static error_code list_destroy_iterator_internal(struct list_iterator* iterator);
@@ -183,8 +184,11 @@ static error_code list_destroy_item(struct list_item* item)
  *
  * @return                  Success status
  */
-static error_code list_add_after(struct list_item* existing, struct list_item* new)
+static error_code list_add_after(struct list* list, struct list_item* existing, struct list_item* new)
 {
+    if( list == NULL )
+        return err_WRONG_ARGUMENT;
+
     if( existing == NULL )
         return err_WRONG_ARGUMENT;
 
@@ -199,6 +203,11 @@ static error_code list_add_after(struct list_item* existing, struct list_item* n
     existing->next = new;
     new->previous = existing;
 
+    if( list->last == existing )
+        list->last = new;
+
+    list->items++;
+
     return err_OK;
 }
 
@@ -207,13 +216,17 @@ static error_code list_add_after(struct list_item* existing, struct list_item* n
  *
  * @ingroup list
  *
+ * @param[in] list          The list
  * @param[in] existing      The existing item
  * @param[in] new           The new item
  *
  * @return                  Success status
  */
-static error_code list_add_before(struct list_item* existing, struct list_item* new)
+static error_code list_add_before(struct list* list, struct list_item* existing, struct list_item* new)
 {
+    if( list == NULL )
+        return err_WRONG_ARGUMENT;
+
     if( existing == NULL )
         return err_WRONG_ARGUMENT;
 
@@ -227,6 +240,11 @@ static error_code list_add_before(struct list_item* existing, struct list_item* 
 
     existing->previous = new;
     new->next = existing;
+
+    if( list->first == existing )
+        list->first = new;
+
+    list->items++;
 
     return err_OK;
 }
@@ -266,7 +284,7 @@ error_code list_add_last(list_t list_t, void* data)
         list->first = item;
         list->last = item;
     } else {
-        list_add_after(list->last, item);
+        list_add_after(list, list->last, item);
         list->last = item;
     }
 
@@ -310,7 +328,7 @@ error_code list_add_first(list_t list_t, void* data)
         list->first = item;
         list->last = item;
     } else {
-        list_add_before(list->first, item);
+        list_add_before(list, list->first, item);
         list->first = item;
     }
 
@@ -458,25 +476,32 @@ error_code list_get_last(list_t list_t, void** data)
 }
 
 /**
- * Create an iterator.
+ * Create an iterator on a list.
  *
  * @ingroup list
  *
+ * @param[in] list_t        The list
  * @param[out] iterator_t   The iterator
  *
  * @return                  Success status
  */
-error_code list_create_iterator(list_iterator_t* iterator_t)
+error_code list_create_iterator(list_t list_t, list_iterator_t* iterator_t)
 {
+    struct list* list;
     struct list_iterator** iterator;
 
+    list = (struct list*)list_t;
     iterator = (struct list_iterator**)iterator_t;
+
+    if( list == NULL )
+        return err_WRONG_ARGUMENT;
 
     if( iterator == NULL )
         return err_WRONG_ARGUMENT;
 
     *iterator = malloc(sizeof(**iterator));
 
+    (*iterator)->list = list;
     (*iterator)->item = NULL;
 
     return err_OK;
@@ -487,6 +512,7 @@ error_code list_create_iterator(list_iterator_t* iterator_t)
  *
  * @ingroup list
  *
+ * @param[in] list          The list
  * @param[in] iterator      The iterator
  *
  * @return                  Success status
@@ -500,6 +526,7 @@ static error_code list_create_iterator_internal_first(struct list* list, struct 
         return err_WRONG_ARGUMENT;
 
     iterator->item = list->first;
+    iterator->list = list;
 
     return err_OK;
 }
@@ -509,6 +536,7 @@ static error_code list_create_iterator_internal_first(struct list* list, struct 
  *
  * @ingroup list
  *
+ * @param[in] list          The list
  * @param[in] iterator      The iterator
  *
  * @return                  Success status
@@ -522,6 +550,7 @@ static error_code list_create_iterator_internal_last(struct list* list, struct l
         return err_WRONG_ARGUMENT;
 
     iterator->item = list->last;
+    iterator->list = list;
 
     return err_OK;
 }
@@ -562,6 +591,7 @@ static error_code list_destroy_iterator_internal(struct list_iterator* iterator)
         return err_WRONG_ARGUMENT;
 
     iterator->item = NULL;
+    iterator->list = NULL;
 
     return err_OK;
 }
@@ -571,29 +601,23 @@ static error_code list_destroy_iterator_internal(struct list_iterator* iterator)
  *
  * @ingroup list
  *
- * @param[in] list_t        The list
  * @param[out] iterator_t   The iterator
  *
  * @return                  Success status
  */
-error_code list_set_iterator_first(list_t list_t, list_iterator_t iterator_t)
+error_code list_set_iterator_first(list_iterator_t iterator_t)
 {
-    struct list* list;
     struct list_iterator* iterator;
 
-    list = (struct list*)list_t;
     iterator = (struct list_iterator*)iterator_t;
-
-    if( list == NULL )
-        return err_WRONG_ARGUMENT;
 
     if( iterator == NULL )
         return err_WRONG_ARGUMENT;
 
-    if( list->first == NULL )
+    if( iterator->list->first == NULL )
         return err_EMPTY_LIST;
 
-    iterator->item = list->first;
+    iterator->item = iterator->list->first;
 
     return err_OK;
 }
@@ -603,29 +627,23 @@ error_code list_set_iterator_first(list_t list_t, list_iterator_t iterator_t)
  *
  * @ingroup list
  *
- * @param[in] list_t        The list
  * @param[out] iterator_t   Returned iterator
  *
  * @return                  Success status
  */
-error_code list_set_iterator_last(list_t list_t, list_iterator_t iterator_t)
+error_code list_set_iterator_last(list_iterator_t iterator_t)
 {
-    struct list* list;
     struct list_iterator* iterator;
 
-    list = (struct list*)list_t;
     iterator = (struct list_iterator*)iterator_t;
-
-    if( list == NULL )
-        return err_WRONG_ARGUMENT;
 
     if( iterator == NULL )
         return err_WRONG_ARGUMENT;
 
-    if( list->last == NULL )
+    if( iterator->list->last == NULL )
         return err_EMPTY_LIST;
 
-    iterator->item = list->last;
+    iterator->item = iterator->list->last;
 
     return err_OK;
 }
@@ -710,13 +728,16 @@ error_code list_add_before_iterator(list_iterator_t iterator_t, void* data)
     if( FAILURE(status) )
         return status;
 
-    if( iterator->item->previous != NULL )
-        iterator->item->previous = item;
+    if( iterator->list->first == NULL ) {
+        iterator->list->first = item;
+        iterator->list->last = item;
+    } else {
+        list_add_before(iterator->list, iterator->item, item);
+        if( iterator->item == iterator->list->first )
+            iterator->list->first = item;
+    }
 
-    item->previous = iterator->item->previous;
-    item->next = iterator->item;
-
-    iterator->item->previous = item;
+    iterator->list->items++;
 
     return err_OK;
 }
@@ -749,13 +770,66 @@ error_code list_add_after_iterator(list_iterator_t iterator_t, void* data)
     if( FAILURE(status) )
         return status;
 
-    if( iterator->item->next != NULL )
-        iterator->item->next = item;
+    if( iterator->list->first == NULL ) {
+        iterator->list->first = item;
+        iterator->list->last = item;
+    } else {
+        list_add_after(iterator->list, iterator->item, item);
+        if( iterator->item == iterator->list->last )
+            iterator->list->last = item;
+    }
 
-    item->previous = iterator->item;
-    item->next = iterator->item->next;
+    iterator->list->items++;
 
-    iterator->item->next = item;
+    return err_OK;
+}
+
+/**
+ * Remove the item the iterator is pointing at and return the data.
+ * The iterator will point to the next item in the list.
+ *
+ * @ingroup list
+ *
+ * @param[in,out] iterator_t    The iterator
+ * @param[out] data             Returned data
+ *
+ * @return                      Success status
+ */
+error_code list_remove_at_iterator(list_iterator_t iterator_t, void** data)
+{
+    struct list_iterator* iterator;
+    struct list_item* item;
+
+    iterator = (struct list_iterator*)iterator_t;
+
+    if( iterator == NULL )
+        return err_WRONG_ARGUMENT;
+
+    if( iterator->item == NULL )
+        return err_NO_ITEM;
+
+    item = iterator->item;
+
+    iterator->item = iterator->item->next;
+
+    if( iterator->item != NULL )
+        iterator->item->previous = item->previous;
+
+    if( item->previous != NULL )
+        item->previous->next = iterator->item;
+
+    if( iterator->list->first == item )
+        iterator->list->first = iterator->item;
+
+    if( iterator->list->last == item )
+        iterator->list->last = item->previous;
+
+    if( data != NULL )
+        *data = item->data;
+
+    list_destroy_item(item);
+
+    iterator->list->items--;
 
     return err_OK;
 }
@@ -780,7 +854,7 @@ error_code list_get_iterator_data(list_iterator_t iterator_t, void** data)
         return err_WRONG_ARGUMENT;
 
     if( iterator->item == NULL )
-        return err_NO_MORE_ITEMS;
+        return err_NO_ITEM;
 
     if( data == NULL )
         return err_WRONG_ARGUMENT;
@@ -820,8 +894,9 @@ error_code list_add_ordered(list_t list_t, void* data, error_code (*comparator)(
     if( comparator == NULL )
         return err_WRONG_ARGUMENT;
 
-    if( list->first == NULL )
-        return err_EMPTY_LIST;
+    if( list->first == NULL ) {
+        return list_add_first(list_t, data);
+    }
 
     list_create_iterator_internal_first(list, &iterator);
 
@@ -836,23 +911,124 @@ error_code list_add_ordered(list_t list_t, void* data, error_code (*comparator)(
         {
             list_create_item(&item);
             item->data = data;
-            list_add_before(iterator.item, item);
+            list_add_before(iterator.list, iterator.item, item);
             status = err_OK;
         }
 
         iterator.item = iterator.item->next;
 
-        if( iterator.item == NULL )
-        {
+        if( iterator.item == NULL ) {
             list_create_item(&item);
             item->data = data;
-            list_add_after(list->last, item);
+            list_add_after(list, list->last, item);
             list->last = item;
             status = err_OK;
         }
     } while( status == err_LESS_THAN );
 
     list_destroy_iterator_internal(&iterator);
+
+    return status;
+}
+
+/**
+ * Search for item data in the list the iterator was created on.
+ * If the item is found the iterator will point to it, otherwise it will point to no data.
+ *
+ * comparator:
+ * data1 is the value searching for.
+ * data2 is the existing item in the list.
+ *
+ * Returns err_EQUAL if item is found.
+ * Returns err_NO_ITEM if the item is not found.
+ *
+ * @ingroup list
+ *
+ * @param[in,out] iterator  The iterator to work on
+ * @param[in] data          Data to search for
+ * @param[in] comparator    A comparator function
+ *
+ * @return                  Success status
+ */
+error_code list_find_item(list_iterator_t iterator_t, void* data, error_code (*comparator)(void* data1, void* data2))
+{
+    struct list_iterator* iterator;
+    error_code status;
+
+    iterator = (struct list_iterator*)iterator_t;
+
+    if( iterator == NULL )
+        return err_WRONG_ARGUMENT;
+
+    if( data == NULL )
+        return err_WRONG_ARGUMENT;
+
+    if( comparator == NULL )
+        return err_WRONG_ARGUMENT;
+
+    if( iterator->list->first == NULL )
+        return err_EMPTY_LIST;
+
+    iterator->item = iterator->list->first;
+
+    do
+    {
+        status = comparator( data, iterator->item->data );
+
+        if( status != err_EQUAL )
+            iterator->item = iterator->item->next;
+
+        if( iterator->item == NULL )
+            status = err_NO_ITEM;
+
+    } while( status == err_LESS_THAN || status == err_GREATER_THAN );
+
+    return status;
+}
+
+/**
+ * Same as list_find_item() but searches from the end of the list.
+ *
+ * @ingroup list
+ *
+ * @param[in,out] iterator  The iterator to work on
+ * @param[in] data          Data to search for
+ * @param[in] comparator    A comparator function
+ *
+ * @return                  Success status
+ */
+error_code list_find_item_reverse(list_iterator_t iterator_t, void* data, error_code (*comparator)(void* data1, void* data2))
+{
+    struct list_iterator* iterator;
+    error_code status;
+
+    iterator = (struct list_iterator*)iterator_t;
+
+    if( iterator == NULL )
+        return err_WRONG_ARGUMENT;
+
+    if( data == NULL )
+        return err_WRONG_ARGUMENT;
+
+    if( comparator == NULL )
+        return err_WRONG_ARGUMENT;
+
+    if( iterator->list->first == NULL )
+        return err_EMPTY_LIST;
+
+    iterator->item = iterator->list->last;
+
+    do
+    {
+        status = comparator( data, iterator->item->data );
+
+        if( status != err_EQUAL )
+            iterator->item = iterator->item->previous;
+
+        if( iterator->item == NULL )
+            status = err_NO_ITEM;
+
+    } while( status == err_LESS_THAN || status == err_GREATER_THAN );
 
     return status;
 }

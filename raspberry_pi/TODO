@@ -11,8 +11,10 @@ general:
 
 list:
 [x] iterator for get_next?
-[ ] iterator for add/remove before/after
-[ ] find with comparator, return iterator
+[x] iterator for add/remove before/after
+[x] find with comparator, return iterator
+[ ] test add before/after iterator
+[x] find item iterator
 
 remote cli:
 [ ] web page

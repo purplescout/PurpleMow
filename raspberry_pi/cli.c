@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>  // exit
 
+#include "utils/list.h"
 #include "thread.h"
 #include "error_codes.h"
 #include "cli.h"
@@ -25,8 +26,6 @@ struct cli_item
 {
     char                command[32];
     int                 (*function)(char *arg);
-    struct cli_item*    next;
-    struct cli_item*    prev;
 };
 
 /**
@@ -35,6 +34,7 @@ struct cli_item
  * @ingroup cli
  */
 struct cli {
+    list_t          list;
     pthread_t       thread;
     pthread_mutex_t list_mutex;
 };
@@ -43,7 +43,7 @@ struct cli {
 static void* cli_listen(void *data);
 static error_code parse_command(char *command);
 static error_code list_add(struct cli_item* item);
-static error_code list_remove(char *command);
+static error_code list_remove(char *command, struct cli_item** cmd);
 
 // cli commands
 static int command_help(char *args);
@@ -51,8 +51,6 @@ static int command_exit(char *args);
 static int command_echo(char *args);
 
 // private variables
-static struct cli_item* list_head;
-
 static struct cli this;
 
 /**
@@ -65,7 +63,8 @@ static struct cli this;
 error_code cli_init()
 {
     pthread_mutex_init(&this.list_mutex, NULL);
-    list_head = NULL;
+
+    list_create(&this.list);
 
     cli_register_command("?", command_help);
     cli_register_command("help", command_help);
@@ -121,6 +120,24 @@ static void* cli_listen(void *data)
     }
 }
 
+static error_code compare_command(void* data1, void* data2)
+{
+    struct cli_item* item1;
+    struct cli_item* item2;
+    int status;
+
+    item1 = (struct cli_item*)data1;
+    item2 = (struct cli_item*)data2;
+
+    status = strcmp(item1->command, item2->command);
+
+    if( status < 0 )
+        return err_LESS_THAN;
+    if( status > 0 )
+        return err_GREATER_THAN;
+    return err_EQUAL;
+}
+
 /**
  * Parse a command and execute registered callback function.
  *
@@ -133,10 +150,12 @@ static void* cli_listen(void *data)
 static error_code parse_command(char *command)
 {
     int size;
-    struct cli_item* current;
-    int (*function)(char *arg) = NULL;
     char* args = "";
     int i;
+    struct cli_item command_item;
+    struct cli_item* item;
+    list_iterator_t iterator;
+    error_code status;
 
     size = strlen(command);
 
@@ -163,26 +182,25 @@ static error_code parse_command(char *command)
         args = &command[i+1];
     }
 
+    snprintf(command_item.command, sizeof(command_item.command), "%s", command);
+
+    list_create_iterator(this.list, &iterator);
+
     pthread_mutex_lock(&this.list_mutex);
+    list_set_iterator_first(iterator);
 
-    current = list_head;
-    while ( current != NULL ) {
-        if ( strcmp(command, current->command) == 0) {
-            function = current->function;
-            current = NULL;
-        }
-        else {
-            current = current->next;
-        }
-    }
-
+    list_find_item(iterator, &command_item, compare_command);
     pthread_mutex_unlock(&this.list_mutex);
 
-    if ( function == NULL ) {
+    status = list_get_iterator_data(iterator, (void*)&item);
+
+    list_destroy_iterator(iterator);
+
+    if( status == err_OK ) {
+        item->function(args);
+    } else {
         return err_UNKNOWN_COMMAND;
     }
-
-    function(args);
 
     return err_OK;
 }
@@ -198,103 +216,53 @@ static error_code parse_command(char *command)
  */
 static error_code list_add(struct cli_item* item)
 {
-    struct cli_item* current;
-    int result = err_OK;
+    error_code status;
 
     pthread_mutex_lock(&this.list_mutex);
 
-    if ( list_head == NULL )
-    {
-        // list is empty
-        list_head = item;
-        list_head->next = NULL;
-        list_head->prev = NULL;
-    }
-    else
-    {
-        current = list_head;
-        do
-        {
-            int cmp = strcmp(item->command, current->command);
-            if ( cmp == 0 )
-            {
-                // command already reigstered
-                current = NULL;
-                result = err_ALREADY_REGISTERED;
-            }
-            else if ( cmp < 0 )
-            {
-                // insert item before current
-                item->next = current;
-                item->prev = current->prev;
-                if ( current->prev != NULL )
-                {
-                    current->prev->next = item;
-                }
-                current->prev = item;
-                if ( current == list_head )
-                {
-                    list_head = item;
-                }
-                current = NULL;
-            }
-            else
-            {
-                if ( current->next == NULL )
-                {
-                    // last item, insert item after current
-                    current->next = item;
-                    item->prev = current;
-                    item->next = NULL;
-                    current = NULL;
-                }
-                else
-                {
-                    current = current->next;
-                }
-            }
-        } while ( current != NULL );
-    }
+    status = list_add_ordered(this.list, item, compare_command);
 
     pthread_mutex_unlock(&this.list_mutex);
 
-    return result;
+    return status;
 }
 
 /**
  * Remove a command from the command list.
+ * Returns the found item.
  *
  * @ingroup cli
  *
  * @param[in] command   Command to remove
+ * @param[out] cmd      Found cli_item
  *
  * @return              Success status
  */
-static error_code list_remove(char *command)
+static error_code list_remove(char *command, struct cli_item** cmd)
 {
-    struct cli_item *current;
-    int result = err_NOT_REGISTERED;
+    struct cli_item item;
+    list_iterator_t iterator;
+    error_code status;
+
+    if( cmd == NULL )
+        return err_WRONG_ARGUMENT;
+
+    snprintf(item.command, sizeof(item.command), "%s", command);
 
     pthread_mutex_lock(&this.list_mutex);
 
-    current = list_head;
-    while ( current != NULL )
-    {
-        if ( strcmp(current->command, command) == 0 )
-        {
-            // unlink this item
-            if ( current->prev != NULL )
-                current->prev->next = current->next;
-            if ( current->next != NULL )
-                current->next->prev = current->prev;
-            result = err_OK;
-            current = NULL;
-        }
-    }
+    list_create_iterator(&this.list, &iterator);
+
+    status = list_find_item(iterator, &item, compare_command);
+
+    if( status == err_EQUAL )
+        list_remove_at_iterator(iterator, (void**)cmd);
 
     pthread_mutex_unlock(&this.list_mutex);
 
-    return result;
+    list_destroy_iterator(iterator);
+
+    return status;
 }
 
 /**
@@ -335,7 +303,15 @@ error_code cli_register_command(char *command, int(*function)(char *arg))
  */
 error_code cli_unregister_command(char *command)
 {
-    return list_remove(command);
+    struct cli_item* cmd;
+    error_code status;
+
+    status = list_remove(command, &cmd);
+
+    if( SUCCESS( status ) )
+        free(cmd);
+
+    return status;
 }
 
 /**
@@ -350,15 +326,18 @@ error_code cli_unregister_command(char *command)
  */
 static int command_help(char *args)
 {
-    struct cli_item *current;
+    list_iterator_t iterator;
+    struct cli_item *item;
 
     pthread_mutex_lock(&this.list_mutex);
 
-    current = list_head;
-    while ( current != NULL )
-    {
-        printf("%s\n", current->command);
-        current = current->next;
+    list_create_iterator(this.list, &iterator);
+
+    list_set_iterator_first(iterator);
+
+    while( SUCCESS( list_get_iterator_data(iterator, (void*)&item) ) ) {
+        printf("%s\n", item->command);
+        list_move_iterator_next(iterator);
     }
 
     pthread_mutex_unlock(&this.list_mutex);

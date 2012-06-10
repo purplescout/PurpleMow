@@ -34,16 +34,16 @@ error_code test_init()
 
     list_create(&list);
     list_add_last(list, a);
-    list_add_first(list, b);
+    list_add_last(list, b);
     list_add_last(list, c);
-    list_add_first(list, d);
+    list_add_last(list, d);
 
     list_length(list, &i);
     printf("List length: %d\n", i);
 
-    list_create_iterator(&iterator);
+    list_create_iterator(list, &iterator);
 
-    list_set_iterator_first(list, iterator);
+    list_set_iterator_first(iterator);
 
     while( SUCCESS( list_get_iterator_data(iterator, (void*)&get)) ) {
         printf("Got: %c\n", *get);
