@@ -48,6 +48,11 @@ public class WebServer extends NanoHTTPD {
 				} else if (parms.getProperty("cmd").equals("backward")) {
 					int value = extractInt(parms, "value");
 					motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE, value));
+				} else if (parms.getProperty("cmd").equals("cutter_on")) {
+					int value = extractInt(parms, "value");
+					motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOW, value));
+				} else if (parms.getProperty("cmd").equals("cutter_off")) {
+					motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOW, 0));
 				}
 			} catch (NumberFormatException e) {
 				return new Response(HTTP_BADREQUEST, MIME_PLAINTEXT, e.getMessage());
