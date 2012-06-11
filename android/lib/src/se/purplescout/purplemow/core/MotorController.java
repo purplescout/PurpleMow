@@ -8,7 +8,7 @@ public class MotorController {
 	public enum Direction {
 		FORWARD, BACKWARD, LEFT, RIGHT
 	}
-	
+
 	private boolean moving;
 
 	private ComStream comStream;
@@ -46,6 +46,10 @@ public class MotorController {
 			break;
 		}
 		// sleep(300);
+	}
+
+	public void runCutter(int speed) throws IOException {
+		comStream.sendCommand(ComStream.MOTOR_COMMAND, ComStream.CUTTER_MOTOR, speed);
 	}
 
 	void testPattern() {

@@ -6,6 +6,8 @@ $(document).ready(function() {
 	bindCmd("#stop", "stop")
 	bindCmd("#right", "right")
 	bindCmd("#backward", "backward")
+	bindCutterOn("#cutter_on", "cutter_on")
+	bindCutterOff("#cutter_off", "cutter_off")
 })
 
 var bindCmd = function(button, command) {
@@ -19,6 +21,47 @@ var bindCmd = function(button, command) {
 			},
 			success : function(result) {
 				$("#text").text(result)
+			}
+		})
+	})
+}
+
+
+var bindCutterOn = function(button, command) {
+	$(button).click(function() {
+		$.ajax({
+			url : "command",
+			type : "POST",
+			data : {
+				cmd : command,
+				value: function() {
+					if(cutterSpeed > 3) {
+						cutterSpeed = 3;
+					} else {
+						cutterSpeed = cutterSpeed +1;
+						showSpeedMeter("cutter", cutterSpeed);
+					}
+					return cutterSpeed;
+				}
+			},
+			success : function(result) {
+				$("#text").text(result)
+			}
+		})
+	})
+}
+var bindCutterOff = function(button, command) {
+	$(button).click(function() {
+		$.ajax({
+			url : "command",
+			type : "POST",
+			data : {
+				cmd : command
+			},
+			success : function(result) {
+				$("#text").text(result);
+				cutterSpeed = 0;
+				hideSpeedMeter("cutter");
 			}
 		})
 	})
@@ -39,8 +82,11 @@ var bindConnect = function(button) {
 				$("#right").removeAttr("disabled")
 				$("#backward").removeAttr("disabled")
 				$("#disconnect").removeAttr("disabled")
+				$("#cutter_on").removeAttr("disabled")
+				$("#cutter_off").removeAttr("disabled")
 				$("#connect").attr("disabled", "disabled");
 				$("#text").text("");
+
 				resetSpeed();
 			}
 		})
@@ -63,6 +109,8 @@ var bindDisconnect = function(button) {
 				$("#backward").attr("disabled", "disabled");
 				$("#connect").removeAttr("disabled");
 				$("#disconnect").attr("disabled", "disabled");
+				$("#cutter_on").attr("disabled", "disabled");
+				$("#cutter_off").attr("disabled", "disabled");
 				$("#text").text("");
 			}
 		})
@@ -70,6 +118,7 @@ var bindDisconnect = function(button) {
 }
 
 var speed = {};
+var cutterSpeed = 0;
 
 var updateSpeed = function(command) {
 	var currSpeed = speed[command];

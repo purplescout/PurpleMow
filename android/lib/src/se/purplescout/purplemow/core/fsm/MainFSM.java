@@ -36,11 +36,13 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 			break;
 		case MOWING:
 			if (event.getEventType() == EventType.RANGE_LEFT) {
+				logToTextView("RANGE LEFT: " + event.getValue());
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle();
 				}
 			} else if (event.getEventType() == EventType.RANGE_RIGHT) {
+				logToTextView("RANGE RIGHT: " + event.getValue());
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle();

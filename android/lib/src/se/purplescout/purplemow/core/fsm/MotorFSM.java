@@ -15,7 +15,7 @@ import android.util.Log;
 public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
 	private enum State {
-		STOPPED, MOVING, TURNING_LEFT, BACKING_UP, TURNING_RIGHT
+		STOPPED, MOVING_FWD, TURNING_LEFT, BACKING_UP, TURNING_RIGHT
 	}
 
 	private State state = State.STOPPED;
@@ -79,6 +79,8 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 				stopMotors();
 				System.exit(1);
 				break;
+			case MOW:
+				cutterEngine(value);
 			default:
 				break;
 			}
@@ -93,10 +95,10 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	}
 
 	private void moveForward(int value) throws IOException {
-		if (state == State.STOPPED || state == State.MOVING) {
+		if (state == State.STOPPED || state == State.MOVING_FWD) {
 			motorController.setDirection(Direction.FORWARD);
 			motorController.move(value);
-			changeState(State.MOVING);
+			changeState(State.MOVING_FWD);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
 			queueDelayedEvent(new MotorFSMEvent(EventType.MOVE_FWD), 500);
@@ -134,6 +136,10 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
 			queueDelayedEvent(new MotorFSMEvent(EventType.TURN_RIGHT), 500);
 		}
+	}
+
+	private void cutterEngine(int value) throws IOException {
+		motorController.runCutter(value);
 	}
 
 	private void changeState(State newState) {
