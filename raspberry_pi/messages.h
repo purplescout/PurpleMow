@@ -16,6 +16,7 @@ enum queue {
     Q_TEST,
     Q_COMMUNICATOR,
     Q_SENSOR_RANGE,
+    Q_LAST,
 };
 
 enum msg_type {
@@ -62,9 +63,10 @@ struct message_item {
     struct message_body body;
 };
 
-error_code message_open(struct message_queue *this, enum queue queue_number);
+error_code message_open(struct message_queue *queue, enum queue queue_number);
 error_code message_send(void *data, enum queue receive_queue);
 error_code message_send_prio(void *data, enum queue receive_queue, enum queue_prio prio);
-error_code message_receive(struct message_queue *this, struct message_item* msg, int* len);
+error_code message_receive(struct message_queue *queue, struct message_item* msg, int* len);
+error_code message_get_queue(int *queue);
 
 #endif // MESSAGES_H

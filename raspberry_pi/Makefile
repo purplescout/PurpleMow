@@ -23,6 +23,7 @@ purplemow_src = purplemow.c \
 				dcn.c \
 				messages.c \
 				communicator.c \
+				sensors.c \
 				sensor_range.c \
 				thread.c \
 				poller.c \

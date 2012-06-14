@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "purplemow.h"
 #include "purplemow_main.h"
+#include "sensors.h"
 
 #include "test.h"
 #include "test_thread.h"
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
     if ( this.debug )
         printf("Initializing... ");
 
+    message_init();
     cli_init();
 
 #if DO_I2C
@@ -85,7 +87,7 @@ int main(int argc, char **argv)
 #endif // DO_COMM
 
 #if DO_SEN_RANGE
-    sensor_range_init();
+    sensors_init();
 #endif // DO_SEN_RANGE
 
 #if DO_DCN
@@ -116,6 +118,7 @@ int main(int argc, char **argv)
     if ( this.debug )
         printf("Starting... ");
 
+    message_start();
     cli_start();
 
 #if DO_COMM
@@ -131,7 +134,7 @@ int main(int argc, char **argv)
 #endif // DO_TEST_THREADS
 
 #if DO_SEN_RANGE
-    sensor_range_start();
+    sensors_start();
 #endif // DO_SEN_RANGE
 
 #if DO_DCN
