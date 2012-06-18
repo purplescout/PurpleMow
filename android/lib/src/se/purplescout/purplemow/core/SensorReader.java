@@ -87,8 +87,11 @@ public class SensorReader extends Thread {
 			int val = composeInt(hi, lo);
 			latestDistanceValue = val;
 			if (buffer[1] == ComStream.RANGE_SENSOR_LEFT) {
-				Log.v(this.getClass().getCanonicalName(), "Received range sensor: " + val);
+				Log.v(this.getClass().getCanonicalName(), "Received range sensor left: " + val);
 				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE_LEFT, val));
+			} else if (buffer[1] == ComStream.RANGE_SENSOR_RIGHT) {
+				Log.v(this.getClass().getCanonicalName(), "Received range sensor right: " + val);
+				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE_RIGHT, val));
 			} else if (buffer[1] == ComStream.BWF_SENSOR_RIGHT) {
 				Log.v(this.getClass().getCanonicalName(), "Received right bwf sensor: " + val);
 				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_RIGHT, val));
