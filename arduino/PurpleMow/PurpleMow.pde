@@ -18,16 +18,13 @@
 #define  MOTOR_LEFT_A           28
 #define  MOTOR_LEFT_B           30
 
-#define  RELAY_RIGHT            A0
-#define  RELAY_LEFT             A1
-
-#define  RANGE_SENSOR           A2
-#define  MOIST_SENSOR           A3
+#define  RANGE_SENSOR_LEFT      A2
+#define  RANGE_SENSOR_RIGHT     A3
 #define  VOLTAGE_SENSOR         A4
-
 #define  BWF_SENSOR_RIGHT       A5
 #define  BWF_SENSOR_LEFT        A6
-#define  BWF_SENSOR_REFERENCE   A7
+#define  MOIST_SENSOR           A7
+
 
 #define I2C_SDA                 20
 #define I2C_SCL                 21
@@ -62,7 +59,8 @@ void setup() {
     pinMode(MOTOR_RIGHT_B, OUTPUT);
     pinMode(MOTOR_LEFT_A, OUTPUT);
     pinMode(MOTOR_LEFT_B, OUTPUT);
-    pinMode(RANGE_SENSOR, INPUT);
+    pinMode(RANGE_SENSOR_RIGHT, INPUT);
+    pinMode(RANGE_SENSOR_LEFT, INPUT);
     pinMode(MOIST_SENSOR, INPUT);
     pinMode(VOLTAGE_SENSOR, INPUT);
     pinMode(BWF_SENSOR_RIGHT, INPUT);
@@ -167,10 +165,12 @@ int process_command(byte* msg, int length)
         val = -1;
         switch (msg[1])
         {
-            case CMD_RANGE_SENSOR:
-                val = analogRead(RANGE_SENSOR);
+            case CMD_RANGE_SENSOR_RIGHT:
+                val = analogRead(RANGE_SENSOR_RIGHT);
                 break;
-
+            case CMD_RANGE_SENSOR_LEFT:
+                val = analogRead(RANGE_SENSOR_LEFT);
+                break;
             case CMD_MOIST_SENSOR:
                 val = analogRead(MOIST_SENSOR);
                 break;
@@ -187,9 +187,6 @@ int process_command(byte* msg, int length)
                 val = analogRead(BWF_SENSOR_LEFT);
                 break;
 
-            case CMD_BWF_REFERENCE:
-                val = analogRead(BWF_SENSOR_REFERENCE);
-                break;
         }
 
         if ( val > -1 )
