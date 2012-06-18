@@ -120,7 +120,10 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				String log = display.getLogText().getText().toString().substring(0, 500); // Truncate log to minimize resource usage 
+				String log = display.getLogText().getText().toString();
+				if (log.length() > 500) {
+					log = log.substring(0, 500);  // Truncate log to minimize resource usage 
+				}
 				log = intent.getExtras().getString(ACTION_LOG_MSG) + "\n" + log;
 				display.getLogText().setText(log);
 			}

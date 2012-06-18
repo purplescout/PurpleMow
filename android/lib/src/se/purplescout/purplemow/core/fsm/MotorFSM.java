@@ -101,7 +101,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 			changeState(State.MOVING_FWD);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
-			queueDelayedEvent(new MotorFSMEvent(EventType.MOVE_FWD), 500);
+			queueDelayedEvent(new MotorFSMEvent(EventType.MOVE_FWD, value), 500);
 		}
 	}
 
@@ -112,7 +112,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 			changeState(State.BACKING_UP);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
-			queueDelayedEvent(new MotorFSMEvent(EventType.REVERSE), 500);
+			queueDelayedEvent(new MotorFSMEvent(EventType.REVERSE, value), 500);
 		}
 	}
 
@@ -123,7 +123,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 			changeState(State.TURNING_LEFT);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
-			queueDelayedEvent(new MotorFSMEvent(EventType.TURN_LEFT), 500);
+			queueDelayedEvent(new MotorFSMEvent(EventType.TURN_LEFT, value), 500);
 		}
 	}
 
@@ -134,7 +134,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 			changeState(State.TURNING_RIGHT);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
-			queueDelayedEvent(new MotorFSMEvent(EventType.TURN_RIGHT), 500);
+			queueDelayedEvent(new MotorFSMEvent(EventType.TURN_RIGHT, value), 500);
 		}
 	}
 
