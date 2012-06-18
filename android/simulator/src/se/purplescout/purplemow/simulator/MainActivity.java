@@ -1,5 +1,6 @@
 package se.purplescout.purplemow.simulator;
 
+import se.purplescout.purplemow.core.GuiLogCallback;
 import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
@@ -28,10 +29,16 @@ public class MainActivity extends Activity {
         model = new SimulatorModel();
         view.setModel(model);
 
-		TextView textView = new TextView(this);
-		mainFSM = new MainFSM(textView);
-		motorFSM = new MotorFSM(model, textView);
-		sensorReader = new SensorReader(model, textView);
+		GuiLogCallback logCallback = new GuiLogCallback() {
+			
+			@Override
+			public void post(String msg) {
+				
+			}
+		};
+		mainFSM = new MainFSM(logCallback);
+		motorFSM = new MotorFSM(model, logCallback);
+		sensorReader = new SensorReader(model, logCallback);
 		mainFSM.setMotorFSM(motorFSM);
 		motorFSM.setMainFSM(mainFSM);
 		sensorReader.setMainFSM(mainFSM);

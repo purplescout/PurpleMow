@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard;
+package se.purplescout.purplemow.core;
 
 public interface GuiLogCallback {
 

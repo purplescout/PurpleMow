@@ -3,10 +3,10 @@ package se.purplescout.purplemow.core.fsm;
 import java.util.Random;
 
 import se.purplescout.purplemow.core.Constants;
+import se.purplescout.purplemow.core.GuiLogCallback;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
-import se.purplescout.purplemow.onboard.GuiLogCallback;
 import android.util.Log;
 
 public class MainFSM extends AbstractFSM<MainFSMEvent> {
@@ -39,25 +39,25 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 				logToTextView("RANGE LEFT: " + event.getValue());
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
-					avoidOstacle();
+					avoidOstacle(event.getEventType().name());
 				}
 			} else if (event.getEventType() == EventType.RANGE_RIGHT) {
 				logToTextView("RANGE RIGHT: " + event.getValue());
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
-					avoidOstacle();
+					avoidOstacle(event.getEventType().name());
 				}
 			} else if (event.getEventType() == EventType.BWF_RIGHT) {
 				logToTextView("BWF RIGHT: " + event.getValue());
 				if (event.getValue() < Constants.BWF_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
-					avoidOstacle();
+					avoidOstacle(event.getEventType().name());
 				}
 			} else if (event.getEventType() == EventType.BWF_LEFT) {
 				logToTextView("BWF LEFT: " + event.getValue());
 				if (event.getValue() < Constants.BWF_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
-					avoidOstacle();
+					avoidOstacle(event.getEventType().name());
 				}
 			} else if (event.getEventType() == EventType.REMOTE_CONNECTED) {
 				changeState(State.REMOTE_CONTROLLED);
@@ -76,7 +76,8 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 		}
 	}
 
-	private void avoidOstacle() {
+	private void avoidOstacle(String cause) {
+		logToTextView("Avoiding obstacle because: " + cause);
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
 
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE, Constants.FULL_SPEED), 500);

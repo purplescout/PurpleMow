@@ -5,7 +5,6 @@ import java.io.IOException;
 import se.purplescout.purplemow.core.fsm.AbstractFSM;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
-import se.purplescout.purplemow.onboard.GuiLogCallback;
 import android.util.Log;
 
 public class SensorReader extends Thread {
