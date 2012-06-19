@@ -1,0 +1,59 @@
+
+// dot -Tpng -o purplemow.png purplemow.dot
+
+digraph G {
+
+  node [shape=ellipse];
+
+  Management -> FSM -> Sensor -> IO -> Hardware [style=invis];
+
+  node [shape=box];
+
+  { rank = same; Management; ClockScheduler; DCN; CLI; Config; Sensors; }
+  { rank = same; FSM; ManagementFSM; MotorFSM; RouteFSM; }
+  { rank = same; Sensor; SensorBWF; SensorRange; SensorBattery; SensorLift; GPS; Accelerator; }
+  { rank = same; IO; Communicator; }
+  { rank = same; Hardware; GPIO; I2C; Net; }
+
+
+  ManagementFSM -> DCN [label="Network settings"];
+  CLI -> ManagementFSM [label="Commands"];
+  ClockScheduler -> ManagementFSM [label="Night"];
+  ClockScheduler -> ManagementFSM [label="Morning"];
+  ManagementFSM -> MotorFSM [label="Go home"];
+  ManagementFSM -> MotorFSM [style=dotted,label="Stay home"];
+  ManagementFSM -> MotorFSM [label="Go mow"];
+  MotorFSM -> ManagementFSM [label="State"];
+  MotorFSM -> Communicator [label="Write motor"];
+  SensorBWF -> MotorFSM [label="Too close"];
+  SensorBWF -> MotorFSM [label="OK"];
+  SensorBWF -> Communicator [label="Read sensor"];
+  SensorRange -> MotorFSM [label="Too close"];
+  SensorRange -> MotorFSM [label="OK"];
+  SensorRange -> Communicator [label="Read sensor"];
+  SensorLift -> MotorFSM [label="Stop motor"];
+  SensorLift -> Communicator [label="Stop motor"];
+  SensorLift -> Communicator [label="Read sensor"];
+  Communicator -> GPIO;
+  Communicator -> I2C;
+  Communicator -> Net;
+
+  SensorBattery [style=dotted];
+
+  SensorBattery -> MotorFSM [style=dotted,label="Too low"];
+  SensorBattery -> MotorFSM [style=dotted,label="Go home"];
+  SensorBattery -> ManagementFSM [style=dotted,label="Too low"];
+  SensorBattery -> MotorFSM [style=dotted,label="OK"];
+  SensorBattery -> ManagementFSM [style=dotted,label="OK"];
+  SensorBattery -> Communicator [style=dotted,label="Read sensor"];
+
+  GPS [style=dotted];
+  Accelerator [style=dotted];
+  RouteFSM [style=dotted];
+
+  Accelerator -> RouteFSM [style=dotted];
+  Accelerator -> Communicator [style=dotted];
+  GPS -> RouteFSM [style=dotted];
+  GPS -> Communicator [style=dotted];
+  RouteFSM -> MotorFSM [style=dotted];
+}
