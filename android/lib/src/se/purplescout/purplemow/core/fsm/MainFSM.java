@@ -12,7 +12,7 @@ import android.util.Log;
 public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	private enum State {
-		IDLE, MOWING, AVOIDING_OBSTACLE, REMOTE_CONTROLLED
+		IDLE, MOWING, AVOIDING_OBSTACLE
 	}
 
 	private State state = State.IDLE;
@@ -30,8 +30,6 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 		case IDLE:
 			if (event.getEventType() == MainFSMEvent.EventType.STARTED_MOWING) {
 				changeState(State.MOWING);
-			} else if (event.getEventType() == EventType.REMOTE_CONNECTED) {
-				changeState(State.REMOTE_CONTROLLED);
 			}
 			break;
 		case MOWING:
@@ -59,17 +57,10 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle(event.getEventType().name());
 				}
-			} else if (event.getEventType() == EventType.REMOTE_CONNECTED) {
-				changeState(State.REMOTE_CONTROLLED);
 			}
 			break;
 		case AVOIDING_OBSTACLE:
 			if (event.getEventType() == EventType.STARTED_MOWING) {
-				changeState(State.MOWING);
-			}
-			break;
-		case REMOTE_CONTROLLED:
-			if (event.getEventType() == EventType.REMOTE_DISCONNECTED) {
 				changeState(State.MOWING);
 			}
 			break;
@@ -96,12 +87,12 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 	}
 
 	private void changeState(State newState) {
-		Log.d(this.getClass().getName(), "Change state from " + state + ", to " + newState);
+		Log.v(this.getClass().getName(), "Change state from " + state + ", to " + newState);
 		state = newState;
 	}
 
 	private void logToTextView(final String msg) {
-		Log.d(this.getClass().getCanonicalName(), msg + " " + Thread.currentThread().getId());
+		Log.v(this.getClass().getCanonicalName(), msg + " " + Thread.currentThread().getId());
 		guiLogCallback.post(msg);
 	}
 }
