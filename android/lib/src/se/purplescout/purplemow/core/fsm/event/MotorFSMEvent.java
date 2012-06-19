@@ -1,6 +1,6 @@
 package se.purplescout.purplemow.core.fsm.event;
 
-public class MotorFSMEvent implements Comparable<MotorFSMEvent> {
+public class MotorFSMEvent extends FSMEvent<MotorFSMEvent.EventType, MotorFSMEvent> {
 	public enum EventType {
 		EMERGENCY_STOP(10), MOVE_FWD(5), REVERSE(5), TURN_LEFT(5), TURN_RIGHT(5), STOP(5), MOW(5);
 
@@ -10,29 +10,22 @@ public class MotorFSMEvent implements Comparable<MotorFSMEvent> {
 			this.priority = priority;
 		}
 	}
-
-	private final EventType eventType;
-	private final int value;
-
+	
 	public MotorFSMEvent(EventType eventType) {
-		this(eventType, -1);
+		super(eventType);
 	}
 
 	public MotorFSMEvent(EventType eventType, int value) {
-		this.eventType = eventType;
-		this.value = value;
-	}
-
-	public EventType getEventType() {
-		return eventType;
-	}
-
-	public int getValue() {
-		return value;
+		super(eventType, value);
 	}
 
 	@Override
 	public int compareTo(MotorFSMEvent another) {
 		return Integer.signum(eventType.priority - another.getEventType().priority);
+	}
+
+	@Override
+	public String toString() {
+		return "MotorFSMEvent [eventType=" + eventType + ", value=" + value + "]";
 	}
 }

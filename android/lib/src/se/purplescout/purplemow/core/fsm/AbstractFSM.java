@@ -4,13 +4,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import se.purplescout.purplemow.core.fsm.event.FSMEvent;
+
 import android.util.Log;
 
-public abstract class AbstractFSM<T extends Comparable<T>> extends Thread {
+public abstract class AbstractFSM<T extends FSMEvent<?, T>> extends Thread {
 
 	private PriorityBlockingQueue<T> queue = new PriorityBlockingQueue<T>();
-
 	private boolean isRunning = true;
+	private StringBuilder logger = new StringBuilder();
 
 	@Override
 	public void run() {
@@ -18,11 +20,11 @@ public abstract class AbstractFSM<T extends Comparable<T>> extends Thread {
 			while (isRunning) {
 				T event;
 				event = queue.take();
+				log(event);
 				handleEvent(event);
 			}
 		} catch (InterruptedException e) {
 			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
-			e.printStackTrace();
 		}
 	}
 
@@ -31,6 +33,7 @@ public abstract class AbstractFSM<T extends Comparable<T>> extends Thread {
 	}
 
 	public void queueEvent(T event) {
+		event.setTimeStamp(System.currentTimeMillis());
 		queue.add(event);
 	}
 
@@ -39,6 +42,7 @@ public abstract class AbstractFSM<T extends Comparable<T>> extends Thread {
 
 			@Override
 			public void run() {
+				event.setTimeStamp(System.currentTimeMillis());
 				queue.add(event);
 			}
 		};
@@ -46,4 +50,12 @@ public abstract class AbstractFSM<T extends Comparable<T>> extends Thread {
 	}
 
 	protected abstract void handleEvent(T event);
+	
+	public StringBuilder getLogger() {
+		return logger;
+	}
+	
+	private void log(T event) {
+		logger.append(event).append(",").append(System.currentTimeMillis() - event.getTimeStamp()).append("\n");
+	}
 }

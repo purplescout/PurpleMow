@@ -1,0 +1,3 @@
+# Module purplemow
+# RPC service class, partial path of RPC policy file
+com.google.gwt.logging.shared.RemoteLoggingService, CE18CF7C7088FCD25ACC685CF4BAE60B.gwt.rpc

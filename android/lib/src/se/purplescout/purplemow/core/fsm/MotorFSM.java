@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
-	private enum State {
+	public enum State {
 		STOPPED, MOVING_FWD, TURNING_LEFT, BACKING_UP, TURNING_RIGHT
 	}
 
@@ -22,6 +22,8 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	private MotorController motorController;
 	private final GuiLogCallback logCallback;
 	private AbstractFSM<MainFSMEvent> mainFSM;
+	private int currentMovementSpeed;
+	private int currentCutterSpeed;
 
 	@Override
 	public void shutdown() {
@@ -42,14 +44,24 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	public void setMainFSM(AbstractFSM<MainFSMEvent> fsm) {
 		this.mainFSM = fsm;
 	}
+	
+	public int getCurrentSpeed() {
+		return currentMovementSpeed;
+	}
+	
+	public int getCurrentCutterSpeed() {
+		return currentCutterSpeed;
+	}
+	
+	public State getCurrentState() {
+		return state;
+	}
 
 	@Override
 	protected void handleEvent(MotorFSMEvent event) {
-
 		int value = event.getValue();
-
 		logToTextView("Eventtype: " + event.getEventType().name() + " value is: " + value);
-		value = value * 85;
+		
 		if (value > Constants.FULL_SPEED) {
 			value = Constants.FULL_SPEED;
 		} else if (value < 0) {
@@ -97,7 +109,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	private void moveForward(int value) throws IOException {
 		if (state == State.STOPPED || state == State.MOVING_FWD) {
 			motorController.setDirection(Direction.FORWARD);
-			motorController.move(value);
+			move(value);
 			changeState(State.MOVING_FWD);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
@@ -108,7 +120,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	private void backUp(int value) throws IOException {
 		if (state == State.STOPPED || state == State.BACKING_UP) {
 			motorController.setDirection(Direction.BACKWARD);
-			motorController.move(value);
+			move(value);
 			changeState(State.BACKING_UP);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
@@ -119,7 +131,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	private void turnLeft(int value) throws IOException {
 		if (state == State.STOPPED || state == State.TURNING_LEFT) {
 			motorController.setDirection(Direction.LEFT);
-			motorController.move(value);
+			move(value);
 			changeState(State.TURNING_LEFT);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
@@ -130,7 +142,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	private void turnRight(int value) throws IOException {
 		if (state == State.STOPPED || state == State.TURNING_RIGHT) {
 			motorController.setDirection(Direction.RIGHT);
-			motorController.move(value);
+			move(value);
 			changeState(State.TURNING_RIGHT);
 		} else {
 			queueEvent(new MotorFSMEvent(EventType.STOP));
@@ -138,8 +150,14 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		}
 	}
 
+	private void move(int value) throws IOException {
+		motorController.move(value);
+		currentMovementSpeed = value;
+	}
+
 	private void cutterEngine(int value) throws IOException {
 		motorController.runCutter(value);
+		currentCutterSpeed = value;
 	}
 
 	private void changeState(State newState) {

@@ -105,7 +105,7 @@ public class MainService extends IntentService {
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED));
 
 		try {
-			webServer = new WebServer(8080, this, mainFSM, motorFSM);
+			webServer = new WebServer(8080, this, new RemoteController(motorFSM));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new RuntimeException();
