@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "modules.h"
 #include "dcn.h"
 #include "cli.h"
 
@@ -43,6 +44,9 @@ struct dcn {
     struct ip_item*     ip_list;
     struct ip_item*     ip_main;
 };
+
+// Private functions
+static error_code dcn_start();
 
 static error_code free_ip_list(struct ip_item *ip_item);
 static error_code find_ips();
@@ -81,6 +85,8 @@ error_code dcn_init()
     cli_register_command("ip", command_show_ip);
     cli_register_command("ips", command_show_ips);
 
+    module_register_to_phase(phase_START, dcn_start);
+
     this.initialized = 1;
 
     return err_OK;
@@ -93,7 +99,7 @@ error_code dcn_init()
  *
  * @return      Success status
  */
-error_code dcn_start()
+static error_code dcn_start()
 {
     return err_OK;
 }

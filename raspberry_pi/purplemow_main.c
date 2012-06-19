@@ -11,6 +11,7 @@
 #include "purplemow.h"
 #include "purplemow_main.h"
 #include "sensors.h"
+#include "modules.h"
 
 #include "test.h"
 #include "test_thread.h"
@@ -74,6 +75,8 @@ int main(int argc, char **argv)
     if ( this.debug )
         printf("Initializing... ");
 
+    modules_init();
+
     message_init();
     cli_init();
 
@@ -118,36 +121,19 @@ int main(int argc, char **argv)
     if ( this.debug )
         printf("Starting... ");
 
-    message_start();
-    cli_start();
-
-#if DO_COMM
-    communicator_start();
-#endif // DO_COMM
-
-#if DO_TEST
-    test_start();
-#endif // DO_TEST
-
-#if DO_TEST_THREADS
-    test_thread_start();
-#endif // DO_TEST_THREADS
-
-#if DO_SEN_RANGE
-    sensors_start();
-#endif // DO_SEN_RANGE
-
-#if DO_DCN
-    dcn_start();
-#endif // DO_DCN
-
-#if DO_NET
-    multicast_start();
-#endif // DO_NET
+    modules_run_phase(phase_START);
 
     if ( this.debug )
         printf("OK\n");
 
-    purplemow_start();
+    if ( this.debug )
+        printf("Starting sensors... ");
+
+    modules_run_phase(phase_START_SENSORS);
+
+    if ( this.debug )
+        printf("OK\n");
+
+    modules_run_phase(phase_MOW);
 }
 

@@ -186,8 +186,11 @@ static error_code command_i2c_read(char *args)
         result = io_command_read(sensor_bwf_left, &value);
     } else if ( strcmp("bwf_r", args) == 0 ) {
         result = io_command_read(sensor_bwf_right, &value);
+//TODO
+#if 0
     } else if ( strcmp("bwf_ref", args) == 0 ) {
         result = io_command_read(sensor_bwf_reference, &value);
+#endif
     } else {
         result = err_WRONG_ARGUMENT;
         printf("Valid arguments: "
@@ -266,7 +269,11 @@ static error_code i2c_read_data(uint8_t* msg, int length)
 #ifdef SIMULATOR
     msg[0] = CMD_SEND;
     switch ( msg[1] ) {
-        case CMD_RANGE_SENSOR:
+        case CMD_RANGE_SENSOR_LEFT:
+            msg[3] = this.range >> 8;
+            msg[4] = this.range & 0xff;
+            break;
+        case CMD_RANGE_SENSOR_RIGHT:
             msg[3] = this.range >> 8;
             msg[4] = this.range & 0xff;
             break;
@@ -286,10 +293,13 @@ static error_code i2c_read_data(uint8_t* msg, int length)
             msg[3] = this.bwf_r >> 8;
             msg[4] = this.bwf_r & 0xff;
             break;
+//TODO
+#if 0
         case CMD_BWF_REFERENCE:
             msg[3] = this.bwf_ref >> 8;
             msg[4] = this.bwf_ref & 0xff;
             break;
+#endif
         default:
             msg[3] = 0;
             msg[4] = 0;
@@ -492,8 +502,14 @@ error_code io_command_read(enum sensor sensor, int *value)
 
     switch ( sensor ) {
         case sensor_range:
-            msg[1] = CMD_RANGE_SENSOR;
+            msg[1] = CMD_RANGE_SENSOR_LEFT;
             break;
+//TODO
+#if 0
+        case sensor_range_right:
+            msg[1] = CMD_RANGE_SENSOR_RIGHT;
+            break;
+#endif
         case sensor_moist:
             msg[1] = CMD_MOIST_SENSOR;
             break;
@@ -506,9 +522,12 @@ error_code io_command_read(enum sensor sensor, int *value)
         case sensor_bwf_right:
             msg[1] = CMD_BWF_RIGHT_SENSOR;
             break;
+//TODO
+#if 0
         case sensor_bwf_reference:
             msg[1] = CMD_BWF_REFERENCE;
             break;
+#endif
         default:
             error = err_WRONG_ARGUMENT;
             break;

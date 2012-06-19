@@ -43,7 +43,6 @@ struct message_communicator {
 
 // Public functions
 error_code communicator_init();
-error_code communicator_start();
 
 error_code communicator_stop();
 error_code communicator_move_forward();

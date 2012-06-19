@@ -22,6 +22,7 @@ purplemow_src = purplemow.c \
 				cli.c \
 				dcn.c \
 				messages.c \
+				modules.c \
 				communicator.c \
 				sensors.c \
 				sensor_range.c \

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "messages.h"
+#include "modules.h"
 #include "purplemow.h"
 
 
@@ -16,6 +17,7 @@
 static error_code command_main(char *args);
 
 // Private
+static error_code purplemow_mow();
 static error_code handle_sensor(enum sensor sensor, enum decision decision);
 
 /**
@@ -48,6 +50,8 @@ error_code purplemow_init()
     if ( FAILURE(result) )
         return result;
 
+    module_register_to_phase(phase_MOW, purplemow_mow);
+
     return err_OK;
 }
 
@@ -57,7 +61,7 @@ error_code purplemow_init()
  *
  * @ingroup purplemow
  */
-error_code purplemow_start()
+static error_code purplemow_mow()
 {
     error_code result;
     struct message_item msg_buff;

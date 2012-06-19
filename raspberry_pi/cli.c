@@ -5,6 +5,7 @@
 
 #include "utils/list.h"
 #include "thread.h"
+#include "modules.h"
 #include "error_codes.h"
 #include "cli.h"
 
@@ -40,6 +41,7 @@ struct cli {
 };
 
 // functions
+static error_code cli_start();
 static void* cli_listen(void *data);
 static error_code parse_command(char *command);
 static error_code list_add(struct cli_item* item);
@@ -71,6 +73,8 @@ error_code cli_init()
     cli_register_command("echo", command_echo);
     cli_register_command("exit", command_exit);
 
+    module_register_to_phase(phase_START, cli_start);
+
     return err_OK;
 }
 
@@ -81,7 +85,7 @@ error_code cli_init()
  *
  * @return  Success status
  */
-error_code cli_start()
+static error_code cli_start()
 {
     error_code result;
 
@@ -120,6 +124,16 @@ static void* cli_listen(void *data)
     }
 }
 
+/**
+ * Comparator function, compares the command name of two cli_items.
+ *
+ * @ingroup cli
+ *
+ * @param[in] data1     First cli_item
+ * @param[in] data2     Second cli_item
+ *
+ * @return              Success status
+ */
 static error_code compare_command(void* data1, void* data2)
 {
     struct cli_item* item1;

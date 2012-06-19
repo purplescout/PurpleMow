@@ -25,7 +25,6 @@ struct message_sensor_decision {
 
 // Public functions
 error_code purplemow_init();
-error_code purplemow_start();
 
 error_code main_range_too_close();
 error_code main_range_ok();

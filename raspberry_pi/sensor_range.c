@@ -5,6 +5,7 @@
 #include "error_codes.h"
 #include "communicator.h"
 #include "messages.h"
+#include "modules.h"
 #include "poller.h"
 #include "sensor_range.h"
 

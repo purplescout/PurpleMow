@@ -1,5 +1,6 @@
 
 #include "error_codes.h"
+#include "modules.h"
 #include "sensors.h"
 
 #include "sensor_range.h"
@@ -18,6 +19,9 @@
  *
  * Handle to all sensors.
  */
+
+// Private functions
+static error_code sensors_start();
 
 /**
  * Sensors.
@@ -45,6 +49,8 @@ error_code sensors_init()
     if( FAILURE(result) )
         return result;
 
+    module_register_to_phase(phase_START_SENSORS, sensors_start);
+
     return err_OK;
 }
 
@@ -54,7 +60,7 @@ error_code sensors_init()
  * @ingroup sensors
  * @return                  Success status.
  */
-error_code sensors_start()
+static error_code sensors_start()
 {
     error_code result;
 

@@ -5,6 +5,7 @@
 
 #include "error_codes.h"
 #include "test.h"
+#include "modules.h"
 #include "utils/list.h"
 
 /**
@@ -13,6 +14,9 @@
  *
  * @ingroup purplemow
  */
+
+// Private functions
+static error_code test_start();
 
 /**
  * Initialize the test.
@@ -53,6 +57,8 @@ error_code test_init()
     list_destroy_iterator(iterator);
     list_destroy(list);
 
+    module_register_to_phase(phase_START, test_start);
+
     return err_OK;
 }
 
@@ -63,7 +69,7 @@ error_code test_init()
  *
  * @return          Success status
  */
-error_code test_start()
+static error_code test_start()
 {
     return err_OK;
 }

@@ -63,6 +63,8 @@ struct message_item {
     struct message_body body;
 };
 
+error_code message_init();
+
 error_code message_open(struct message_queue *queue, enum queue queue_number);
 error_code message_send(void *data, enum queue receive_queue);
 error_code message_send_prio(void *data, enum queue receive_queue, enum queue_prio prio);

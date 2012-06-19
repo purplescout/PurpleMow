@@ -7,6 +7,7 @@
 
 #include "thread.h"
 #include "auto_management.h"
+#include "modules.h"
 #include "dcn.h"
 
 #define M_PORT 32001
@@ -30,6 +31,9 @@ struct multicast {
     int         fd;
     pthread_t   thread;
 };
+
+// Private functions
+static error_code multicast_start();
 
 static void* multicast_listen(void *data);
 static error_code parse_command(char *command);
@@ -80,6 +84,9 @@ error_code multicast_init()
         perror("setsockopt on multicast socket");
         return err_CONFIGURE_DEVICE;
     }
+
+    module_register_to_phase(phase_START, multicast_start);
+
     return err_OK;
 }
 
@@ -90,7 +97,7 @@ error_code multicast_init()
  *
  * @return          Success status
  */
-error_code multicast_start()
+static error_code multicast_start()
 {
     error_code result;
 

@@ -44,18 +44,6 @@ error_code message_init()
 }
 
 /**
- * Start messages
- *
- * @ingroup message
- *
- * @return          Success status
- */
-error_code message_start()
-{
-    return err_OK;
-}
-
-/**
  * Open a message queue.
  *
  * @ingroup message

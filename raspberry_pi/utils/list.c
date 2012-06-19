@@ -566,7 +566,9 @@ static error_code list_create_iterator_internal_last(struct list* list, struct l
  */
 error_code list_destroy_iterator(list_iterator_t iterator_t)
 {
-    struct list_iterator** iterator;
+    struct list_iterator* iterator;
+
+    iterator = (struct list_iterator*)iterator_t;
 
     if( iterator == NULL )
         return err_WRONG_ARGUMENT;
@@ -970,6 +972,9 @@ error_code list_find_item(list_iterator_t iterator_t, void* data, error_code (*c
 
     iterator->item = iterator->list->first;
 
+    if( iterator->item == NULL )
+        return err_NO_ITEM;
+
     do
     {
         status = comparator( data, iterator->item->data );
@@ -1016,6 +1021,9 @@ error_code list_find_item_reverse(list_iterator_t iterator_t, void* data, error_
         return err_EMPTY_LIST;
 
     iterator->item = iterator->list->last;
+
+    if( iterator->item == NULL )
+        return err_NO_ITEM;
 
     do
     {

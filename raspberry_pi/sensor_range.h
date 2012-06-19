@@ -19,6 +19,6 @@ struct sensor_range {
 };
 
 error_code sensor_range_init(struct sensor_range* sensor);
-error_code sensor_range_start(struct sensor_range* sensor);
+error_code sensor_range_start(struct sensor_range* this);
 
 #endif // SENSOR_RANGE_H

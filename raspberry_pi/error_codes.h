@@ -3,6 +3,7 @@
 
 typedef enum error_code {
     err_OK,
+    err_NOT_IMPLEMENTED,
     err_WRONG_ARGUMENT,
     err_NOT_INITIALIZED,
     err_ALREADY_INITIALIZED,
