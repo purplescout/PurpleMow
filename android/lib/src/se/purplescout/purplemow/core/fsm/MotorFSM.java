@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.Constants;
-import se.purplescout.purplemow.core.GuiLogCallback;
+import se.purplescout.purplemow.core.LogCallback;
 import se.purplescout.purplemow.core.MotorController;
 import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
@@ -20,7 +20,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
 	private State state = State.STOPPED;
 	private MotorController motorController;
-	private final GuiLogCallback logCallback;
+	private final LogCallback logCallback;
 	private AbstractFSM<MainFSMEvent> mainFSM;
 	private int currentMovementSpeed;
 	private int currentCutterSpeed;
@@ -36,7 +36,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		}
 	}
 
-	public MotorFSM(ComStream comStream, GuiLogCallback logCallback) {
+	public MotorFSM(ComStream comStream, LogCallback logCallback) {
 		this.logCallback = logCallback;
 		this.motorController = new MotorController(comStream);
 	}
@@ -60,13 +60,11 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	@Override
 	protected void handleEvent(MotorFSMEvent event) {
 		int value = event.getValue();
-		logToTextView("Eventtype: " + event.getEventType().name() + " value is: " + value);
 		
 		if (value > Constants.FULL_SPEED) {
 			value = Constants.FULL_SPEED;
 		} else if (value < 0) {
 			value = 0;
-			logToTextView("Setting value to 0 ");
 		}
 
 		try {
@@ -97,7 +95,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 				break;
 			}
 		} catch (IOException e) {
-			logToTextView(e.getMessage());
+			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
 		}
 	}
 
@@ -162,14 +160,6 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
 	private void changeState(State newState) {
 		String aMessage = "Change state from " + state + ", to " + newState;
-		logToTextView(aMessage);
-
 		state = newState;
 	}
-
-	private void logToTextView(final String msg) {
-		Log.v(this.getClass().getName(), msg + " ");
-		logCallback.post(msg);
-	}
-
 }

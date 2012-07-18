@@ -18,14 +18,12 @@ public class SensorReader extends Thread {
 	private byte hiB;
 	private byte loB;
 	private Integer latestBWFValue = 0;
-	private final GuiLogCallback guiLogCallback;
 	private boolean isRunning = true;
 
 	AbstractFSM<MainFSMEvent> mainFSM;
 
-	public SensorReader(ComStream comStream, GuiLogCallback logCallback) {
+	public SensorReader(ComStream comStream) {
 		this.comStream = comStream;
-		this.guiLogCallback = logCallback;
 	}
 
 	public void setMainFSM(AbstractFSM<MainFSMEvent> fsm) {
@@ -34,9 +32,7 @@ public class SensorReader extends Thread {
 
 	@Override
 	public void run() {
-
 		try {
-			logToTextView("SensorReader running");
 			while (isRunning) {
 				requestSensor(ComStream.RANGE_SENSOR_LEFT);
 				Log.v(this.getClass().getCanonicalName(), "Requested range sensor left");
@@ -126,10 +122,6 @@ public class SensorReader extends Thread {
 
 	public byte getLoB() {
 		return loB;
-	}
-
-	private void logToTextView(final String msg) {
-		guiLogCallback.post(msg);
 	}
 
 	public void shutdown() {

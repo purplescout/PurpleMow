@@ -12,18 +12,23 @@ public class MainDisplay implements MainActivity.Display {
 
 	private Button startBtn;
 	private Button stopBtn;
-	private View logView;
-	private TextView logText;
 	private View loaderSpinner;
 	private AlertDialog popup;
+	private TextView bwfRight;
+	private TextView bwfLeft;
+	private TextView rangeRight;
+	private TextView rangeLeft;
+	private TextView currentState;
 
 	public MainDisplay(Activity activity) {
-		startBtn = ((Button) activity.findViewById(R.id.startFSM));
-		stopBtn = ((Button) activity.findViewById(R.id.stopFSM));
-		logView = ((View) activity.findViewById(R.id.log));
-		loaderSpinner = ((View) activity.findViewById(R.id.spinner));
-		logText = (TextView) activity.findViewById(R.id.logText);
-
+		startBtn = (Button) activity.findViewById(R.id.startFSM);
+		stopBtn = (Button) activity.findViewById(R.id.stopFSM);
+		loaderSpinner = (View) activity.findViewById(R.id.spinner);
+		bwfLeft = (TextView) activity.findViewById(R.id.bwfLeft);
+		bwfRight = (TextView) activity.findViewById(R.id.bwfRight);
+		rangeLeft = (TextView) activity.findViewById(R.id.rangeLeft);
+		rangeRight = (TextView) activity.findViewById(R.id.rangeRight);
+		currentState = (TextView) activity.findViewById(R.id.currentState);
 		createPopup(activity);
 	}
 
@@ -52,11 +57,6 @@ public class MainDisplay implements MainActivity.Display {
 	}
 
 	@Override
-	public View getLogView() {
-		return logView;
-	}
-
-	@Override
 	public View getLoaderSpinner() {
 		return loaderSpinner;
 	}
@@ -72,7 +72,27 @@ public class MainDisplay implements MainActivity.Display {
 	}
 
 	@Override
-	public TextView getLogText() {
-		return logText;
+	public void setBwfLeft(String value) {
+		bwfLeft.setText(value);
+	}
+
+	@Override
+	public void setBwfRight(String value) {
+		bwfRight.setText(value);
+	}
+
+	@Override
+	public void setRangeLeft(String value) {
+		rangeLeft.setText(value);
+	}
+
+	@Override
+	public void setRangeRight(String value) {
+		rangeRight.setText(value);
+	}
+
+	@Override
+	public void setCurrentState(String state) {
+		currentState.setText(state);
 	}
 }

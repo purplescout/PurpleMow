@@ -3,7 +3,9 @@ package se.purplescout.purplemow.core.fsm;
 import java.util.Random;
 
 import se.purplescout.purplemow.core.Constants;
-import se.purplescout.purplemow.core.GuiLogCallback;
+import se.purplescout.purplemow.core.LogCallback;
+import se.purplescout.purplemow.core.LogMessage;
+import se.purplescout.purplemow.core.LogMessage.Type;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
@@ -17,10 +19,10 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	private State state = State.IDLE;
 	private AbstractFSM<MotorFSMEvent> motorFSM;
-	private GuiLogCallback guiLogCallback;
+	private LogCallback logCallback;
 
-	public MainFSM(GuiLogCallback log) {
-		this.guiLogCallback = log;
+	public MainFSM(LogCallback log) {
+		this.logCallback = log;
 	}
 
 	@Override
@@ -34,25 +36,25 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 			break;
 		case MOWING:
 			if (event.getEventType() == EventType.RANGE_LEFT) {
-				logToTextView("RANGE LEFT: " + event.getValue());
+				logCallback.post(LogMessage.create(Type.RANGE_LEFT, Integer.toString(event.getValue())));
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle(event.getEventType().name());
 				}
 			} else if (event.getEventType() == EventType.RANGE_RIGHT) {
-				logToTextView("RANGE RIGHT: " + event.getValue());
+				logCallback.post(LogMessage.create(Type.RANGE_RIGHT, Integer.toString(event.getValue())));
 				if (event.getValue() > Constants.RANGE_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle(event.getEventType().name());
 				}
 			} else if (event.getEventType() == EventType.BWF_RIGHT) {
-				logToTextView("BWF RIGHT: " + event.getValue());
+				logCallback.post(LogMessage.create(Type.BWF_RIGHT, Integer.toString(event.getValue())));
 				if (event.getValue() < Constants.BWF_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle(event.getEventType().name());
 				}
 			} else if (event.getEventType() == EventType.BWF_LEFT) {
-				logToTextView("BWF LEFT: " + event.getValue());
+				logCallback.post(LogMessage.create(Type.BWF_LEFT, Integer.toString(event.getValue())));
 				if (event.getValue() < Constants.BWF_LIMIT) {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle(event.getEventType().name());
@@ -68,7 +70,6 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 	}
 
 	private void avoidOstacle(String cause) {
-		logToTextView("Avoiding obstacle because: " + cause);
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
 
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE, Constants.FULL_SPEED), 500);
@@ -89,10 +90,5 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 	private void changeState(State newState) {
 		Log.v(this.getClass().getName(), "Change state from " + state + ", to " + newState);
 		state = newState;
-	}
-
-	private void logToTextView(final String msg) {
-		Log.v(this.getClass().getCanonicalName(), msg + " " + Thread.currentThread().getId());
-		guiLogCallback.post(msg);
 	}
 }

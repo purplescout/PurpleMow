@@ -3,7 +3,8 @@ package se.purplescout.purplemow.onboard;
 import java.io.IOException;
 
 import se.purplescout.purplemow.core.ComStream;
-import se.purplescout.purplemow.core.GuiLogCallback;
+import se.purplescout.purplemow.core.LogCallback;
+import se.purplescout.purplemow.core.LogMessage;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
 import se.purplescout.purplemow.onboard.web.WebServer;
@@ -20,10 +21,10 @@ public class TestActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		GuiLogCallback logCallback = new GuiLogCallback() {
+		LogCallback logCallback = new LogCallback() {
 
 			@Override
-			public void post(String msg) {
+			public void post(LogMessage msg) {
 				
 			}
 		};

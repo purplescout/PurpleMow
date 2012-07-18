@@ -6,7 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import se.purplescout.purplemow.core.Constants;
-import se.purplescout.purplemow.core.GuiLogCallback;
+import se.purplescout.purplemow.core.LogCallback;
+import se.purplescout.purplemow.core.LogMessage;
 import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
@@ -81,10 +82,10 @@ public class MainService extends IntentService {
 		notification.flags |= Notification.FLAG_NO_CLEAR;
 		notificationManager.notify(NOTIFICATION_FLAG, notification);
 
-		GuiLogCallback logCallback = new GuiLogCallback() {
+		LogCallback logCallback = new LogCallback() {
 
 			@Override
-			public void post(String msg) {
+			public void post(LogMessage msg) {
 				Intent intent = new Intent(ACTION_LOG_MSG);
 				intent.putExtra(ACTION_LOG_MSG, msg);
 				MainService.this.getApplicationContext().sendBroadcast(intent);
@@ -92,7 +93,7 @@ public class MainService extends IntentService {
 		};
 		mainFSM = new MainFSM(logCallback);
 		motorFSM = new MotorFSM(comStream, logCallback);
-		sensorReader = new SensorReader(comStream, logCallback);
+		sensorReader = new SensorReader(comStream);
 		mainFSM.setMotorFSM(motorFSM);
 		motorFSM.setMainFSM(mainFSM);
 		sensorReader.setMainFSM(mainFSM);

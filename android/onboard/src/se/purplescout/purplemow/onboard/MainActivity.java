@@ -6,6 +6,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import se.purplescout.R;
+import se.purplescout.purplemow.core.LogMessage;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -18,7 +19,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
@@ -35,15 +35,21 @@ public class MainActivity extends Activity {
 
 		Button getStopBtn();
 
-		View getLogView();
-
-		TextView getLogText();
-
 		View getLoaderSpinner();
 
 		void showNotConnectedPopup();
 
 		void hideNotConnectedPopup();
+		
+		void setBwfLeft(String value);
+		
+		void setBwfRight(String value);
+		
+		void setRangeLeft(String value);
+		
+		void setRangeRight(String value);
+		
+		void setCurrentState(String state);
 	}
 
 	Display display;
@@ -120,18 +126,31 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				String log = display.getLogText().getText().toString();
-				if (log.length() > 500) {
-					log = log.substring(0, 500);  // Truncate log to minimize resource usage 
+				LogMessage message = (LogMessage) intent.getExtras().getSerializable(ACTION_LOG_MSG);
+				switch (message.getType()) {
+				case BWF_LEFT:
+					display.setBwfLeft(message.getValue());
+					break;
+				case BWF_RIGHT:
+					display.setBwfRight(message.getValue());
+					break;
+				case RANGE_LEFT:
+					display.setRangeLeft(message.getValue());
+					break;
+				case RANGE_RIGHT:
+					display.setRangeRight(message.getValue());
+					break;
+				case CURRENT_STATE:
+					display.setCurrentState(message.getValue());
+					break;
+				default:
+					break;
 				}
-				log = intent.getExtras().getString(ACTION_LOG_MSG) + "\n" + log;
-				display.getLogText().setText(log);
 			}
 		}, new IntentFilter(ACTION_LOG_MSG));
 	}
 
 	private void startFSM() {
-		display.getLogView().setVisibility(View.GONE);
 		display.getLoaderSpinner().setVisibility(View.VISIBLE);
 		display.getStartBtn().setEnabled(false);
 		display.getStopBtn().setEnabled(true);
@@ -140,12 +159,10 @@ public class MainActivity extends Activity {
 		serviceIntent.fillIn(usbAccessoryIntent, 0);
 		Log.d(this.getClass().getCanonicalName(), "Starting service: " + MainService.class.getCanonicalName());
 		startService(serviceIntent);
-		display.getLogView().setVisibility(View.VISIBLE);
 		display.getLoaderSpinner().setVisibility(View.GONE);
 	}
 
 	private void stopFSM() {
-		display.getLogView().setVisibility(View.VISIBLE);
 		display.getLoaderSpinner().setVisibility(View.GONE);
 		display.getStartBtn().setEnabled(true);
 		display.getStopBtn().setEnabled(false);
