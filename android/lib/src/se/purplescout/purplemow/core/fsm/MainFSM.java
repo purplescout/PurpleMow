@@ -89,6 +89,7 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	private void changeState(State newState) {
 		Log.v(this.getClass().getName(), "Change state from " + state + ", to " + newState);
+		logCallback.post(LogMessage.create(Type.CURRENT_STATE, newState.toString()));
 		state = newState;
 	}
 }
