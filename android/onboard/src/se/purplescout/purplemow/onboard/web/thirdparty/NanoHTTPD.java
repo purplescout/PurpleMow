@@ -117,7 +117,7 @@ public class NanoHTTPD
 	 * HTTP response.
 	 * Return one of these from serve().
 	 */
-	public class Response
+	public static class Response
 	{
 		/**
 		 * Default constructor: response = HTTP_OK, data = mime = 'null'
@@ -414,6 +414,18 @@ public class NanoHTTPD
 						String boundary = st.nextToken();
 
 						decodeMultipartData(boundary, fbuf, in, parms, files);
+					}
+					else if (contentType.equalsIgnoreCase("application/json") || contentType.equalsIgnoreCase("text/plain")) {
+						String postLine = "";
+						char pbuf[] = new char[512];
+						int read = in.read(pbuf);
+						while ( read >= 0 && !postLine.endsWith("\r\n") )
+						{
+							postLine += String.valueOf(pbuf, 0, read);
+							read = in.read(pbuf);
+						}
+						postLine = postLine.trim();
+						parms.put("content", postLine);
 					}
 					else
 					{

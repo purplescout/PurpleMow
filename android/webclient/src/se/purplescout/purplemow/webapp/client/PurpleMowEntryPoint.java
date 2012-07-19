@@ -19,6 +19,7 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 
 public class PurpleMowEntryPoint extends Composite implements EntryPoint {
 
+	public static final String RPC_ROOT = "purplemow/rpc";
 	private static final String DIV_ID = "gwt_placeHolder";
 
 	@UiTemplate("PurpleMowView.ui.xml")
@@ -42,7 +43,7 @@ public class PurpleMowEntryPoint extends Composite implements EntryPoint {
 		PlaceHistoryHandler historyHandler = new PlaceHistoryHandler(historyMapper);
 		
 		ActivityMapper menuActivityMapper = new MenuActivityMapper(historyMapper);
-		ActivityMapper centerActivityMapper = new CenterActivityMapper();
+		ActivityMapper centerActivityMapper = new CenterActivityMapper(eventBus);
 
 		ActivityManager menuActivityManager = new ActivityManager(menuActivityMapper, eventBus);
 		ActivityManager centerActivityManager = new ActivityManager(centerActivityMapper, eventBus);

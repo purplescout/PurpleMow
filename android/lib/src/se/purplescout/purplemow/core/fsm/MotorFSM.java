@@ -59,8 +59,8 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
 	@Override
 	protected void handleEvent(MotorFSMEvent event) {
+		Log.v(this.getClass().getCanonicalName(), "Received event type: " + event.getEventType().toString() + " with value: " + event.getValue());
 		int value = event.getValue();
-		
 		if (value > Constants.FULL_SPEED) {
 			value = Constants.FULL_SPEED;
 		} else if (value < 0) {

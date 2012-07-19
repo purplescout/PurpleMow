@@ -6,58 +6,65 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import se.purplescout.purplemow.onboard.RemoteController;
+import se.purplescout.purplemow.onboard.web.dispatcher.RpcDispatcher;
 import se.purplescout.purplemow.onboard.web.thirdparty.NanoHTTPD;
 import android.content.Context;
 import android.util.Log;
 
 public class WebServer extends NanoHTTPD {
 
-	private Context context;
-	private RemoteController remoteController;
+	private static final String RPC_ROOT = "/purplemow/rpc";
 
-	public WebServer(int port, Context context, RemoteController remoteController) throws IOException {
+	public static class Request {
+		private final String uri;
+		private final String method;
+		private final Properties header;
+		private final Properties parms;
+		private final Properties files;
+
+		public Request(String uri, String method, Properties header, Properties parms, Properties files) {
+			this.uri = uri;
+			this.method = method;
+			this.header = header;
+			this.parms = parms;
+			this.files = files;
+		}
+
+		public String getUri() {
+			return uri;
+		}
+
+		public String getMethod() {
+			return method;
+		}
+
+		public Properties getHeader() {
+			return header;
+		}
+
+		public Properties getParms() {
+			return parms;
+		}
+
+		public Properties getFiles() {
+			return files;
+		}
+	}
+
+	private Context context;
+	private RpcDispatcher dispatcher;
+
+	public WebServer(int port, Context context, RpcDispatcher dispatcher) throws IOException {
 		super(port, new File("dummy"));
 		this.context = context;
-		this.remoteController = remoteController;
+		this.dispatcher = dispatcher;
 	}
 
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Properties files) {
-		
-		if (uri.equalsIgnoreCase("/command")) {
-			Log.i(this.getClass().getCanonicalName(), "Received remote procedure call: " + parms.getProperty("cmd"));
-			long t = System.currentTimeMillis();
-			try {
-				if (parms.getProperty("cmd").equals("forward")) {
-					remoteController.incrementForward();
-				} else if (parms.getProperty("cmd").equals("left")) {
-					remoteController.incrementLeft();
-				} else if (parms.getProperty("cmd").equals("stop")) {
-					remoteController.stop();
-				} else if (parms.getProperty("cmd").equals("right")) {
-					remoteController.incrementRight();
-				} else if (parms.getProperty("cmd").equals("backward")) {
-					remoteController.incrementBackward();
-				} else if (parms.getProperty("cmd").equals("cutter_on")) {
-					remoteController.incrementCutter();
-				} else if (parms.getProperty("cmd").equals("cutter_off")) {
-					remoteController.decrementCutter();
-				}
-			} catch (NumberFormatException e) {
-				return new Response(HTTP_BADREQUEST, MIME_PLAINTEXT, e.getMessage());
-			} catch (NullPointerException e) {
-				return new Response(HTTP_BADREQUEST, MIME_PLAINTEXT, e.getMessage());
-			}
-			Log.i(this.getClass().getCanonicalName(), "Call served in " + (System.currentTimeMillis() - t) + "ms");
-			return new Response(HTTP_OK, MIME_PLAINTEXT, "Moving " + parms.getProperty("cmd"));
-		} else if (uri.startsWith("/logs")) {
-			CharSequence relPath = uri.subSequence(5, uri.length());
-			if (relPath.equals("/motorFSMEventLog.csv")) {
-				return new Response(HTTP_OK, MIME_PLAINTEXT, remoteController.getMotorFSMEventLog());
-			} else {
-				return new Response(HTTP_NOTFOUND, MIME_PLAINTEXT, "404 File not found");
-			}
+		if (uri.startsWith(RPC_ROOT)) {
+			Log.i(this.getClass().getCanonicalName(), "Received remote procedure call: " + uri);
+			return dispatcher.dispatch(new Request(uri.replaceFirst(RPC_ROOT, ""), method, header, parms, files));
 		} else {
 			return serveFile(uri, header, new File("dummy"), false);
 		}

@@ -4,6 +4,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import se.purplescout.purplemow.core.Constants;
 import se.purplescout.purplemow.core.LogCallback;
@@ -12,7 +13,15 @@ import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
+import se.purplescout.purplemow.onboard.backend.dao.ScheduleEventDAO;
+import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAOImpl;
+import se.purplescout.purplemow.onboard.db.sqlhelper.PurpleMowSqliteOpenHelper;
 import se.purplescout.purplemow.onboard.web.WebServer;
+import se.purplescout.purplemow.onboard.web.dispatcher.RpcDispatcher;
+import se.purplescout.purplemow.onboard.web.service.RemoteService;
+import se.purplescout.purplemow.onboard.web.service.ScheduleService;
+import se.purplescout.purplemow.onboard.web.service.remote.RemoteServiceImpl;
+import se.purplescout.purplemow.onboard.web.service.schedule.ScheduleServiceImpl;
 import android.R;
 import android.app.IntentService;
 import android.app.Notification;
@@ -25,6 +34,8 @@ import android.util.Log;
 
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
+import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
+import com.j256.ormlite.support.ConnectionSource;
 
 public class MainService extends IntentService {
 
@@ -106,10 +117,20 @@ public class MainService extends IntentService {
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED));
 
 		try {
-			webServer = new WebServer(8080, this, new RemoteController(motorFSM));
+			OrmLiteSqliteOpenHelper sqliteOpenHelper = new PurpleMowSqliteOpenHelper(this);
+			ConnectionSource connectionSource = sqliteOpenHelper.getConnectionSource();
+
+			RemoteService remoteService = new RemoteServiceImpl(motorFSM);
+			ScheduleEventDAO scheduleEntryDAO = new ScheduleEventDAOImpl(connectionSource);
+			ScheduleService scheduleService = new ScheduleServiceImpl(scheduleEntryDAO);
+			RpcDispatcher dispatcher = new RpcDispatcher(remoteService, scheduleService);
+			webServer = new WebServer(8080, this, dispatcher);
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException();
+			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+			throw new RuntimeException(e);
+		} catch (SQLException e) {
+			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+			throw new RuntimeException(e);
 		}
 
 		// To keep service alive
