@@ -15,6 +15,7 @@ list:
 [x] find with comparator, return iterator
 [ ] test add before/after iterator
 [x] find item iterator
+[ ] item count is wrong
 
 remote cli:
 [ ] web page

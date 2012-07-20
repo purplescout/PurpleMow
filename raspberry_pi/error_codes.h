@@ -26,6 +26,9 @@ typedef enum error_code {
     err_LESS_THAN,
     err_GREATER_THAN,
     err_EQUAL,
+    err_NOT_EQUAL,
+    err_NO_HANDLER,
+    err_NETWORK,
 } error_code;
 
 #define SUCCESS(x) (x) == err_OK

@@ -8,6 +8,7 @@
 #include "modules.h"
 #include "poller.h"
 #include "sensor_range.h"
+#include "mow.h"
 
 #define POLL_INTERVAL           500000
 
@@ -144,7 +145,7 @@ static error_code sensor_range_poll(void *data)
 
     this = (struct sensor_range*)data;
 
-    communicator_read(sensor_range, this->queue);
+    communicator_read(sensor_range_left, this->queue);
 
     return err_OK;
 }
@@ -163,30 +164,22 @@ static error_code handle_range_sensor(struct sensor_range* this, enum sensor sen
 {
 
     switch (sensor) {
-        case sensor_range:
+        case sensor_range_left:
             break;
         default:
             return err_UNHANDLED_SENSOR;
     }
 
-#if 0
-    if ( old_value < RANGE_TOO_CLOSE && value >= RANGE_TOO_CLOSE ) {
-        main_range_too_close();
-    } else if ( old_value >= RANGE_TOO_CLOSE && value < RANGE_TOO_CLOSE ) {
-        main_range_ok();
-    }
-#endif
-
     switch ( this->state ) {
         case RANGE_STATE_TOO_CLOSE:
             if ( value < RANGE_TOO_CLOSE - RANGE_HYSTERESIS ) {
-                main_range_ok();
+                mow_range(sensor_range_left, decision_range_ok);
                 this->state = RANGE_STATE_OK;
             }
             break;
         case RANGE_STATE_OK:
             if ( value >= RANGE_TOO_CLOSE ) {
-                main_range_too_close();
+                mow_range(sensor_range_left, decision_range_too_close);
                 this->state = RANGE_STATE_TOO_CLOSE;
             }
             break;

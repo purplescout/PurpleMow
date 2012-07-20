@@ -15,9 +15,14 @@ CC = gcc
 ECHO = echo
 RM = rm
 
+# select which io to use
+# IO_LAYER = io_i2c.c
+IO_LAYER = io_net.c
+# IO_LAYER = io_gpio.c
+
 purplemow_src = purplemow.c \
-				purplemow_main.c \
-				raspi_i2c.c \
+				mow.c \
+				$(IO_LAYER) \
 				auto_management.c \
 				cli.c \
 				dcn.c \
@@ -30,6 +35,7 @@ purplemow_src = purplemow.c \
 				poller.c \
 				utils/utils.c \
 				utils/list.c \
+				utils/state.c \
 				test.c \
 				test_thread.c
 
@@ -66,7 +72,7 @@ clean:
 
 %.d: %.c
 	@set -e; rm -f $@; \
-	$(CC) -M $(CPPFLAGS) $< > $@.$$$$; \
+	$(CC) -M $(CXXFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 

@@ -15,7 +15,8 @@ enum command {
 };
 
 enum sensor {
-    sensor_range,
+    sensor_range_left,
+    sensor_range_right,
     sensor_moist,
     sensor_voltage,
     sensor_bwf_left,

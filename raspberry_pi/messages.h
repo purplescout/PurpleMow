@@ -22,7 +22,10 @@ enum queue {
 enum msg_type {
     MSG_COMMUNICATOR,
     MSG_SENSOR_DATA,
+    MSG_SENSOR_RANGE,
+    MSG_SENSOR_BWF,
     MSG_SENSOR_DECISION,
+    MSG_ANY,
     MSG_TEST,
 };
 

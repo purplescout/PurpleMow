@@ -5,7 +5,7 @@
 #include "thread.h"
 #include "messages.h"
 #include "communicator.h"
-#include "raspi_io.h"
+#include "io.h"
 #include "modules.h"
 
 #define DELAY 1

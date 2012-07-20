@@ -10,7 +10,7 @@
 #include <errno.h>
 #endif // SIMULATOR
 
-#include "raspi_io.h"
+#include "io.h"
 
 #define LEFT_MOTOR  "30"
 #define RIGHT_MOTOR "31"

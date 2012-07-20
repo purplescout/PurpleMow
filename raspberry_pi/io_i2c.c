@@ -11,15 +11,15 @@
 
 #include <stdlib.h>  // exit
 
-#include "raspi_io.h"
-#include "../arduino/PurpleMow/commands.h"
+#include "io.h"
+#include "commands.h"
 
 #define I2C_DEVICE "/dev/i2c-2"
 //#define I2C_DEVICE "/dev/i2c-4"
 #define I2C_ADDRESS 0x35
 
 /**
- * @defgroup raspi_i2c Raspberry PI I2C
+ * @defgroup io_i2c Raspberry PI I2C IO
  * I2C implementation for the IO Interface.
  *
  * @ingroup io
@@ -36,7 +36,7 @@ static error_code i2c_read_data(uint8_t* msg, int length);
 /**
  * i2c
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  */
 struct i2c
 {
@@ -59,11 +59,11 @@ static struct i2c this = { .fd = -1, .debug = 0 };
 /**
  * Initialize the i2c.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @return          Success status
  */
-error_code purple_io_init()
+error_code io_init()
 {
 #ifdef SIMULATOR
 #else
@@ -96,7 +96,7 @@ error_code purple_io_init()
  * The command <b>i2c</b>, debugging options for I2C.
  * Modify readable values in simulator mode.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @param[in] args  Arguments
  *
@@ -166,7 +166,7 @@ static error_code command_i2c(char *args)
 /**
  * The command <b>i2c_read</b>, readable values from I2C.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @param[in] args  Arguments
  *
@@ -208,7 +208,7 @@ static error_code command_i2c_read(char *args)
 /**
  * @brief TODO
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @return      Success status
  */
@@ -220,7 +220,7 @@ static error_code wait_for_command()
 /**
  * Send a message over I2C to I/O board.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @param[in] msg       Message to send
  * @param[in] length    Length of message
@@ -257,7 +257,7 @@ static error_code i2c_send_command(uint8_t* msg, int length)
 /**
  * Read a message from I2C.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @param[out] msg      Buffer to write to
  * @param[in]  length   Length of buffer
@@ -321,7 +321,7 @@ static error_code i2c_read_data(uint8_t* msg, int length)
 /**
  * Test command.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @param[in] i     Value to send
  *
@@ -346,7 +346,7 @@ error_code io_test_command_1(int i)
 /**
  * Test command.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @return          Success status
  */
@@ -387,7 +387,7 @@ error_code io_test_command_2()
 /**
  * Send a command to a motor.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @param[in] direction     Which motor to send the command to
  * @param[in] command       Command to send
@@ -438,7 +438,7 @@ error_code io_command_motor(enum direction direction, enum command command, int 
 /**
  * Send a command to a relay.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @param[in] direction     Which relay to send the command to
  * @param[in] command       Command to send
@@ -486,7 +486,7 @@ error_code io_command_relay(enum direction direction, enum direction command)
 /**
  * Read a value from the I/O board.
  *
- * @ingroup raspi_i2c
+ * @ingroup io_i2c
  *
  * @param[in] sensor        Sensor to read
  * @param[out] value        Read value
