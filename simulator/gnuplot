@@ -1,0 +1,8 @@
+# open gnuplot and run:
+# load 'gnuplot'
+
+fx(t) = r*cos(t)
+fy(t) = r*sin(t)
+r = 50.0
+set parametric
+plot "data.dat" using 2:3, fx(t),fy(t)
