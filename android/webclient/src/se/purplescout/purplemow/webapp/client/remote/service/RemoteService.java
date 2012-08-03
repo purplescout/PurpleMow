@@ -1,5 +1,6 @@
 package se.purplescout.purplemow.webapp.client.remote.service;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
@@ -15,15 +16,15 @@ public interface RemoteService extends RestService {
 	@Path("incrementMovementSpeed")
 	void incrementMovementSpeed(Direction direction, MethodCallback<Void> callback);
 
-	@POST
+	@GET
 	@Path("incrementCutterSpeed")
 	void incrementCutterSpeed(MethodCallback<Void> callback);
 
-	@POST
+	@GET
 	@Path("decrementCutterSpeed")
 	void decrementCutterSpeed(MethodCallback<Void> callback);
 
-	@POST
+	@GET
 	@Path("stopMovment")
 	void stopMovment(MethodCallback<Void> callback);
 }

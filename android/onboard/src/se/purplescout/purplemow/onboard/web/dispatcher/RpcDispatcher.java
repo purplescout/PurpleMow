@@ -10,14 +10,12 @@ import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 
-import se.purplescout.purplemow.onboard.shared.dto.ScheduleEventDTO;
+import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import se.purplescout.purplemow.onboard.web.WebServer.Request;
 import se.purplescout.purplemow.onboard.web.service.RemoteService;
 import se.purplescout.purplemow.onboard.web.service.RemoteService.Direction;
@@ -41,7 +39,7 @@ public class RpcDispatcher {
 			if (request.getUri().startsWith("/remote")) {
 				String suffix = request.getUri().replaceFirst("/remote", "");
 				if (suffix.equals("/incrementMovementSpeed")) {
-					Direction direction = Direction.valueOf(request.getParms().getProperty("content"));
+					Direction direction = Direction.valueOf(request.getParms().getProperty("content").replace("\"", ""));
 					remoteService.incrementMovmentSpeed(direction);
 					return new Response(NanoHTTPD.HTTP_OK, NanoHTTPD.MIME_PLAINTEXT, "200 Ok");
 				} else if (suffix.equals("/stopMovment")) {
@@ -68,13 +66,22 @@ public class RpcDispatcher {
 					InputStream response = serialize(result);
 
 					return new Response(NanoHTTPD.HTTP_OK, "application/json", response);
-				} else if (suffix.equals("/getScheduleForWeek")) {
+				}
+				if (suffix.equals("/getScheduleForWeek")) {
 					String content = request.getParms().getProperty("content");
 					Date date = deserialize(content, Date.class);
 					List<ScheduleEventDTO> result = scheduleService.getScheduleForWeek(date);
 					InputStream response = serialize(result);
 
 					return new Response(NanoHTTPD.HTTP_OK, "application/json", response);
+				}
+				if (suffix.equals("/save")) {
+					String content = request.getParms().getProperty("content");
+					ObjectMapper mapper = new ObjectMapper();
+					mapper.getDeserializationConfig().withDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz"));
+					List<ScheduleEventDTO> dtos = mapper.readValue(content, new TypeReference<List<ScheduleEventDTO>>() { });
+					scheduleService.save(dtos);
+					return new Response(NanoHTTPD.HTTP_OK, NanoHTTPD.MIME_PLAINTEXT, "200 Ok");
 				}
 			}
 		} catch (JsonParseException e) {
@@ -104,14 +111,4 @@ public class RpcDispatcher {
 
 	    return mapper.readValue(json, clazz);
 	}
-
-
-//	private <T> List<T> deserializeList(String json) throws JsonGenerationException, JsonMappingException, IOException {
-//		ObjectMapper mapper = new ObjectMapper();
-//	    AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
-//	    mapper.getDeserializationConfig().withAnnotationIntrospector(introspector);
-//
-//	    return mapper.readValue(json, new TypeReference<List<T>>() {});
-//	}
-
 }

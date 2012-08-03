@@ -186,6 +186,14 @@ function purplemow(){
     return value == null?null:value;
   }
 
+  function unflattenKeylistIntoAnswers(propValArray, value){
+    var answer = answers;
+    for (var i = 0, n = propValArray.length - 1; i < n; ++i) {
+      answer = answer[propValArray[i]] || (answer[propValArray[i]] = []);
+    }
+    answer[propValArray[n]] = value;
+  }
+
   function computePropValue(propName){
     var value = providers[propName](), allowedValuesMap = values[propName];
     if (value in allowedValuesMap) {
@@ -216,6 +224,65 @@ function purplemow(){
     }
   }
 
+  providers['user.agent'] = function(){
+    var ua = navigator.userAgent.toLowerCase();
+    var makeVersion = function(result){
+      return parseInt(result[1]) * 1000 + parseInt(result[2]);
+    }
+    ;
+    if (function(){
+      return ua.indexOf('opera') != -1;
+    }
+    ())
+      return 'opera';
+    if (function(){
+      return ua.indexOf('webkit') != -1 || function(){
+        if (ua.indexOf('chromeframe') != -1) {
+          return true;
+        }
+        if (typeof window['ActiveXObject'] != 'undefined') {
+          try {
+            var obj = new ActiveXObject('ChromeTab.ChromeFrame');
+            if (obj) {
+              obj.registerBhoIfNeeded();
+              return true;
+            }
+          }
+           catch (e) {
+          }
+        }
+        return false;
+      }
+      ();
+    }
+    ())
+      return 'safari';
+    if (function(){
+      return ua.indexOf('msie') != -1 && $doc_0.documentMode >= 9;
+    }
+    ())
+      return 'ie9';
+    if (function(){
+      return ua.indexOf('msie') != -1 && $doc_0.documentMode >= 8;
+    }
+    ())
+      return 'ie8';
+    if (function(){
+      var result = /msie ([0-9]+)\.([0-9]+)/.exec(ua);
+      if (result && result.length == 3)
+        return makeVersion(result) >= 6000;
+    }
+    ())
+      return 'ie6';
+    if (function(){
+      return ua.indexOf('gecko') != -1;
+    }
+    ())
+      return 'gecko1_8';
+    return 'unknown';
+  }
+  ;
+  values['user.agent'] = {gecko1_8:0, ie6:1, ie8:2, ie9:3, opera:4, safari:5};
   purplemow.onScriptLoad = function(){
     if (frameInjected) {
       loadDone = true;
@@ -244,7 +311,13 @@ function purplemow(){
   $stats && $stats({moduleName:'purplemow', sessionId:$sessionId_0, subSystem:'startup', evtGroup:'bootstrap', millis:(new Date).getTime(), type:'selectingPermutation'});
   if (!isHostedMode()) {
     try {
-      strongName = 'CF1EA36B3964AC08A0AE28FCB043062B';
+      unflattenKeylistIntoAnswers(['opera'], '05F8E88BDFA5685454D77613E369B82E');
+      unflattenKeylistIntoAnswers(['ie9'], '10C4C611D662D69CD11F9F13A4317E33');
+      unflattenKeylistIntoAnswers(['ie8'], '124FBEA71C3F67C2AAB5F5A68D79F021');
+      unflattenKeylistIntoAnswers(['gecko1_8'], '3EC73064DFC10F51354DC9570982332B');
+      unflattenKeylistIntoAnswers(['safari'], '6324EF81A44879E1931551061E4B51C4');
+      unflattenKeylistIntoAnswers(['ie6'], '7B86E63975C9BD3B543B38B50B86D3BE');
+      strongName = answers[computePropValue('user.agent')];
       var idx = strongName.indexOf(':');
       if (idx != -1) {
         softPermutationId = Number(strongName.substring(idx + 1));
@@ -286,42 +359,6 @@ function purplemow(){
   , 50);
   $stats && $stats({moduleName:'purplemow', sessionId:$sessionId_0, subSystem:'startup', evtGroup:'bootstrap', millis:(new Date).getTime(), type:'end'});
   $stats && $stats({moduleName:'purplemow', sessionId:$sessionId_0, subSystem:'startup', evtGroup:'loadExternalRefs', millis:(new Date).getTime(), type:'begin'});
-  if (!__gwt_scriptsLoaded['sc/modules/ISC_Core.js']) {
-    __gwt_scriptsLoaded['sc/modules/ISC_Core.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/modules/ISC_Core.js"><\/script>');
-  }
-  if (!__gwt_scriptsLoaded['sc/modules/ISC_Foundation.js']) {
-    __gwt_scriptsLoaded['sc/modules/ISC_Foundation.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/modules/ISC_Foundation.js"><\/script>');
-  }
-  if (!__gwt_scriptsLoaded['sc/modules/ISC_Containers.js']) {
-    __gwt_scriptsLoaded['sc/modules/ISC_Containers.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/modules/ISC_Containers.js"><\/script>');
-  }
-  if (!__gwt_scriptsLoaded['sc/modules/ISC_Grids.js']) {
-    __gwt_scriptsLoaded['sc/modules/ISC_Grids.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/modules/ISC_Grids.js"><\/script>');
-  }
-  if (!__gwt_scriptsLoaded['sc/modules/ISC_Forms.js']) {
-    __gwt_scriptsLoaded['sc/modules/ISC_Forms.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/modules/ISC_Forms.js"><\/script>');
-  }
-  if (!__gwt_scriptsLoaded['sc/modules/ISC_RichTextEditor.js']) {
-    __gwt_scriptsLoaded['sc/modules/ISC_RichTextEditor.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/modules/ISC_RichTextEditor.js"><\/script>');
-  }
-  if (!__gwt_scriptsLoaded['sc/modules/ISC_Calendar.js']) {
-    __gwt_scriptsLoaded['sc/modules/ISC_Calendar.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/modules/ISC_Calendar.js"><\/script>');
-  }
-  if (!__gwt_scriptsLoaded['sc/modules/ISC_DataBinding.js']) {
-    __gwt_scriptsLoaded['sc/modules/ISC_DataBinding.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/modules/ISC_DataBinding.js"><\/script>');
-  }
-  if (!__gwt_scriptsLoaded['sc/skins/Enterprise/load_skin.js']) {
-    __gwt_scriptsLoaded['sc/skins/Enterprise/load_skin.js'] = true;
-    document.write('<script language="javascript" src="' + base + 'sc/skins/Enterprise/load_skin.js"><\/script>');
-  }
   $doc_0.write('<script defer="defer">purplemow.onInjectionDone(\'purplemow\')<\/script>');
 }
 

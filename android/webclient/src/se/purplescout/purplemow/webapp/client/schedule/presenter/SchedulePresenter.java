@@ -1,40 +1,116 @@
 package se.purplescout.purplemow.webapp.client.schedule.presenter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import se.purplescout.purplemow.onboard.shared.dto.ScheduleEventDTO;
+import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import se.purplescout.purplemow.webapp.client.AbstractCallback;
-import se.purplescout.purplemow.webapp.client.schedule.model.ScheduleEntry;
 import se.purplescout.purplemow.webapp.client.schedule.service.ScheduleService;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.datepicker.client.CalendarUtil;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 
 public class SchedulePresenter extends AbstractActivity {
 
-	private final DateTimeFormat dateFormat = DateTimeFormat.getFormat(LocaleInfo.getCurrentLocale().getDateTimeFormatInfo().dateTime("", "MM/dd"));
+	private final DateTimeFormat timeFormat = DateTimeFormat.getFormat("HH:mm");
 
 	public interface View extends IsWidget {
 
-		Button getNextButton();
+		void setupTable(List<Date> weekDates);
 
-		Button getPrevButton();
+		TextBox getStartTimeBox(Date date);
 
-		void setupTable(List<String> headerDates, List<String> hours);
+		TextBox getStopTimeBox(Date date);
 
-		void addScheduleEntry(ScheduleEntry entry);
+		Button getSaveButton();
+
+		Button getResetButton();
+		
+		String getErrorStyle();
+
+		CheckBox getCheckBox(Date startDate);
+	}
+
+	public interface OnScheduleEventChange {
+
+		void onChange(ScheduleEventDTO dto);
+	}
+
+	private abstract class TimeChangeHandler implements ValueChangeHandler<String> {
+
+		protected final ScheduleEventDTO dto;
+		private final TextBox textBox;
+
+		public TimeChangeHandler(ScheduleEventDTO dto, TextBox textBox) {
+			this.dto = dto;
+			this.textBox = textBox;
+		}
+
+		@Override
+		public void onValueChange(ValueChangeEvent<String> event) {
+			try {
+				Date date = timeFormat.parse(event.getValue());
+				setTime(date);
+				dto.setChanged(true);	
+				textBox.setText(timeFormat.format(date));
+				textBox.removeStyleName(view.getErrorStyle());
+			} catch (IllegalArgumentException e) {
+				textBox.addStyleName(view.getErrorStyle());
+			} finally {
+				view.getSaveButton().setEnabled(validate());
+				view.getResetButton().setEnabled(true);
+			}
+		}
+		
+		protected abstract void setTime(Date date);
+	}
+
+	private class StartTimeChangeHandler extends TimeChangeHandler {
+
+		public StartTimeChangeHandler(ScheduleEventDTO dto, TextBox textBox) {
+			super(dto, textBox);
+		}
+
+		@SuppressWarnings("deprecation")
+		@Override
+		protected void setTime(Date date) {
+			Date startDate = dto.getStartDate();
+			startDate.setHours(date.getHours());
+			startDate.setMinutes(date.getMinutes());
+			if (dto.getStopDate().before(dto.getStartDate())) {
+				dto.setStartDate(dto.getStopDate());
+			}
+		}
+	}
+
+	private class StopTimeChangeHandler extends TimeChangeHandler {
+
+		public StopTimeChangeHandler(ScheduleEventDTO dto, TextBox textBox) {
+			super(dto, textBox);
+		}
+
+		@SuppressWarnings("deprecation")
+		@Override
+		protected void setTime(Date date) {
+			Date endDate = dto.getStopDate();
+			endDate.setHours(date.getHours());
+			endDate.setMinutes(date.getMinutes());
+			if (dto.getStopDate().before(dto.getStartDate())) {
+				dto.setStopDate(dto.getStartDate());
+			}
+		}
 	}
 
 	public enum ViewInterval {
@@ -47,7 +123,7 @@ public class SchedulePresenter extends AbstractActivity {
 
 	final Date date = new Date();
 	final List<ScheduleEventDTO> scheduleEventDTOs = new ArrayList<ScheduleEventDTO>();
-	final List<Date> headerDates = new ArrayList<Date>();
+	final List<Date> weekDates = new ArrayList<Date>();
 
 	public SchedulePresenter(View view, ScheduleService service, SimpleEventBus eventBus) {
 		this.view = view;
@@ -58,91 +134,159 @@ public class SchedulePresenter extends AbstractActivity {
 	@Override
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
 		bind();
-		fetchWeekSchedule();
+		fetchWeekDates();
 		panel.setWidget(view);
 	}
 
 	private void bind() {
-		view.getNextButton().addClickHandler(new ClickHandler() {
-
+		view.getResetButton().addClickHandler(new ClickHandler() {
+			
 			@Override
 			public void onClick(ClickEvent event) {
-				CalendarUtil.addDaysToDate(date, 7);
-				fetchWeekSchedule();
+				fetchWeekDates();
 			}
 		});
-
-		view.getPrevButton().addClickHandler(new ClickHandler() {
-
+		view.getSaveButton().addClickHandler(new ClickHandler() {
+			
 			@Override
 			public void onClick(ClickEvent event) {
-				CalendarUtil.addDaysToDate(date, -7);
-				fetchWeekSchedule();
+				save();
 			}
 		});
 	}
 
-	private void fetchWeekSchedule() {
+	private void fetchWeekDates() {
 		service.getDatesForWeek(date, new AbstractCallback<List<Date>>() {
 
 			@Override
-			public void onSuccess(List<Date> result) {
-				headerDates.clear();
-				headerDates.addAll(result);
-				setupWeekSchedule();
-				service.getScheduleForWeek(date, new AbstractCallback<List<ScheduleEventDTO>>() {
-
-					@Override
-					public void onSuccess(List<ScheduleEventDTO> result) {
-						scheduleEventDTOs.clear();
-						scheduleEventDTOs.addAll(result);
-						addWeekScheduleEntries();
-					}
-				});
+			public void onSuccess(List<Date> response) {
+				weekDates.clear();
+				weekDates.addAll(response);
+				view.setupTable(weekDates);
+				fetchScheduleForWeek();
 			}
 		});
 	}
 
-	private void setupWeekSchedule() {
-		List<String> hours = getHours();
-		List<String> weekDays = getWeekdays();
-		List<String> headerCols = new ArrayList<String>();
-		for (int day = 0; day < 7; day++) {
-			headerCols.add(weekDays.get(day) + " " + dateFormat.format(headerDates.get(day)));
-		}
-		view.setupTable(headerCols, hours);
+	private void fetchScheduleForWeek() {
+		service.getScheduleForWeek(date, new AbstractCallback<List<ScheduleEventDTO>>() {
+
+			@Override
+			public void onSuccess(List<ScheduleEventDTO> result) {
+				scheduleEventDTOs.clear();
+				scheduleEventDTOs.addAll(result);
+				addWeekScheduleEntries();
+			}
+		});
 	}
 
 	private void addWeekScheduleEntries() {
-		List<ScheduleEntry> scheduleEntries = new ArrayList<ScheduleEntry>();
-		for (ScheduleEventDTO dto : scheduleEventDTOs) {
-			List<ScheduleEntry> entries = new ScheduleEntry.Builder(dto).build();
-			scheduleEntries.addAll(entries);
-		}
+		for (final ScheduleEventDTO dto : scheduleEventDTOs) {
+			final TextBox start = view.getStartTimeBox(dto.getStartDate());
+			final TextBox stop = view.getStopTimeBox(dto.getStartDate());
+			CheckBox enabled = view.getCheckBox(dto.getStartDate());
 
-		for (ScheduleEntry entry : scheduleEntries) {
-			view.addScheduleEntry(entry);
+			start.setText(timeFormat.format(dto.getStartDate()));
+			start.setEnabled(dto.isActive());
+			stop.setText(timeFormat.format(dto.getStopDate()));
+			stop.setEnabled(dto.isActive());
+			enabled.setValue(dto.isActive());
+
+			start.addValueChangeHandler(new StartTimeChangeHandler(dto, start));
+			stop.addValueChangeHandler(new StopTimeChangeHandler(dto, stop));
+			enabled.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
+					dto.setActive(event.getValue());
+					dto.setChanged(true);
+					start.setEnabled(event.getValue());
+					stop.setEnabled(event.getValue());
+					
+					view.getSaveButton().setEnabled(validate());
+					view.getResetButton().setEnabled(true);
+				}
+			});
+			
+			view.getSaveButton().setEnabled(false);
+			view.getResetButton().setEnabled(false);
 		}
 	}
+	
 
-	private List<String> getWeekdays() {
-		List<String> weekDays = new ArrayList<String>(Arrays.asList(LocaleInfo.getCurrentLocale().getDateTimeFormatInfo().weekdaysShort()));
-		String sunday = weekDays.remove(0);
-		weekDays.add(6, sunday);
-
-		return weekDays;
-	}
-
-	private List<String> getHours() {
-		List<String> hours = new ArrayList<String>();
-		for (int hour = 0; hour < 24 ; hour++) {
-			if (hour < 10) {
-				hours.add("0" + hour + ":00");
-			} else {
-				hours.add(hour + ":00");
+	private boolean validate() {
+		boolean valid = true;
+		for (Date date : weekDates) {
+			TextBox start = view.getStartTimeBox(date);
+			TextBox stop = view.getStopTimeBox(date);
+			CheckBox enabled = view.getCheckBox(date);
+			if (!enabled.getValue()) {
+				continue;
+			}
+			if (!isEmpty(start) && hasValidTime(start)) {
+				if (isEmpty(stop)) {
+					valid = false;
+					stop.addStyleName(view.getErrorStyle());
+				} else if(!hasValidTime(stop)) {
+					valid = false;
+				} else {
+					stop.removeStyleName(view.getErrorStyle());
+				}
+			}
+			
+			if (!isEmpty(stop) && hasValidTime(stop)) {
+				if (isEmpty(start)) {
+					valid = false;
+					start.addStyleName(view.getErrorStyle());
+				} else if(!hasValidTime(start)) {
+					valid = false;
+				} else {
+					start.removeStyleName(view.getErrorStyle());
+				}
+			}
+			if (valid) {
+				if (start.getText().compareTo(stop.getText()) > -1) {
+					valid = false;
+					stop.addStyleName(view.getErrorStyle());
+				} else {
+					stop.removeStyleName(view.getErrorStyle());
+				}
 			}
 		}
+		
+		return valid;
+	}
 
-		return hours;
+	private boolean hasValidTime(TextBox start) {
+		try {
+			timeFormat.parse(start.getText());
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	private boolean isEmpty(TextBox start) {
+		return start.getText() == null || start.getText().equals("");
+	}	
+
+	private void save() {
+		List<ScheduleEventDTO> changed = new ArrayList<ScheduleEventDTO>();
+		for (ScheduleEventDTO dto : scheduleEventDTOs) {
+			if (dto.isChanged()) {
+				changed.add(dto);
+			}
+		}
+		if (changed.size() > 0) {
+			service.save(changed, new AbstractCallback<Void>(){
+
+				@Override
+				public void onSuccess(Void response) {
+					fetchWeekDates();
+				}
+			});
+		} else {
+			fetchWeekDates();
+		}
 	}
 }

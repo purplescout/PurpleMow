@@ -1,24 +1,30 @@
 package se.purplescout.purplemow.webapp.client.schedule.view;
 
-import java.util.Iterator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 
-import se.purplescout.purplemow.webapp.client.schedule.model.ScheduleEntry;
 import se.purplescout.purplemow.webapp.client.schedule.presenter.SchedulePresenter;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.TextBox;
 
 public class ScheduleView extends Composite implements SchedulePresenter.View {
+	
+	private final DateTimeFormat dayOfWeekFormat = DateTimeFormat.getFormat("E");
+	
 	public interface ScheduleViewUIBuilder extends UiBinder<HTMLPanel, ScheduleView> {
 	}
 
@@ -33,71 +39,88 @@ public class ScheduleView extends Composite implements SchedulePresenter.View {
 		String mowEventBottom();
 
 		String mowEvent();
+		
+		String error();
+		
+		String cell();
 	}
-
+	
 	private final ScheduleViewUIBuilder uiBuilder = GWT.create(ScheduleViewUIBuilder.class);
 
-	@UiField Button next;
-	@UiField Button prev;
 	@UiField FlexTable table;
 	@UiField Style style;
 	@UiField Panel panel;
-
+	@UiField Button reset;
+	@UiField Button save;
+	
+	private final Map<String, Integer> headers = new HashMap<String, Integer>();
+	
 	public ScheduleView() {
 		initWidget(uiBuilder.createAndBindUi(this));
 	}
 
 	@Override
-	public void setupTable(List<String> headerCols, List<String> hours) {
-
-		for (int col = 1; col <= 7; col++) {
-			table.setWidget(0, col, new Label(headerCols.get(col - 1)));
+	public void setupTable(List<Date> weekDates) {
+		headers.clear();
+		table.clear();
+		for (int i = 0; i < 7; i++) {
+			int col = i + 1;
+			Date date = weekDates.get(i);
+			headers.put(dayOfWeekFormat.format(date), col);
+			table.setWidget(0, col, new Label(dayOfWeekFormat.format(date)));
+			
+			TextBox startTextBox = new TextBox();
+			startTextBox.setStyleName(style.cell());
+			startTextBox.setEnabled(false);
+			table.setWidget(1, col, startTextBox);
+			
+			TextBox stopTextBox = new TextBox();
+			stopTextBox.setStyleName(style.cell());
+			stopTextBox.setEnabled(false);
+			table.setWidget(2, col, stopTextBox);
+			
+			CheckBox checkBox = new CheckBox();
+			checkBox.setValue(false);
+			table.setWidget(3, col, checkBox);
 		}
-
-		Iterator<String> hoursIterator = hours.iterator();
-		for (int row = 1; row <= 48; row++) {
-			for (int col = 0; col <= 7; col++) {
-				if (col == 0) {
-					if (row % 2 == 1) {
-						try {
-							table.setWidget(row, col, new Label(hoursIterator.next()));
-						} catch (NoSuchElementException e) {
-							table.setWidget(row, col, new Label("test"));
-						}
-					}
-
-					table.getCellFormatter().addStyleName(row, col, style.first());
-				} else {
-					table.getCellFormatter().addStyleName(row, col, style.day());
-				}
-			}
-		}
+		
+		table.setWidget(1, 0, new Label("Start"));
+		table.setWidget(2, 0, new Label("Stop"));
 	}
 
 	@Override
-	public Button getNextButton() {
-		return next;
+	public Button getSaveButton() {
+		return save;
 	}
 
 	@Override
-	public Button getPrevButton() {
-		return prev;
+	public Button getResetButton() {
+		return reset;
 	}
 
 	@Override
-	public void addScheduleEntry(ScheduleEntry entry) {
-		int rowDelta = 1;
-		int columnDelta = 1;
+	public TextBox getStartTimeBox(Date date) {
+		return getTimeBox(date, 1);
+	}
 
-		int startRow = entry.getStartRow() + rowDelta;
-		int endRow = entry.getEndRow() + rowDelta;
-		int column = entry.getColumn() + columnDelta;
+	@Override
+	public TextBox getStopTimeBox(Date date) {
+		return getTimeBox(date, 2);
+	}
+		
+	@Override
+	public CheckBox getCheckBox(Date date) {
+		int col = headers.get(dayOfWeekFormat.format(date));
+		return (CheckBox) table.getWidget(3, col);
+	}
 
-		for (int row = startRow; row <= endRow; row++) {
-			table.getCellFormatter().addStyleName(row, column, style.mowEvent());
-		}
+	private TextBox getTimeBox(Date date, int row) {
+		int col = headers.get(dayOfWeekFormat.format(date));
+		return (TextBox) table.getWidget(row, col);
+	}
 
-		table.getCellFormatter().addStyleName(startRow, column, style.mowEventTop());
-		table.getCellFormatter().addStyleName(endRow, column, style.mowEventBottom());
+	@Override
+	public String getErrorStyle() {
+		return style.error();
 	}
 }

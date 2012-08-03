@@ -10,6 +10,6 @@
 	<entry-point class="se.purplescout.purplemow.webapp.client.PurpleMowEntryPoint" />
 
 	<source path="webapp/client" />
-	<source path="onboard/shared/dto" />
+	<source path="onboard/shared" />
 	<source path="onboard/db/entity" />
 </module>
