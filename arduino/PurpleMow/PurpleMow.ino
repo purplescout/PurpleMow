@@ -209,7 +209,7 @@ void i2c_receive(int bytes)
     if ( bytes >= MAX_MSG_SIZE + 1 )
     {
         char c;
-        c = Wire.receive();
+        c = Wire.read();
 
         if ( c != CMD_I2C_MAGIC )
         {
@@ -218,7 +218,7 @@ void i2c_receive(int bytes)
 
         while ( --bytes > 0 )
         {
-            c = Wire.receive();
+            c = Wire.read();
             if ( i < MAX_MSG_SIZE )
             {
                 i2c_msg[i] = c;
@@ -233,12 +233,12 @@ void i2c_request()
 {
     if ( i2c_read_pos < i2c_data )
     {
-        Wire.send(i2c_msg[i2c_read_pos]);
+        Wire.write((uint8_t)i2c_msg[i2c_read_pos]);
         i2c_read_pos++;
     }
     else
     {
-        Wire.send(0);
+        Wire.write((uint8_t)0);
     }
 }
 
