@@ -26,6 +26,7 @@ struct table table_bwf_BWF = {
     .factor = table_5000mV_in_10bits,
     .data.i = bwf_data_BWF };
 
+// First sensor in this table is the default in the simulator
 struct sensor bwf_sensors[] = {
     { "BWF", bwf_sensor_BWF, &table_bwf_BWF },
     // anchor
