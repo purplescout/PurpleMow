@@ -2,6 +2,8 @@ package se.purplescout.purplemow.onboard;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.LogCallback;
@@ -28,6 +30,7 @@ public class TestActivity extends Activity {
 
 	MainFSM mainFSM;
 	MotorFSM motorFSM;
+	ScheduledExecutorService scheduler;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,7 @@ public class TestActivity extends Activity {
 			mainFSM = new MainFSM(logCallback);
 			motorFSM = new MotorFSM(comStream, logCallback);
 			motorFSM.setMainFSM(mainFSM);
+			scheduler = Executors.newScheduledThreadPool(1);
 			mainFSM.start();
 			motorFSM.start();
 
@@ -74,9 +78,10 @@ public class TestActivity extends Activity {
 
 			RemoteService remoteService = new RemoteServiceImpl(motorFSM);
 			ScheduleEventDAO scheduleEntryDAO = new ScheduleEventDAOImpl(connectionSource);
-			ScheduleService scheduleService = new ScheduleServiceImpl(scheduleEntryDAO);
+			ScheduleService scheduleService = new ScheduleServiceImpl(scheduleEntryDAO, scheduler, motorFSM);
 			RpcDispatcher dispatcher = new RpcDispatcher(remoteService, scheduleService);
 			new WebServer(8080, this, dispatcher);
+			scheduleService.initScheduler();
 		} catch (IOException e) {
 			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -88,6 +93,6 @@ public class TestActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		
+		super.onDestroy();
 	}
 }

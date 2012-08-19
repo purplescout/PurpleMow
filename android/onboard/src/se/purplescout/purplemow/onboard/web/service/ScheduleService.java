@@ -12,4 +12,6 @@ public interface ScheduleService {
 	List<Date> getDatesForWeek(Date date);
 
 	void save(List<ScheduleEventDTO> dtos);
+
+	void initScheduler();
 }

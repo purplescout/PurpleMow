@@ -3,21 +3,35 @@ package se.purplescout.purplemow.onboard.web.service.schedule;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-import android.util.Log;
-
+import se.purplescout.purplemow.core.Constants;
+import se.purplescout.purplemow.core.fsm.MotorFSM;
+import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
+import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType;
 import se.purplescout.purplemow.onboard.backend.dao.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent;
+import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent.RecurringInterval;
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import se.purplescout.purplemow.onboard.web.service.ScheduleService;
+import android.util.Log;
 
 public class ScheduleServiceImpl implements ScheduleService {
 
-	private ScheduleEventDAO scheduleEntryDAO;
+	private final ScheduleEventDAO scheduleEntryDAO;
+	private final ScheduledExecutorService scheduler;
+	private final MotorFSM motorrFSM;
 
-	public ScheduleServiceImpl(ScheduleEventDAO scheduleEntryDAO) {
+	private final List<ScheduledFuture<?>> scheduledEvents = new ArrayList<ScheduledFuture<?>>();
+
+	public ScheduleServiceImpl(ScheduleEventDAO scheduleEntryDAO, ScheduledExecutorService scheduler, MotorFSM motorrFSM) {
 		this.scheduleEntryDAO = scheduleEntryDAO;
+		this.scheduler = scheduler;
+		this.motorrFSM = motorrFSM;
 	}
 
 	@Override
@@ -64,14 +78,116 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 	@Override
 	public void save(List<ScheduleEventDTO> dtos) {
+		boolean changed = false;
 		for (ScheduleEventDTO dto : dtos) {
 			ScheduleEvent entity = createEntity(dto);
 			if (validateEvent(entity)) {
 				scheduleEntryDAO.update(entity);
+				changed = true;
 			} else {
 				Log.e(this.getClass().getCanonicalName(), "Invalid entity not persisted");
 			}
 		}
+		if (changed) {
+			initScheduler();
+		}
+	}
+
+	@Override
+	public void initScheduler() {
+		clearScheduler();
+		List<ScheduleEvent> events = scheduleEntryDAO.listAll();
+
+		for (ScheduleEvent event : events) {
+			if (event.getInterval() == null || event.getInterval() != RecurringInterval.WEEKLY) {
+				Log.w(this.getClass().getCanonicalName(), "Only weekly events are supported");
+				continue;
+			}
+			if (!event.isActive()) {
+				continue;
+			}
+			scheduleNextStartMowEvent(event);
+			scheduleNextStopMowEvent(event);
+		}
+	}
+
+	private void clearScheduler() {
+		Iterator<ScheduledFuture<?>> it = scheduledEvents.iterator();
+		while (it.hasNext()) {
+			ScheduledFuture<?> event = it.next();
+			event.cancel(true);
+			it.remove();
+		}
+	}
+
+	private long getTimeUntilNextStart(ScheduleEvent event) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(event.getStartDate());
+
+		cal.set(Calendar.DAY_OF_WEEK, startCal.get(Calendar.DAY_OF_WEEK));
+		cal.set(Calendar.HOUR, startCal.get(Calendar.HOUR));
+		cal.set(Calendar.MINUTE, startCal.get(Calendar.MINUTE));
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		long val = cal.getTime().getTime() - new Date().getTime();
+		if (val < 0) {
+			cal.add(Calendar.WEEK_OF_YEAR, 1);
+			val = cal.getTime().getTime() - new Date().getTime();
+		}
+
+		Log.i(this.getClass().getCanonicalName(), "Start will occur in " + val + " millis");
+		return cal.getTime().getTime() - new Date().getTime();
+	}
+
+	private long getTimeUntilNextStop(ScheduleEvent event) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(event.getStopDate());
+
+		cal.set(Calendar.DAY_OF_WEEK, startCal.get(Calendar.DAY_OF_WEEK));
+		cal.set(Calendar.HOUR, startCal.get(Calendar.HOUR));
+		cal.set(Calendar.MINUTE, startCal.get(Calendar.MINUTE));
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		long val = cal.getTime().getTime() - new Date().getTime();
+		if (val < 0) {
+			cal.add(Calendar.WEEK_OF_YEAR, 1);
+			val = cal.getTime().getTime() - new Date().getTime();
+		}
+
+		Log.i(this.getClass().getCanonicalName(), "Stop will occur in " + val + " millis");
+		return val;
+	}
+
+	private void scheduleNextStopMowEvent(final ScheduleEvent event) {
+		scheduler.schedule(new Runnable() {
+
+			@Override
+			public void run() {
+				Log.i(ScheduleService.class.getCanonicalName(), "Stop event");
+				motorrFSM.queueEvent(new MotorFSMEvent(EventType.STOP));
+				scheduleNextStopMowEvent(event);
+			}
+		}, getTimeUntilNextStop(event), TimeUnit.MILLISECONDS);
+	}
+
+	private void scheduleNextStartMowEvent(final ScheduleEvent event) {
+		scheduler.schedule(new Runnable() {
+
+			@Override
+			public void run() {
+				Log.i(ScheduleService.class.getCanonicalName(), "Start event");
+				motorrFSM.queueEvent(new MotorFSMEvent(EventType.MOVE_FWD, Constants.FULL_SPEED));
+				scheduleNextStartMowEvent(event);
+			}
+		}, getTimeUntilNextStart(event), TimeUnit.MILLISECONDS);
 	}
 
 	private ScheduleEvent createEntity(ScheduleEventDTO dto) {

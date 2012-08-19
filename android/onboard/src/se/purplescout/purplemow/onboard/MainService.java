@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import se.purplescout.purplemow.core.Constants;
 import se.purplescout.purplemow.core.LogCallback;
@@ -50,6 +52,7 @@ public class MainService extends IntentService {
 	UsbComStream comStream;
 
 	WebServer webServer;
+	ScheduledExecutorService scheduler;
 
 	public MainService() {
 		super("se.purplescout.purplemow");
@@ -92,6 +95,8 @@ public class MainService extends IntentService {
 		notification.setLatestEventInfo(getApplicationContext(), "PurpleMow", "", contentIntent);
 		notification.flags |= Notification.FLAG_NO_CLEAR;
 		notificationManager.notify(NOTIFICATION_FLAG, notification);
+
+		scheduler = Executors.newScheduledThreadPool(1);
 
 		registerReceiver(new BroadcastReceiver() {
 
@@ -140,17 +145,17 @@ public class MainService extends IntentService {
 		motorFSM.start();
 		sensorReader.start();
 
-		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED));
-
+//		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED));
 		try {
 			OrmLiteSqliteOpenHelper sqliteOpenHelper = new PurpleMowSqliteOpenHelper(this);
 			ConnectionSource connectionSource = sqliteOpenHelper.getConnectionSource();
 
 			RemoteService remoteService = new RemoteServiceImpl(motorFSM);
 			ScheduleEventDAO scheduleEntryDAO = new ScheduleEventDAOImpl(connectionSource);
-			ScheduleService scheduleService = new ScheduleServiceImpl(scheduleEntryDAO);
+			ScheduleService scheduleService = new ScheduleServiceImpl(scheduleEntryDAO, scheduler, motorFSM);
 			RpcDispatcher dispatcher = new RpcDispatcher(remoteService, scheduleService);
 			webServer = new WebServer(8080, this, dispatcher);
+			scheduleService.initScheduler();
 		} catch (IOException e) {
 			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -174,6 +179,8 @@ public class MainService extends IntentService {
 	}
 
 	private void stop() {
+		scheduler.shutdown();
+
 		webServer.stop();
 
 		mainFSM.shutdown();
