@@ -24,10 +24,14 @@ import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
 public class MainActivity extends Activity {
-
+	
+	public static boolean serviceRunning = false;
+	
 	private static final String MAIN = "android.intent.action.MAIN";
 	private static final String ACTION_USB_PERMISSION = "se.purplescout.purplemow.USB_PERMISSION";
 	private static final String ACTION_LOG_MSG = "se.purplescout.purplemow.LOG_MSG";
+	public static final String START_MOWER = "se.purplescout.purplemow.START_MOWER";
+	public static final String STOP_MOWER = "se.purplescout.purplemow.STOP_MOWER";
 
 	public interface Display {
 
@@ -66,12 +70,17 @@ public class MainActivity extends Activity {
 		display = new MainDisplay(this);
 
 		bind();
-
-		if (getIntent().getAction().equals(UsbManager.ACTION_USB_ACCESSORY_ATTACHED)) {
-			usbAccessoryIntent = getIntent();
-			display.getStartBtn().setEnabled(true);
-		} else if (getIntent().getAction().equals(MAIN)) {
-			display.showNotConnectedPopup();
+		if (serviceRunning) {
+			display.getStartBtn().setEnabled(false);
+			display.getStopBtn().setEnabled(true);
+		} else {
+			if (getIntent().getAction().equals(UsbManager.ACTION_USB_ACCESSORY_ATTACHED)) {
+				usbAccessoryIntent = getIntent();
+				display.getStartBtn().setEnabled(true);
+				startService();
+			} else if (getIntent().getAction().equals(MAIN)) {
+				display.showNotConnectedPopup();
+			}
 		}
 	}
 
@@ -151,10 +160,15 @@ public class MainActivity extends Activity {
 	}
 
 	private void startFSM() {
+		Intent startIntent = new Intent(START_MOWER);
+		sendBroadcast(startIntent);
+		
 		display.getLoaderSpinner().setVisibility(View.VISIBLE);
 		display.getStartBtn().setEnabled(false);
 		display.getStopBtn().setEnabled(true);
+	}
 
+	private void startService() {
 		Intent serviceIntent = new Intent(MainActivity.this, MainService.class);
 		serviceIntent.fillIn(usbAccessoryIntent, 0);
 		Log.d(this.getClass().getCanonicalName(), "Starting service: " + MainService.class.getCanonicalName());
@@ -163,10 +177,15 @@ public class MainActivity extends Activity {
 	}
 
 	private void stopFSM() {
+		Intent startIntent = new Intent(STOP_MOWER);
+		sendBroadcast(startIntent);
+		
 		display.getLoaderSpinner().setVisibility(View.GONE);
 		display.getStartBtn().setEnabled(true);
 		display.getStopBtn().setEnabled(false);
+	}
 
+	private void stopService() {
 		Intent intent = new Intent(this, MainService.class);
 		stopService(intent);
 	}

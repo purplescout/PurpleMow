@@ -27,8 +27,10 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -78,21 +80,44 @@ public class MainService extends IntentService {
 		comStream = new UsbComStream(fileInputStream, fileOutputStream);
 		Log.d(this.getClass().getCanonicalName(), "Created usb stream: " + comStream.toString());
 
-		run();
-	}
-
-	private void run() {
-		Log.d(this.getClass().getCanonicalName(), "Startup");
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-		Notification notification = new Notification(R.drawable.stat_notify_more, "Mower is running", System.currentTimeMillis());
-		Intent notificationIntent = new Intent(getApplicationContext(), MainService.class);
+		Notification notification = new Notification(R.drawable.stat_notify_more, "Purple Mow", System.currentTimeMillis());
+		Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
-
+//		PendingIntent contentIntent = PendingIntent.getActivities(this, 0,
+//	            makeMessageIntentStack(this, from, message), PendingIntent.FLAG_CANCEL_CURRENT);
+		
 		notification.setLatestEventInfo(getApplicationContext(), "PurpleMow", "", contentIntent);
 		notification.flags |= Notification.FLAG_NO_CLEAR;
 		notificationManager.notify(NOTIFICATION_FLAG, notification);
 
+		registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				start();
+			}
+		}, new IntentFilter(MainActivity.START_MOWER));
+
+		registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				stop();
+			}
+		}, new IntentFilter(MainActivity.STOP_MOWER));
+		
+		MainActivity.serviceRunning = true;
+		// To keep service alive
+		while (true) {
+			Thread.yield();
+		}
+	}
+
+	private void start() {
+		Log.d(this.getClass().getCanonicalName(), "Startup");
 		LogCallback logCallback = new LogCallback() {
 
 			@Override
@@ -102,6 +127,7 @@ public class MainService extends IntentService {
 				MainService.this.getApplicationContext().sendBroadcast(intent);
 			}
 		};
+
 		mainFSM = new MainFSM(logCallback);
 		motorFSM = new MotorFSM(comStream, logCallback);
 		sensorReader = new SensorReader(comStream);
@@ -132,11 +158,6 @@ public class MainService extends IntentService {
 			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
-
-		// To keep service alive
-		while (true) {
-			Thread.yield();
-		}
 	}
 
 	@Override
@@ -144,13 +165,19 @@ public class MainService extends IntentService {
 		super.onDestroy();
 		Log.d(this.getClass().getCanonicalName(), "Destroy");
 
+		stop();
+
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(NOTIFICATION_FLAG);
+		
+		MainActivity.serviceRunning = false;
+	}
+
+	private void stop() {
 		webServer.stop();
 
 		mainFSM.shutdown();
 		motorFSM.shutdown();
 		sensorReader.shutdown();
-
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(NOTIFICATION_FLAG);
 	}
 }
