@@ -1348,10 +1348,10 @@ int main(int argc, char *argv[])
     gtk_container_add(GTK_CONTAINER (bbox3), this.cbox_sensor_voltage);
     gtk_container_add(GTK_CONTAINER (bbox3), this.cbox_sensor_moisture);
 
-    gtk_container_add(GTK_CONTAINER (bbox4), this.cbox_voltage);
-    gtk_container_add(GTK_CONTAINER (bbox4), this.cbox_moisture);
     gtk_container_add(GTK_CONTAINER (bbox4), this.cbox_pixelscale);
     gtk_container_add(GTK_CONTAINER (bbox4), this.cbox_maxspeed);
+    gtk_container_add(GTK_CONTAINER (bbox4), this.cbox_voltage);
+    gtk_container_add(GTK_CONTAINER (bbox4), this.cbox_moisture);
 
     gtk_container_add(GTK_CONTAINER (bbox5), button_save);
     gtk_container_add(GTK_CONTAINER (bbox5), button_load);
