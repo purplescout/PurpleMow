@@ -22,6 +22,7 @@ IO_LAYER = io_net.c
 
 purplemow_src = purplemow.c \
 				mow.c \
+				io.c \
 				$(IO_LAYER) \
 				auto_management.c \
 				cli.c \

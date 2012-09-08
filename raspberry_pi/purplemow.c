@@ -7,7 +7,7 @@
 #include "auto_management.h"
 #include "dcn.h"
 #include "messages.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "purplemow.h"
 #include "mow.h"
 #include "sensors.h"
