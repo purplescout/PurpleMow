@@ -29,6 +29,8 @@ struct io_data
 // functions
 static error_code io_start();
 static error_code io_stop();
+static error_code io_start();
+static error_code command_i2c_read(char *args);
 
 static struct io_data this = { .debug = 0 };
 
@@ -41,7 +43,16 @@ static struct io_data this = { .debug = 0 };
  */
 error_code io_init()
 {
+    module_register_to_phase(phase_START, io_start);
+
     io_transport_init();
+
+    return err_OK;
+}
+
+static error_code io_start()
+{
+    cli_register_command("i2c_read", command_i2c_read);
 
     return err_OK;
 }
@@ -220,3 +231,46 @@ error_code io_command_read(enum sensor sensor, int *value)
 
     return error;
 }
+
+/**
+ * The command <b>i2c_read</b>, readable values from I2C.
+ *
+ * @ingroup io_i2c
+ *
+ * @param[in] args  Arguments
+ *
+ * @return          Success status
+ */
+static error_code command_i2c_read(char *args)
+{
+    int value = 0;
+    error_code result = err_WRONG_ARGUMENT;
+    if ( strcmp("range", args) == 0 ) {
+        result = io_command_read(sensor_range_left, &value);
+    } else if ( strcmp("voltage", args) == 0 ) {
+        result = io_command_read(sensor_voltage, &value);
+    } else if ( strcmp("moist", args) == 0 ) {
+        result = io_command_read(sensor_moist, &value);
+    } else if ( strcmp("bwf_l", args) == 0 ) {
+        result = io_command_read(sensor_bwf_left, &value);
+    } else if ( strcmp("bwf_r", args) == 0 ) {
+        result = io_command_read(sensor_bwf_right, &value);
+//TODO
+#if 0
+    } else if ( strcmp("bwf_ref", args) == 0 ) {
+        result = io_command_read(sensor_bwf_reference, &value);
+#endif
+    } else {
+        result = err_WRONG_ARGUMENT;
+        printf("Valid arguments: "
+                "range, bwf_l, bwf_r, bwf_ref"
+                ", moist"
+                "\n");
+    }
+    if ( SUCCESS(result) ) {
+        printf("%d\n", value);
+    }
+
+    return err_OK;
+}
+

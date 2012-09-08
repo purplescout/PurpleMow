@@ -10,7 +10,7 @@
  * @ingroup io
  */
 
-error_code io_transport_init();;
+error_code io_transport_init();
 error_code io_transport_send_command(uint8_t* msg, int length);
 error_code io_transport_read_data(uint8_t* msg, int length);
 
