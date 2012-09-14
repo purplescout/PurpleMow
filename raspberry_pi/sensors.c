@@ -4,6 +4,7 @@
 #include "sensors.h"
 
 #include "sensor_range.h"
+#include "sensor_bwf.h"
 
 /**
  * @defgroup sensor Sensor
@@ -30,6 +31,7 @@ static error_code sensors_start();
  */
 struct sensors {
     struct sensor_range     range;
+    struct sensor_bwf       bwf;
 };
 
 struct sensors this;
@@ -45,6 +47,7 @@ error_code sensors_init()
     error_code result;
 
     result = sensor_range_init(&this.range);
+    result = sensor_bwf_init(&this.bwf);
 
     if( FAILURE(result) )
         return result;
@@ -65,6 +68,7 @@ static error_code sensors_start()
     error_code result;
 
     result = sensor_range_start(&this.range);
+    result = sensor_bwf_start(&this.bwf);
 
     if ( FAILURE(result) )
         return result;

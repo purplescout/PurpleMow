@@ -8,6 +8,8 @@
 enum decision {
     decision_range_too_close,
     decision_range_ok,
+    decision_bwf_too_close,
+    decision_bwf_ok,
 };
 
 // Messages
@@ -27,5 +29,6 @@ struct message_sensor_decision {
 error_code mow_init();
 
 error_code mow_range(enum sensor sensor, enum decision decision);
+error_code mow_bwf(enum sensor sensor, enum decision decision);
 
 #endif // MOW_H

@@ -11,17 +11,18 @@
 #include "commands.h"
 
 /**
- * @defgroup io_data IO
+ * @defgroup io IO
+ * IO.
  *
- * @ingroup io
+ * @ingroup purplemow
  */
 
 /**
  * io
  *
- * @ingroup io_data
+ * @ingroup io
  */
-struct io_data
+struct io
 {
     int debug;
 };
@@ -30,14 +31,14 @@ struct io_data
 static error_code io_start();
 static error_code io_stop();
 static error_code io_start();
-static error_code command_i2c_read(char *args);
+static error_code command_io_read(char *args);
 
-static struct io_data this = { .debug = 0 };
+static struct io this = { .debug = 0 };
 
 /**
  * Initialize the net io.
  *
- * @ingroup io_data
+ * @ingroup io
  *
  * @return          Success status
  */
@@ -52,7 +53,7 @@ error_code io_init()
 
 static error_code io_start()
 {
-    cli_register_command("i2c_read", command_i2c_read);
+    cli_register_command("io_read", command_io_read);
 
     return err_OK;
 }
@@ -60,7 +61,7 @@ static error_code io_start()
 /**
  * Send a command to a motor.
  *
- * @ingroup io_data
+ * @ingroup io
  *
  * @param[in] direction     Which motor to send the command to
  * @param[in] command       Command to send
@@ -117,7 +118,7 @@ error_code io_command_motor(enum direction direction, enum command command, int 
 /**
  * Send a command to a relay.
  *
- * @ingroup io_data
+ * @ingroup io
  *
  * @param[in] direction     Which relay to send the command to
  * @param[in] command       Command to send
@@ -175,7 +176,7 @@ error_code io_command_relay(enum direction direction, enum direction command)
 /**
  * Read a value from the I/O board.
  *
- * @ingroup io_data
+ * @ingroup io
  *
  * @param[in] sensor        Sensor to read
  * @param[out] value        Read value
@@ -233,15 +234,15 @@ error_code io_command_read(enum sensor sensor, int *value)
 }
 
 /**
- * The command <b>i2c_read</b>, readable values from I2C.
+ * The command <b>io_read</b>, readable values from I2C.
  *
- * @ingroup io_i2c
+ * @ingroup io
  *
  * @param[in] args  Arguments
  *
  * @return          Success status
  */
-static error_code command_i2c_read(char *args)
+static error_code command_io_read(char *args)
 {
     int value = 0;
     error_code result = err_WRONG_ARGUMENT;

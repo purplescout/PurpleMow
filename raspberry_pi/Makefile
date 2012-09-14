@@ -32,6 +32,7 @@ purplemow_src = purplemow.c \
 				communicator.c \
 				sensors.c \
 				sensor_range.c \
+				sensor_bwf.c \
 				thread.c \
 				poller.c \
 				utils/utils.c \

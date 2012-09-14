@@ -183,6 +183,30 @@ error_code mow_range(enum sensor sensor, enum decision decision)
     return err_OK;
 }
 
+/**
+ * Send a message to mow that something happened on a bwf sensor.
+ *
+ * @ingroup mow
+ *
+ * @param[in] sensor        Sensor
+ * @param[in] decision      Decision
+ *
+ * @return      Success status
+ */
+error_code mow_bwf(enum sensor sensor, enum decision decision)
+{
+    struct message_sensor_decision msg;
+
+    message_create(msg, struct message_sensor_decision, MSG_SENSOR_BWF);
+
+    msg.body.sensor = sensor;
+    msg.body.decision = decision;
+
+    message_send(&msg, Q_MAIN);
+
+    return err_OK;
+}
+
 static error_code handle_sensor_range(struct message_item* message)
 {
     struct message_sensor_decision *msg;
@@ -227,14 +251,49 @@ static error_code handle_sensor_range(struct message_item* message)
 
 static error_code handle_sensor_bwf(struct message_item* message)
 {
-    if ( state_equal(this.current_state, this.states[state_obstacle]) == err_EQUAL )
-        state_change(&this.current_state, this.states[state_idle]);
-
     // TODO: 1. need to know which direction the mower is moving in
     //       2. reverse direction until bwf is cleared
     //       3. turn x degrese in random direction
     //       4. continue in original direction
 
-    return err_NOT_IMPLEMENTED;
+    struct message_sensor_decision *msg;
+    msg = (struct message_sensor_decision*)message;
+
+    switch ( msg->body.decision )
+    {
+        case decision_bwf_too_close:
+            if ( this.debug )
+                printf("Mow: BWF too close, moving backwards\n");
+            communicator_move_backward();
+
+            state_change(&this.current_state, this.states[state_obstacle]);
+
+            break;
+        case decision_bwf_ok:
+            {
+                int random = 0;
+                get_random(&random);
+
+                if ( random & 1 ) {
+                    if ( this.debug )
+                        printf("Mow: BWF OK, turn left\n");
+                    communicator_turn_left();
+                } else {
+                    if ( this.debug )
+                        printf("Mow: BWF OK, turn right\n");
+                    communicator_turn_right();
+                }
+                if ( this.debug )
+                    printf("Mow: BWF OK, moving forward\n");
+                communicator_move_forward();
+
+                state_change(&this.current_state, this.states[state_idle]);
+
+                break;
+            }
+    }
+
+    return err_OK;
+
 }
 

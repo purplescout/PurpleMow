@@ -44,8 +44,8 @@ config:
 sensors:
 [ ] poll range
 [ ] bwf
-[ ] send range to main
-[ ] send bwf to main
+[ ] send range to mow
+[ ] send bwf to mow
 
 messages:
 [ ] generic message, head and body

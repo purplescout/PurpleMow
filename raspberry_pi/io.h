@@ -4,13 +4,6 @@
 #include "error_codes.h"
 #include "command.h"
 
-/**
- * @defgroup io IO
- * IO.
- *
- * @ingroup purplemow
- */
-
 error_code io_init();
 error_code io_command_motor(enum direction direction, enum command command, int speed);
 error_code io_command_relay(enum direction direction, enum direction command);
