@@ -29,7 +29,7 @@ struct test_thread {
 };
 
 // private functions
-static error_code test_thread_start();
+static error_code test_thread_start(void* data);
 static void* worker(void *data);
 
 // cli commands
@@ -54,7 +54,7 @@ error_code test_thread_init()
     cli_register_command("send", command_sendmsg);
     message_open(&this.message_handle, Q_TEST);
 
-    module_register_to_phase(phase_START, test_thread_start);
+    module_register_to_phase(phase_START, test_thread_start, NULL);
 
     return err_OK;
 }
@@ -66,7 +66,7 @@ error_code test_thread_init()
  *
  * @return          Success status
  */
-static error_code test_thread_start()
+static error_code test_thread_start(void* data)
 {
     error_code result;
 

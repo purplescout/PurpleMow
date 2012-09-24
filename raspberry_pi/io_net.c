@@ -48,8 +48,8 @@ static struct io_net this = { .sock = -1, .debug = 0 };
  */
 error_code io_transport_init()
 {
-    module_register_to_phase(phase_START, io_net_start);
-    module_register_to_phase(phase_STOP, io_net_stop);
+    module_register_to_phase(phase_START, io_net_start, NULL);
+    module_register_to_phase(phase_STOP, io_net_stop, NULL);
     return err_OK;
 }
 

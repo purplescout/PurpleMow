@@ -49,7 +49,7 @@ static error_code set_speed(int speed);
 static error_code stop();
 static error_code sensor(enum sensor sensor, enum queue rsp_queue);
 
-static error_code communicator_start();
+static error_code communicator_start(void* data);
 
 /**
  * Initialize the communicator.
@@ -69,7 +69,7 @@ error_code communicator_init()
 
     message_open(&this.message_handle, Q_COMMUNICATOR);
 
-    module_register_to_phase(phase_START, communicator_start);
+    module_register_to_phase(phase_START, communicator_start, NULL);
 
     return err_OK;
 }
@@ -81,7 +81,7 @@ error_code communicator_init()
  *
  * @return          Success status
  */
-static error_code communicator_start()
+static error_code communicator_start(void* data)
 {
     error_code result;
 

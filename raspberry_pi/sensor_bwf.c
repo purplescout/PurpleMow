@@ -35,8 +35,6 @@ static error_code sensor_bwf_poll(void *data);
 // Private functions
 static error_code handle_bwf_sensor(struct sensor_bwf* this, enum sensor sensor, int value);
 
-static struct sensor_bwf this;
-
 /**
  * Initialize sensor_bwf.
  *
@@ -107,7 +105,7 @@ error_code sensor_bwf_start(struct sensor_bwf* this)
  */
 static void* sensor_bwf_worker(void *data)
 {
-    struct sensor_bwf*        this;
+    struct sensor_bwf*          this;
     struct message_item         msg_buff;
     struct message_sensor_data  *msg;
     int len;
@@ -186,7 +184,7 @@ static error_code handle_bwf_sensor(struct sensor_bwf* this, enum sensor sensor,
             break;
     }
 
-    printf("bwf: value: %d, state: %d\n", value, this->state );
+//    printf("bwf: value: %d, state: %d\n", value, this->state );
 
     return err_OK;
 }

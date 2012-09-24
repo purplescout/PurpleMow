@@ -33,7 +33,7 @@ struct multicast {
 };
 
 // Private functions
-static error_code multicast_start();
+static error_code multicast_start(void* data);
 
 static void* multicast_listen(void *data);
 static error_code parse_command(char *command);
@@ -85,7 +85,7 @@ error_code multicast_init()
         return err_CONFIGURE_DEVICE;
     }
 
-    module_register_to_phase(phase_START, multicast_start);
+    module_register_to_phase(phase_START, multicast_start, NULL);
 
     return err_OK;
 }
@@ -97,7 +97,7 @@ error_code multicast_init()
  *
  * @return          Success status
  */
-static error_code multicast_start()
+static error_code multicast_start(void* data)
 {
     error_code result;
 

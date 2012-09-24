@@ -16,7 +16,7 @@
  */
 
 // Private functions
-static error_code test_start();
+static error_code test_start(void* data);
 
 /**
  * Initialize the test.
@@ -57,7 +57,7 @@ error_code test_init()
     list_destroy_iterator(iterator);
     list_destroy(list);
 
-    module_register_to_phase(phase_START, test_start);
+    module_register_to_phase(phase_START, test_start, NULL);
 
     return err_OK;
 }
@@ -69,7 +69,7 @@ error_code test_init()
  *
  * @return          Success status
  */
-static error_code test_start()
+static error_code test_start(void* data)
 {
     return err_OK;
 }

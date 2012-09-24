@@ -41,7 +41,7 @@ struct cli {
 };
 
 // functions
-static error_code cli_start();
+static error_code cli_start(void* data);
 static void* cli_listen(void *data);
 static error_code parse_command(char *command);
 static error_code list_add(struct cli_item* item);
@@ -73,7 +73,7 @@ error_code cli_init()
     cli_register_command("echo", command_echo);
     cli_register_command("exit", command_exit);
 
-    module_register_to_phase(phase_START, cli_start);
+    module_register_to_phase(phase_START, cli_start, NULL);
 
     return err_OK;
 }
@@ -85,7 +85,7 @@ error_code cli_init()
  *
  * @return  Success status
  */
-static error_code cli_start()
+static error_code cli_start(void* data)
 {
     error_code result;
 

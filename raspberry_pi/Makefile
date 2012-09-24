@@ -30,6 +30,7 @@ purplemow_src = purplemow.c \
 				messages.c \
 				modules.c \
 				communicator.c \
+				config.c \
 				sensors.c \
 				sensor_range.c \
 				sensor_bwf.c \

@@ -8,6 +8,7 @@ IO:
 
 general:
 [ ] init should register which phases it shall run in
+[ ] better error/normal printing
 
 list:
 [x] iterator for get_next?
@@ -34,12 +35,14 @@ dcn:
 [ ] version number from git?
 
 config:
-[ ] read file
-[ ] command to write file
-[ ] write file
-[ ] command to reload file
-[ ] database of configured values
+[x] read file
+[x] command to write file
+[x] write file
+[x] command to reload file
+[x] database of configured values
 [ ] config version in file?
+[ ] edit config in cli
+[ ] command to reset to default values (remove all unknown values)
 
 sensors:
 [ ] poll range
@@ -53,16 +56,23 @@ messages:
 [ ] head contains length of body
 [ ] move message definitions to separate files (msg_xxx.h)
 
+mow:
+[ ] better reverse and turn
+
+modules:
+[ ] move creation/insertion of phases outside of module
+
 main:
 [ ] getopts
 [ ] detach
 [ ] handle range data
 [ ] send commands to communicator
 [ ] cli commands to override main FSM
-[ ] signal handler for ctrl-c
 
 cli:
 [ ] all commands should return error_code
+[ ] handle arrow up
+[ ] signal handler for ctrl-c
 
 arduino:
 [ ] heartbeat, enable, disable

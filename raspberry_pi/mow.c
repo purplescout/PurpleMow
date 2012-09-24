@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "thread.h"
 #include "messages.h"
 #include "modules.h"
 #include "mow.h"
@@ -20,6 +21,7 @@ static error_code command_mow(char *args);
 // Private
 static error_code mow_mow();
 static error_code mow_state_debug(int debug);
+static void* mow_worker(void *data);
 
 // Functions for states
 static error_code handle_sensor_range(struct message_item* message);
@@ -58,6 +60,7 @@ struct mow {
     int                     debug;
     state_t                 current_state;
     state_t                 states[state_last];
+    pthread_t               thread;
 };
 
 static struct mow this;
@@ -80,7 +83,7 @@ error_code mow_init()
     if ( FAILURE(result) )
         return result;
 
-    module_register_to_phase(phase_MOW, mow_mow);
+    module_register_to_phase(phase_MOW, mow_mow, NULL);
 
     state_create(&this.states[state_stopped],
                  state_table_stopped,
@@ -109,6 +112,18 @@ error_code mow_init()
  * @ingroup mow
  */
 static error_code mow_mow()
+{
+    error_code result;
+
+    result = thread_start(&this.thread, mow_worker);
+
+    if ( FAILURE(result) )
+        return result;
+
+    return err_OK;
+}
+
+static void* mow_worker(void *data)
 {
     error_code result;
 

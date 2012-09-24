@@ -46,7 +46,7 @@ struct dcn {
 };
 
 // Private functions
-static error_code dcn_start();
+static error_code dcn_start(void* data);
 
 static error_code free_ip_list(struct ip_item *ip_item);
 static error_code find_ips();
@@ -85,7 +85,7 @@ error_code dcn_init()
     cli_register_command("ip", command_show_ip);
     cli_register_command("ips", command_show_ips);
 
-    module_register_to_phase(phase_START, dcn_start);
+    module_register_to_phase(phase_START, dcn_start, NULL);
 
     this.initialized = 1;
 
@@ -99,7 +99,7 @@ error_code dcn_init()
  *
  * @return      Success status
  */
-static error_code dcn_start()
+static error_code dcn_start(void* data)
 {
     return err_OK;
 }

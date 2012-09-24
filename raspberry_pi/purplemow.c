@@ -12,6 +12,7 @@
 #include "mow.h"
 #include "sensors.h"
 #include "modules.h"
+#include "config.h"
 
 #include "test.h"
 #include "test_thread.h"
@@ -21,7 +22,8 @@
 #define DO_COMM     1
 #define DO_DCN      1
 #define DO_NET      0
-#define DO_SEN_RANGE 1
+#define DO_SENSORS  1
+#define DO_CONFIG   1
 
 #define DO_TEST          0
 #define DO_TEST_THREADS  0
@@ -80,6 +82,10 @@ int main(int argc, char **argv)
     message_init();
     cli_init();
 
+#if DO_CONFIG
+    config_init();
+#endif // DO_CONFIG
+
 #if DO_I2C
     // i2c stuff
     io_init();
@@ -89,9 +95,9 @@ int main(int argc, char **argv)
     communicator_init();
 #endif // DO_COMM
 
-#if DO_SEN_RANGE
+#if DO_SENSORS
     sensors_init();
-#endif // DO_SEN_RANGE
+#endif // DO_SENSORS
 
 #if DO_DCN
     dcn_init();
@@ -119,6 +125,24 @@ int main(int argc, char **argv)
      **************/
 
     if ( this.debug )
+        printf("Registering commands... ");
+
+    modules_run_phase(phase_REGISTER_COMMANDS);
+
+    if ( this.debug )
+        printf("OK\n");
+
+    if ( this.debug )
+        printf("Loading configuration... ");
+
+    modules_run_phase(phase_REGISTER_VALUES);
+    modules_run_phase(phase_LOAD_DEFAULT_VAULES);
+    modules_run_phase(phase_LOAD_CONFIG);
+
+    if ( this.debug )
+        printf("OK\n");
+
+    if ( this.debug )
         printf("Starting... ");
 
     modules_run_phase(phase_START);
@@ -135,5 +159,8 @@ int main(int argc, char **argv)
         printf("OK\n");
 
     modules_run_phase(phase_MOW);
+
+    while ( 1 )
+        sleep(10);
 }
 

@@ -22,7 +22,7 @@
  */
 
 // Private functions
-static error_code sensors_start();
+static error_code sensors_start(void* data);
 
 /**
  * Sensors.
@@ -34,7 +34,7 @@ struct sensors {
     struct sensor_bwf       bwf;
 };
 
-struct sensors this;
+static struct sensors this;
 
 /**
  * Initialize sensors.
@@ -52,7 +52,7 @@ error_code sensors_init()
     if( FAILURE(result) )
         return result;
 
-    module_register_to_phase(phase_START_SENSORS, sensors_start);
+    module_register_to_phase(phase_START_SENSORS, sensors_start, NULL);
 
     return err_OK;
 }
@@ -63,7 +63,7 @@ error_code sensors_init()
  * @ingroup sensors
  * @return                  Success status.
  */
-static error_code sensors_start()
+static error_code sensors_start(void* data)
 {
     error_code result;
 

@@ -44,7 +44,7 @@ static struct io this = { .debug = 0 };
  */
 error_code io_init()
 {
-    module_register_to_phase(phase_START, io_start);
+    module_register_to_phase(phase_START, io_start, NULL);
 
     io_transport_init();
 

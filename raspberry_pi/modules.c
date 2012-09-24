@@ -14,6 +14,7 @@
  */
 
 struct function_item {
+    void*                   data;
     error_code              (*function)();
 };
 
@@ -49,14 +50,17 @@ static error_code module_destroy_phase(enum module_phase phase);
  */
 error_code modules_init()
 {
+    int i;
+
     pthread_mutex_init(&this.list_mutex, NULL);
 
     list_create(&this.list);
 
-    module_create_phase(phase_START);
-    module_create_phase(phase_START_SENSORS);
-    module_create_phase(phase_STOP);
-    module_create_phase(phase_MOW);
+    i = 0;
+    while ( i < phase_LAST ) {
+        module_create_phase(i);
+        i++;
+    }
 
     return err_OK;
 }
@@ -85,7 +89,7 @@ error_code modules_run_phase(enum module_phase phase)
         list_set_iterator_first(function_iterator);
 
         while( SUCCESS( list_get_iterator_data(function_iterator, (void*)&function_item) ) ) {
-            function_item->function();
+            function_item->function(function_item->data);
             list_move_iterator_next(function_iterator);
         }
         list_destroy_iterator(function_iterator);
@@ -148,10 +152,11 @@ static error_code module_destroy_phase(enum module_phase phase)
  *
  * @param[in] phase     Phase
  * @param[in] function  Callback function
+ * @param[in] data      Data to be sent when calling the function
  *
  * @return              Success status
  */
-error_code module_register_to_phase(enum module_phase phase, error_code(*function)())
+error_code module_register_to_phase(enum module_phase phase, error_code(*function)(void* data), void* data)
 {
     struct function_item*   new_function;
     struct phase_item*      phase_item;
@@ -165,6 +170,7 @@ error_code module_register_to_phase(enum module_phase phase, error_code(*functio
         return err_OUT_OF_MEMORY;
 
     new_function->function = function;
+    new_function->data = data;
 
     pthread_mutex_lock(&this.list_mutex);
 
@@ -198,7 +204,7 @@ error_code module_register_to_phase(enum module_phase phase, error_code(*functio
  *
  * @return              Success status
  */
-error_code module_unregister_from_phase(enum module_phase phase, error_code(*function)())
+error_code module_unregister_from_phase(enum module_phase phase, error_code(*function)(void* data))
 {
     return err_NOT_IMPLEMENTED;
 }

@@ -27,7 +27,7 @@ struct message {
 // Private functions
 static void get_queue_name(enum queue queue_number, char* queue_name, int len);
 
-struct message this;
+static struct message this;
 
 /**
  * Initialize messages

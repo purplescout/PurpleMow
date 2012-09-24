@@ -6,6 +6,7 @@
 #include "error_codes.h"
 #include "poller.h"
 #include "messages.h"
+#include "config.h"
 
 /**
  * @ingroup sensor_range
@@ -16,6 +17,8 @@ struct sensor_range {
     struct poller           poller;
     int                     state;
     int                     queue;
+    struct config_item*     threshold;
+    struct config_item*     hysteresis;
 };
 
 error_code sensor_range_init(struct sensor_range* sensor);
