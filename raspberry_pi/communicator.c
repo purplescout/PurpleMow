@@ -39,7 +39,7 @@ static void move(enum direction direction);
 static void turn(enum direction direction);
 
 // cli commands
-static int command_move(char *args);
+static int command_move(char *args, int (*print)(const char *format, ...));
 
 static error_code move_forward();
 static error_code move_backward();
@@ -293,11 +293,12 @@ error_code communicator_turn_right()
  *
  * @ingroup communicator
  *
- * @param[in] args      Arguments
+ * @param[in] args  Arguments
+ * @param[in] print Print function
  *
- * @return              Success status
+ * @return          Success status
  */
-static int command_move(char *args)
+static int command_move(char *args, int (*print)(const char *format, ...))
 {
     if ( strcmp("forward", args) == 0 ) {
         communicator_move_forward();
@@ -314,13 +315,13 @@ static int command_move(char *args)
         speed = cli_read_int(args);
         communicator_set_speed(speed);
     } else if ( strcmp("debug", args) == 0 ) {
-        printf("Enabled communicator debugging\n");
+        print("Enabled communicator debugging\n");
         this.debug = 1;
     } else if ( strcmp("nodebug", args) == 0 ) {
-        printf("Disabled communicator debugging\n");
+        print("Disabled communicator debugging\n");
         this.debug = 0;
     } else {
-        printf("Valid arguments: forward, backward, left, right, stop, speed [0-255]\n");
+        print("Valid arguments: forward, backward, left, right, stop, speed [0-255]\n");
     }
     return 0;
 }

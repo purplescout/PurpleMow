@@ -16,7 +16,7 @@
  */
 
 // cli commands
-static error_code command_mow(char *args);
+static error_code command_mow(char *args, int (*print)(const char *format, ...));
 
 // Private
 static error_code mow_mow();
@@ -139,17 +139,18 @@ static void* mow_worker(void *data)
  * @ingroup mow
  *
  * @param[in] args  Arguments
+ * @param[in] print Print function
  *
  * @return          Success status
  */
-static error_code command_mow(char *args)
+static error_code command_mow(char *args, int (*print)(const char *format, ...))
 {
     if ( strcmp("debug", args) == 0 ) {
-        printf("Enabled mow debugging\n");
+        print("Enabled mow debugging\n");
         this.debug = 1;
         mow_state_debug(1);
     } else if ( strcmp("nodebug", args) == 0 ) {
-        printf("Disabled mow debugging\n");
+        print("Disabled mow debugging\n");
         this.debug = 0;
         mow_state_debug(0);
     } else if ( strcmp("debugstate", args) == 0 ) {
@@ -157,8 +158,8 @@ static error_code command_mow(char *args)
     } else if ( strcmp("nodebugstate", args) == 0 ) {
         mow_state_debug(0);
     } else {
-        printf("Valid arguments: debug, nodebug, debugstate, nodebugstate"
-                "\n");
+        print("Valid arguments: debug, nodebug, debugstate, nodebugstate"
+              "\n");
     }
     return err_OK;
 }

@@ -33,7 +33,7 @@ static error_code test_thread_start(void* data);
 static void* worker(void *data);
 
 // cli commands
-static int command_sendmsg(char* args);
+static int command_sendmsg(char* args, int (*print)(const char *format, ...));
 
 // private variables
 static pthread_t thread;
@@ -111,16 +111,17 @@ static void* worker(void *data)
  *
  * @ingroup test_thread
  *
- * @param[in] args      Arbuments
+ * @param[in] args  Arbuments
+ * @param[in] print Print function
  *
- * @return              Success status
+ * @return          Success status
  */
-static int command_sendmsg(char* args)
+static int command_sendmsg(char* args, int (*print)(const char *format, ...))
 {
     struct message_item msg;
 
     if ( strlen(args) > 0 ) {
-        printf("Sending to thread: %s\n", args);
+        print("Sending to thread: %s\n", args);
         msg.head.type = MSG_TEST;
         msg.head.length = strlen(args) + 1 + sizeof(msg.head);
         strncpy(msg.body.data, args, sizeof(msg.body.data) );

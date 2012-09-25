@@ -57,8 +57,8 @@ static int get_bits(uint8_t byte);
 static struct dcn this = { .initialized = 0 };
 
 // Commands
-static int command_show_ip(char *args);
-static int command_show_ips(char *args);
+static int command_show_ip(char *args, int (*print)(const char *format, ...));
+static int command_show_ips(char *args, int (*print)(const char *format, ...));
 
 /**
  * Initialize dcn
@@ -378,10 +378,11 @@ static error_code find_main_ip()
  * @ingroup dcn
  *
  * @param[in] args  Agruments
+ * @param[in] print Print function
  *
  * @return          Success status
  */
-static int command_show_ips(char *args)
+static int command_show_ips(char *args, int (*print)(const char *format, ...))
 {
     struct ip_item  *current;
     char            buffer_addr[128];
@@ -400,7 +401,7 @@ static int command_show_ips(char *args)
         }
 
         if ( strlen(buffer_addr) )
-            printf("%s: %s/%d\n", current->if_name, buffer_addr, get_netmask(&current->ip));
+            print("%s: %s/%d\n", current->if_name, buffer_addr, get_netmask(&current->ip));
 
         current = current->next;
     }
@@ -414,10 +415,11 @@ static int command_show_ips(char *args)
  * @ingroup dcn
  *
  * @param[in] args  Arguments
+ * @param[in] print Print function
  *
  * @return          Success status
  */
-static int command_show_ip(char *args)
+static int command_show_ip(char *args, int (*print)(const char *format, ...))
 {
     struct IP   ip;
     error_code  result;
@@ -437,7 +439,7 @@ static int command_show_ip(char *args)
     }
 
     if ( strlen(buffer_addr) )
-        printf("%s/%d\n", buffer_addr, get_netmask(&ip));
+        print("%s/%d\n", buffer_addr, get_netmask(&ip));
 
     return 0;
 }

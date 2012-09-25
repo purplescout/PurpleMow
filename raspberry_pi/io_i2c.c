@@ -25,7 +25,7 @@
  */
 
 // cli commands
-static error_code command_i2c(char *args);
+static error_code command_i2c(char *args, int (*print)(const char *format, ...));
 
 // i2c
 static error_code i2c_send_command(uint8_t* msg, int length);
@@ -104,20 +104,21 @@ static error_code io_i2c_stop()
  * @ingroup io_i2c
  *
  * @param[in] args  Arguments
+ * @param[in] print Print function
  *
  * @return          Success status
  */
-static error_code command_i2c(char *args)
+static error_code command_i2c(char *args, int (*print)(const char *format, ...))
 {
     if ( strcmp("debug", args) == 0 ) {
-        printf("Enabled i2c debugging\n");
+        print("Enabled i2c debugging\n");
         this.debug = 1;
     } else if ( strcmp("nodebug", args) == 0 ) {
-        printf("Disabled i2c debugging\n");
+        print("Disabled i2c debugging\n");
         this.debug = 0;
     } else {
-        printf("Valid arguments: debug, nodebug"
-                "\n");
+        print("Valid arguments: debug, nodebug"
+              "\n");
     }
     return err_OK;
 }

@@ -26,7 +26,7 @@
 struct cli_item
 {
     char                command[32];
-    int                 (*function)(char *arg);
+    int                 (*function)(char *arg, int (*print)(const char *format, ...));
 };
 
 /**
@@ -48,9 +48,9 @@ static error_code list_add(struct cli_item* item);
 static error_code list_remove(char *command, struct cli_item** cmd);
 
 // cli commands
-static int command_help(char *args);
-static int command_exit(char *args);
-static int command_echo(char *args);
+static int command_help(char *args, int (*print)(const char *format, ...));
+static int command_exit(char *args, int (*print)(const char *format, ...));
+static int command_echo(char *args, int (*print)(const char *format, ...));
 
 // private variables
 static struct cli this;
@@ -211,7 +211,7 @@ static error_code parse_command(char *command)
     list_destroy_iterator(iterator);
 
     if( status == err_OK ) {
-        item->function(args);
+        item->function(args, printf);
     } else {
         return err_UNKNOWN_COMMAND;
     }
@@ -289,7 +289,7 @@ static error_code list_remove(char *command, struct cli_item** cmd)
  *
  * @return              Success status
  */
-error_code cli_register_command(char *command, int(*function)(char *arg))
+error_code cli_register_command(char *command, int (*function)(char *arg, int (*print)(const char *format, ...)))
 {
     struct cli_item* new_cmd;
 
@@ -335,10 +335,11 @@ error_code cli_unregister_command(char *command)
  * @ingroup cli
  *
  * @param[in] args  Arguments
+ * @param[in] print Print function
  *
  * @return          Success status
  */
-static int command_help(char *args)
+static int command_help(char *args, int (*print)(const char *format, ...))
 {
     list_iterator_t iterator;
     struct cli_item *item;
@@ -350,7 +351,7 @@ static int command_help(char *args)
     list_set_iterator_first(iterator);
 
     while( SUCCESS( list_get_iterator_data(iterator, (void*)&item) ) ) {
-        printf("%s\n", item->command);
+        print("%s\n", item->command);
         list_move_iterator_next(iterator);
     }
 
@@ -365,10 +366,11 @@ static int command_help(char *args)
  * @ingroup cli
  *
  * @param[in] args  Arguments
+ * @param[in] print Print function
  *
  * @return          Success status
  */
-static int command_exit(char *args)
+static int command_exit(char *args, int (*print)(const char *format, ...))
 {
     exit(0);
 
@@ -381,12 +383,13 @@ static int command_exit(char *args)
  * @ingroup cli
  *
  * @param[in] args  Arguments
+ * @param[in] print Print function
  *
  * @return          Success status
  */
-static int command_echo(char *args)
+static int command_echo(char *args, int (*print)(const char *format, ...))
 {
-    printf("%s\n", args);
+    print("%s\n", args);
 
     return 0;
 }

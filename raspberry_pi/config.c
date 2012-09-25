@@ -25,7 +25,7 @@ static error_code config_save(void* data);
 static error_code config_set_value(char* args);
 
 // cli commands
-static int command_config(char *args);
+static int command_config(char *args, int (*print)(const char *format, ...));
 
 /**
  * Config.
@@ -442,11 +442,12 @@ static error_code config_set_value(char* args)
  *
  * @ingroup config
  *
- * @param[in] args      Arguments
+ * @param[in] args  Arguments
+ * @param[in] print Print function
  *
- * @return              Success status
+ * @return          Success status
  */
-static int command_config(char* args)
+static int command_config(char* args, int (*print)(const char *format, ...))
 {
     char* c;
 
@@ -467,7 +468,7 @@ static int command_config(char* args)
     } else if ( strcmp("set", args) == 0 ) {
         config_set_value(c);
     } else {
-        printf("Valid arguments: list, save, load, default, set\n");
+        print("Valid arguments: list, save, load, default, set\n");
     }
 
     return 0;

@@ -31,7 +31,7 @@ struct io
 static error_code io_start();
 static error_code io_stop();
 static error_code io_start();
-static error_code command_io_read(char *args);
+static error_code command_io_read(char *args, int (*print)(const char *format, ...));
 
 static struct io this = { .debug = 0 };
 
@@ -239,10 +239,11 @@ error_code io_command_read(enum sensor sensor, int *value)
  * @ingroup io
  *
  * @param[in] args  Arguments
+ * @param[in] print Print function
  *
  * @return          Success status
  */
-static error_code command_io_read(char *args)
+static error_code command_io_read(char *args, int (*print)(const char *format, ...))
 {
     int value = 0;
     error_code result = err_WRONG_ARGUMENT;
@@ -263,13 +264,13 @@ static error_code command_io_read(char *args)
 #endif
     } else {
         result = err_WRONG_ARGUMENT;
-        printf("Valid arguments: "
-                "range, bwf_l, bwf_r, bwf_ref"
-                ", moist"
-                "\n");
+        print("Valid arguments: "
+              "range, bwf_l, bwf_r, bwf_ref"
+              ", moist"
+              "\n");
     }
     if ( SUCCESS(result) ) {
-        printf("%d\n", value);
+        print("%d\n", value);
     }
 
     return err_OK;
