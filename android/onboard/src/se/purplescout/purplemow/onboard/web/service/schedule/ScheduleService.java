@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard.web.service;
+package se.purplescout.purplemow.onboard.web.service.schedule;
 
 import java.util.Date;
 import java.util.List;

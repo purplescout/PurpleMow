@@ -3,7 +3,6 @@ package se.purplescout.purplemow.onboard.web.service.remote;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM.State;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
-import se.purplescout.purplemow.onboard.web.service.RemoteService;
 
 public class RemoteServiceImpl implements RemoteService {
 

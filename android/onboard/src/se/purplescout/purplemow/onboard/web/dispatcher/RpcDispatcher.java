@@ -17,9 +17,9 @@ import org.codehaus.jackson.type.TypeReference;
 
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import se.purplescout.purplemow.onboard.web.WebServer.Request;
-import se.purplescout.purplemow.onboard.web.service.RemoteService;
-import se.purplescout.purplemow.onboard.web.service.RemoteService.Direction;
-import se.purplescout.purplemow.onboard.web.service.ScheduleService;
+import se.purplescout.purplemow.onboard.web.service.remote.RemoteService;
+import se.purplescout.purplemow.onboard.web.service.remote.RemoteService.Direction;
+import se.purplescout.purplemow.onboard.web.service.schedule.ScheduleService;
 import se.purplescout.purplemow.onboard.web.thirdparty.NanoHTTPD;
 import se.purplescout.purplemow.onboard.web.thirdparty.NanoHTTPD.Response;
 

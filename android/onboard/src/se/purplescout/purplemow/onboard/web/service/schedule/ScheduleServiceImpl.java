@@ -13,11 +13,10 @@ import se.purplescout.purplemow.core.Constants;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType;
-import se.purplescout.purplemow.onboard.backend.dao.ScheduleEventDAO;
+import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent;
 import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent.RecurringInterval;
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
-import se.purplescout.purplemow.onboard.web.service.ScheduleService;
 import android.util.Log;
 
 public class ScheduleServiceImpl implements ScheduleService {

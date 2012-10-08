@@ -1,11 +1,8 @@
 package se.purplescout.purplemow.onboard.backend.dao.schedule;
 
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
 
 import se.purplescout.purplemow.onboard.backend.dao.GenericDAOImpl;
-import se.purplescout.purplemow.onboard.backend.dao.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -22,11 +19,5 @@ public class ScheduleEventDAOImpl extends GenericDAOImpl<ScheduleEvent, Integer>
 	@Override
 	protected RuntimeExceptionDao<ScheduleEvent, Integer> getDAO() {
 		return dao;
-	}
-
-	@Override
-	public List<ScheduleEvent> getAllActiveEvents(Date start, Date end) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

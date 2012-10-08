@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard.web.service;
+package se.purplescout.purplemow.onboard.web.service.remote;
 
 
 public interface RemoteService {
