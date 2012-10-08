@@ -27,7 +27,6 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	@Override
 	protected void handleEvent(MainFSMEvent event) {
-		Log.v(this.getClass().getCanonicalName(), "Received event type: " + event.getEventType().toString());
 		switch (state) {
 		case IDLE:
 			if (event.getEventType() == MainFSMEvent.EventType.STARTED_MOWING) {

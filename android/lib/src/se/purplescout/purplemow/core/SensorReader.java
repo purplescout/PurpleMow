@@ -19,6 +19,7 @@ public class SensorReader extends Thread {
 	private byte loB;
 	private Integer latestBWFValue = 0;
 	private boolean isRunning = true;
+	private int thrownExceptions = 0;
 
 	AbstractFSM<MainFSMEvent> mainFSM;
 
@@ -35,24 +36,20 @@ public class SensorReader extends Thread {
 		try {
 			while (isRunning) {
 				requestSensor(ComStream.RANGE_SENSOR_LEFT);
-				Log.v(this.getClass().getCanonicalName(), "Requested range sensor left");
 				readSensor();
 
 				Thread.sleep(SLEEP_TIME);
 
 				requestSensor(ComStream.RANGE_SENSOR_RIGHT);
-				Log.v(this.getClass().getCanonicalName(), "Requested range sensor right");
 				readSensor();
 
 				Thread.sleep(SLEEP_TIME);
 
-				Log.v(this.getClass().getCanonicalName(), "Requested right bwf sensor");
 				requestSensor(ComStream.BWF_SENSOR_RIGHT);
 				readSensor();
 
 				Thread.sleep(SLEEP_TIME);
 
-				Log.v(this.getClass().getCanonicalName(), "Requested left bwf sensor");
 				requestSensor(ComStream.BWF_SENSOR_LEFT);
 				readSensor();
 
@@ -67,8 +64,11 @@ public class SensorReader extends Thread {
 		try {
 			comStream.sendCommand(ComStream.SENSOR_COMMAND, sensor);
 		} catch (IOException e) {
-			Log.e(this.getClass().getName(), e.getMessage());
-			e.printStackTrace();
+			// Prevents flooding the log
+			if (thrownExceptions < 2) {
+				Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+				thrownExceptions++;
+			}
 		}
 	}
 
@@ -83,21 +83,20 @@ public class SensorReader extends Thread {
 			int val = composeInt(hi, lo);
 			latestDistanceValue = val;
 			if (buffer[1] == ComStream.RANGE_SENSOR_LEFT) {
-				Log.v(this.getClass().getCanonicalName(), "Received range sensor left: " + val);
 				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE_LEFT, val));
 			} else if (buffer[1] == ComStream.RANGE_SENSOR_RIGHT) {
-				Log.v(this.getClass().getCanonicalName(), "Received range sensor right: " + val);
 				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE_RIGHT, val));
 			} else if (buffer[1] == ComStream.BWF_SENSOR_RIGHT) {
-				Log.v(this.getClass().getCanonicalName(), "Received right bwf sensor: " + val);
 				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_RIGHT, val));
 			} else if (buffer[1] == ComStream.BWF_SENSOR_LEFT) {
-				Log.v(this.getClass().getCanonicalName(), "Received left bwf sensor: " + val);
 				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_LEFT, val));
 			}
 		} catch (IOException e) {
-			Log.e(this.getClass().getName(), e.getMessage());
-			e.printStackTrace();
+			// Prevents flooding the log
+			if (thrownExceptions < 2) {
+				Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+				thrownExceptions++;
+			}
 		}
 	}
 

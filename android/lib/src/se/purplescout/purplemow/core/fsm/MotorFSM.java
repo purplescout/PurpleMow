@@ -24,6 +24,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	private AbstractFSM<MainFSMEvent> mainFSM;
 	private int currentMovementSpeed;
 	private int currentCutterSpeed;
+	private int thrownExceptions = 0;
 
 	@Override
 	public void shutdown() {
@@ -59,7 +60,6 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 
 	@Override
 	protected void handleEvent(MotorFSMEvent event) {
-		Log.v(this.getClass().getCanonicalName(), "Received event type: " + event.getEventType().toString() + " with value: " + event.getValue());
 		int value = event.getValue();
 		if (value > Constants.FULL_SPEED) {
 			value = Constants.FULL_SPEED;
@@ -95,7 +95,11 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 				break;
 			}
 		} catch (IOException e) {
-			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+			// Prevents flooding the log
+			if (thrownExceptions < 2) {
+				Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+				thrownExceptions++;
+			}
 		}
 	}
 
@@ -159,7 +163,6 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 	}
 
 	private void changeState(State newState) {
-		String aMessage = "Change state from " + state + ", to " + newState;
 		state = newState;
 	}
 }

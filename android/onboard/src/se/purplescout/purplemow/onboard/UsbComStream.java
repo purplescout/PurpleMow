@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import se.purplescout.purplemow.core.ComStream;
-import android.util.Log;
 
 public class UsbComStream extends ComStream {
 
@@ -27,13 +26,8 @@ public class UsbComStream extends ComStream {
 		buffer[1] = target;
 		buffer[2] = (byte) value;
 		if (outputStream != null && buffer[1] != -1) {
-			try {
-				outputStream.write(buffer);
-			} catch (IOException e) {
-				Log.e(this.getClass().getName(), e.getMessage(), e);
-			}
+			outputStream.write(buffer);
 		}
-
 	}
 	
 	@Override
