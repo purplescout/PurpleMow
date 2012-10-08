@@ -20,7 +20,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.web.bindery.event.shared.SimpleEventBus;
 
 public class SchedulePresenter extends AbstractActivity {
 
@@ -119,16 +118,14 @@ public class SchedulePresenter extends AbstractActivity {
 
 	View view;
 	ScheduleService service;
-	SimpleEventBus eventBus;
 
 	final Date date = new Date();
 	final List<ScheduleEventDTO> scheduleEventDTOs = new ArrayList<ScheduleEventDTO>();
 	final List<Date> weekDates = new ArrayList<Date>();
 
-	public SchedulePresenter(View view, ScheduleService service, SimpleEventBus eventBus) {
+	public SchedulePresenter(View view, ScheduleService service) {
 		this.view = view;
 		this.service = service;
-		this.eventBus = eventBus;
 	}
 
 	@Override

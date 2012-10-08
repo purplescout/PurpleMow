@@ -13,14 +13,10 @@ import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.Place;
-import com.google.web.bindery.event.shared.SimpleEventBus;
 
 public class CenterActivityMapper implements ActivityMapper {
 
-	private SimpleEventBus eventBus;
-
-	public CenterActivityMapper(SimpleEventBus eventBus) {
-		this.eventBus = eventBus;
+	public CenterActivityMapper() {
 	}
 
 	@Override
@@ -28,7 +24,7 @@ public class CenterActivityMapper implements ActivityMapper {
 		if (place instanceof RemotePlace) {
 			return new RemotePresenter(new RemoteView(), GWT.<RemoteService>create(RemoteService.class));
 		} else if (place instanceof SchedulePlace){
-			return new SchedulePresenter(new ScheduleView(), GWT.<ScheduleService>create(ScheduleService.class), eventBus);
+			return new SchedulePresenter(new ScheduleView(), GWT.<ScheduleService>create(ScheduleService.class));
 		}
 		
 		return null;

@@ -43,7 +43,7 @@ public class PurpleMowEntryPoint extends Composite implements EntryPoint {
 		PlaceHistoryHandler historyHandler = new PlaceHistoryHandler(historyMapper);
 		
 		ActivityMapper menuActivityMapper = new MenuActivityMapper(historyMapper);
-		ActivityMapper centerActivityMapper = new CenterActivityMapper(eventBus);
+		ActivityMapper centerActivityMapper = new CenterActivityMapper();
 
 		ActivityManager menuActivityManager = new ActivityManager(menuActivityMapper, eventBus);
 		ActivityManager centerActivityManager = new ActivityManager(centerActivityMapper, eventBus);
