@@ -8,11 +8,13 @@ import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import se.purplescout.purplemow.core.Constants;
 import se.purplescout.purplemow.core.LogCallback;
 import se.purplescout.purplemow.core.LogMessage;
 import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
+import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAOImpl;
 import se.purplescout.purplemow.onboard.db.sqlhelper.PurpleMowSqliteOpenHelper;
@@ -143,7 +145,7 @@ public class MainService extends IntentService {
 		motorFSM.start();
 		sensorReader.start();
 
-//		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED));
+		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED));
 		try {
 			OrmLiteSqliteOpenHelper sqliteOpenHelper = new PurpleMowSqliteOpenHelper(this);
 			ConnectionSource connectionSource = sqliteOpenHelper.getConnectionSource();

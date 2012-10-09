@@ -9,7 +9,9 @@ import android.util.Log;
 
 public class SensorReader extends Thread {
 
-	private static final int SLEEP_TIME = 100;
+	private static final int SLEEP_TIME = 20;
+
+	private static final long SLEEP_TIME_LONG = 100;
 
 	private ComStream comStream;
 
@@ -53,7 +55,7 @@ public class SensorReader extends Thread {
 				requestSensor(ComStream.BWF_SENSOR_LEFT);
 				readSensor();
 
-				Thread.sleep(SLEEP_TIME);
+				Thread.sleep(SLEEP_TIME_LONG);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
