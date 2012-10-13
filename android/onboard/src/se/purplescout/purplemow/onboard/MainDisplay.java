@@ -9,7 +9,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class MainDisplay implements MainActivity.Display {
-
+	
+	private Activity activity;
+	
 	private Button startBtn;
 	private Button stopBtn;
 	private View loaderSpinner;
@@ -21,6 +23,8 @@ public class MainDisplay implements MainActivity.Display {
 	private TextView currentState;
 
 	public MainDisplay(Activity activity) {
+		this.activity = activity;
+		
 		startBtn = (Button) activity.findViewById(R.id.startFSM);
 		stopBtn = (Button) activity.findViewById(R.id.stopFSM);
 		loaderSpinner = (View) activity.findViewById(R.id.spinner);
@@ -29,10 +33,9 @@ public class MainDisplay implements MainActivity.Display {
 		rangeLeft = (TextView) activity.findViewById(R.id.rangeLeft);
 		rangeRight = (TextView) activity.findViewById(R.id.rangeRight);
 		currentState = (TextView) activity.findViewById(R.id.currentState);
-		createPopup(activity);
 	}
 
-	private void createPopup(Activity activity) {
+	private AlertDialog createPopup(Activity activity, final Runnable runnable) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		builder.setMessage("Gräsklipparen är inte ansluten");
 		builder.setCancelable(false);
@@ -41,9 +44,10 @@ public class MainDisplay implements MainActivity.Display {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.cancel();
+				runnable.run();
 			}
 		});
-		popup = builder.create();
+		return builder.create();
 	}
 
 	@Override
@@ -62,13 +66,19 @@ public class MainDisplay implements MainActivity.Display {
 	}
 
 	@Override
-	public void showNotConnectedPopup() {
+	public void showNotConnectedPopup(Runnable onCancel) {
+		if (popup != null && popup.isShowing()) {
+			hideNotConnectedPopup();
+		}
+		popup = createPopup(activity, onCancel);
 		popup.show();
 	}
 
 	@Override
 	public void hideNotConnectedPopup() {
-		popup.hide();
+		if (popup != null) {
+			popup.hide();
+		}
 	}
 
 	@Override

@@ -24,7 +24,6 @@ import se.purplescout.purplemow.onboard.web.service.remote.RemoteService;
 import se.purplescout.purplemow.onboard.web.service.remote.RemoteServiceImpl;
 import se.purplescout.purplemow.onboard.web.service.schedule.ScheduleService;
 import se.purplescout.purplemow.onboard.web.service.schedule.ScheduleServiceImpl;
-import android.R;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -45,6 +44,8 @@ public class MainService extends IntentService {
 
 	private static final int NOTIFICATION_FLAG = 0;
 	private static final String ACTION_LOG_MSG = "se.purplescout.purplemow.LOG_MSG";
+	public static final String SERVICE_IS_RUNNING = "se.purplescout.purplemow.SERVICE_IS_RUNNING";
+	public static boolean serviceRunning;
 
 	MainFSM mainFSM;
 	MotorFSM motorFSM;
@@ -53,6 +54,8 @@ public class MainService extends IntentService {
 
 	WebServer webServer;
 	ScheduledExecutorService scheduler;
+	
+	BroadcastReceiver usbDetachedReceiver;
 
 	public MainService() {
 		super("se.purplescout.purplemow");
@@ -63,6 +66,15 @@ public class MainService extends IntentService {
 		Log.d(this.getClass().getCanonicalName(), "onHandleIntent");
 		UsbManager usbManager = UsbManager.getInstance(getApplicationContext());
 
+		usbDetachedReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				stopSelf();
+			}
+		};
+		registerReceiver(usbDetachedReceiver, new IntentFilter(UsbManager.ACTION_USB_ACCESSORY_DETACHED));
+		
 		UsbAccessory accessory = UsbManager.getAccessory(intent);
 		if (accessory == null) {
 			Log.e(this.getClass().getCanonicalName(), "UsbAccessory is null");
@@ -83,46 +95,35 @@ public class MainService extends IntentService {
 		comStream = new UsbComStream(fileInputStream, fileOutputStream);
 		Log.d(this.getClass().getCanonicalName(), "Created usb stream: " + comStream.toString());
 
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		setupNotification();
+		setupContext();
 
-		Notification notification = new Notification(se.purplescout.R.drawable.ic_statusbar, "Purple Mow", System.currentTimeMillis());
-		Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
-//		PendingIntent contentIntent = PendingIntent.getActivities(this, 0,
-//	            makeMessageIntentStack(this, from, message), PendingIntent.FLAG_CANCEL_CURRENT);
-		
-		notification.setLatestEventInfo(getApplicationContext(), "PurpleMow", "", contentIntent);
-		notification.flags |= Notification.FLAG_NO_CLEAR;
-		notificationManager.notify(NOTIFICATION_FLAG, notification);
-
-		scheduler = Executors.newScheduledThreadPool(1);
-
-		registerReceiver(new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				start();
-			}
-		}, new IntentFilter(MainActivity.START_MOWER));
-
-		registerReceiver(new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				stop();
-			}
-		}, new IntentFilter(MainActivity.STOP_MOWER));
-		
 		MainActivity.serviceRunning = true;
+		
+		sendBroadcast(new Intent(SERVICE_IS_RUNNING));
+		
 		// To keep service alive
 		while (true) {
 			Thread.yield();
 		}
 	}
 
-	private void start() {
+	private void setupNotification() {
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+		Notification notification = new Notification(se.purplescout.R.drawable.ic_statusbar, "Purple Mow", System.currentTimeMillis());
+		Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+		
+		notification.setLatestEventInfo(getApplicationContext(), "PurpleMow", "", contentIntent);
+		notification.flags |= Notification.FLAG_NO_CLEAR;
+		notificationManager.notify(NOTIFICATION_FLAG, notification);
+	}
+
+	private void setupContext() {
 		Log.d(this.getClass().getCanonicalName(), "Startup");
+
 		LogCallback logCallback = new LogCallback() {
 
 			@Override
@@ -133,6 +134,7 @@ public class MainService extends IntentService {
 			}
 		};
 
+		scheduler = Executors.newScheduledThreadPool(1);
 		mainFSM = new MainFSM(logCallback);
 		motorFSM = new MotorFSM(comStream, logCallback);
 		sensorReader = new SensorReader(comStream);
@@ -169,16 +171,21 @@ public class MainService extends IntentService {
 	public void onDestroy() {
 		super.onDestroy();
 		Log.d(this.getClass().getCanonicalName(), "Destroy");
-
-		stop();
-
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(NOTIFICATION_FLAG);
+		
+		unregisterReceiver(usbDetachedReceiver);
+		
+		tearDownContext();
+		tearDownNotification();
 		
 		MainActivity.serviceRunning = false;
 	}
 
-	private void stop() {
+	private void tearDownNotification() {
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(NOTIFICATION_FLAG);
+	}
+
+	private void tearDownContext() {
 		scheduler.shutdown();
 
 		webServer.stop();
