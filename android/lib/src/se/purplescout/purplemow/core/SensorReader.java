@@ -86,9 +86,9 @@ public class SensorReader extends Thread {
 				readSensor();
 
 				Thread.sleep(SLEEP_TIME);
-
-				requestSensor(ComStream.BWF_SENSOR_RIGHT);
-				readSensor();
+//
+//				requestSensor(ComStream.BWF_SENSOR_RIGHT);
+//				readSensor();
 
 				Thread.sleep(SLEEP_TIME);
 
