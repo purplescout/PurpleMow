@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 public class MainDisplay implements MainActivity.Display {
@@ -21,6 +23,7 @@ public class MainDisplay implements MainActivity.Display {
 	private TextView rangeRight;
 	private TextView rangeLeft;
 	private TextView currentState;
+	private CheckBox battLowBtn;
 
 	public MainDisplay(Activity activity) {
 		this.activity = activity;
@@ -33,6 +36,7 @@ public class MainDisplay implements MainActivity.Display {
 		rangeLeft = (TextView) activity.findViewById(R.id.rangeLeft);
 		rangeRight = (TextView) activity.findViewById(R.id.rangeRight);
 		currentState = (TextView) activity.findViewById(R.id.currentState);
+		battLowBtn = (CheckBox) activity.findViewById(R.id.battLow);
 	}
 
 	private AlertDialog createPopup(Activity activity, final Runnable runnable) {
@@ -99,6 +103,11 @@ public class MainDisplay implements MainActivity.Display {
 	@Override
 	public void setRangeRight(String value) {
 		rangeRight.setText(value);
+	}
+
+	@Override
+	public CheckBox getBattLowBtn() {
+		return battLowBtn;
 	}
 
 	@Override

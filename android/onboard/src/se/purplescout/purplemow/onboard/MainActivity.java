@@ -1,6 +1,5 @@
 package se.purplescout.purplemow.onboard;
 
-import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
 import se.purplescout.R;
@@ -14,6 +13,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class MainActivity extends Activity {
 	
@@ -44,6 +46,8 @@ public class MainActivity extends Activity {
 		void setRangeRight(String value);
 		
 		void setCurrentState(String state);
+
+		CheckBox getBattLowBtn();
 	}
 
 	Display display;
@@ -69,6 +73,19 @@ public class MainActivity extends Activity {
 	}
 
 	private void bind() {
+
+		display.getBattLowBtn().setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				 boolean checked = ((CheckBox) buttonView).isChecked();
+				    if(R.id.battLow == buttonView.getId()) {
+					if(checked){
+
+					}
+				    }
+			}
+		});
 		logReceiver = new BroadcastReceiver() {
 
 			@Override
@@ -115,5 +132,9 @@ public class MainActivity extends Activity {
 				}
 			});
 		}
+
 	}
+
+
+
 }

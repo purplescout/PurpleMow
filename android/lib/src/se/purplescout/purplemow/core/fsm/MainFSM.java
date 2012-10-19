@@ -14,12 +14,13 @@ import android.util.Log;
 public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	private enum State {
-		IDLE, MOWING, AVOIDING_OBSTACLE
+		IDLE, MOWING, AVOIDING_OBSTACLE, GOING_HOME, CHARGING
 	}
 
 	private State state = State.IDLE;
 	private AbstractFSM<MotorFSMEvent> motorFSM;
 	private LogCallback logCallback;
+	private boolean batteryLow;
 
 	public MainFSM(LogCallback log) {
 		this.logCallback = log;
@@ -27,6 +28,9 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	@Override
 	protected void handleEvent(MainFSMEvent event) {
+		if(event.getEventType() == EventType.BATTERY_LOW) {
+			batteryLow=true;
+		}
 		switch (state) {
 		case IDLE:
 			if (event.getEventType() == MainFSMEvent.EventType.STARTED_MOWING) {
@@ -49,8 +53,13 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 			} else if (event.getEventType() == EventType.BWF_RIGHT) {
 				logCallback.post(LogMessage.create(Type.BWF_RIGHT, Integer.toString(event.getValue())));
 				if (event.getValue() < Constants.BWF_LIMIT) {
+					if(batteryLow) {
+						changeState(State.GOING_HOME);
+						goHome();
+					} else {
 					changeState(State.AVOIDING_OBSTACLE);
 					avoidOstacle(event.getEventType().name());
+					}
 				}
 			} else if (event.getEventType() == EventType.BWF_LEFT) {
 				logCallback.post(LogMessage.create(Type.BWF_LEFT, Integer.toString(event.getValue())));
@@ -65,10 +74,16 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 				changeState(State.MOWING);
 			}
 			break;
+		case GOING_HOME:
+			if (event.getEventType() == EventType.CHARGER_CONNECTED) {
+				changeState(State.CHARGING);
+			}
 		}
+
 	}
 
 	private void avoidOstacle(String cause) {
+		logCallback.post(LogMessage.create(Type.CURRENT_STATE, " due to " + cause));
 		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
 
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE, Constants.FULL_SPEED), 500);
@@ -80,6 +95,16 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 		}
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 3000);
 		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED), 3500);
+	}
+
+	/**
+	 * Routing for following the BWF cable until a
+	 */
+	private void goHome() {
+		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
+		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT, Constants.FULL_SPEED), 500);
+		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 4000);
+		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED), 4500);
 	}
 
 	public void setMotorFSM(AbstractFSM<MotorFSMEvent> fsm) {

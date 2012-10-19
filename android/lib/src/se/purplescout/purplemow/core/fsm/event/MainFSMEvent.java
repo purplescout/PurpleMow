@@ -2,7 +2,7 @@ package se.purplescout.purplemow.core.fsm.event;
 
 public class MainFSMEvent extends FSMEvent<MainFSMEvent.EventType, MainFSMEvent> {
 	public enum EventType {
-		BWF_LEFT(5), BWF_RIGHT(5), RANGE_LEFT(5), RANGE_RIGHT(5), STARTED_MOWING(5), REMOTE_CONNECTED(5), REMOTE_DISCONNECTED(5);
+		BWF_LEFT(5), BWF_RIGHT(5), RANGE_LEFT(5), RANGE_RIGHT(5), STARTED_MOWING(5), REMOTE_CONNECTED(5), REMOTE_DISCONNECTED(5), CHARGER_CONNECTED(5), BATTERY_LOW(5);
 
 		private int priority;
 
