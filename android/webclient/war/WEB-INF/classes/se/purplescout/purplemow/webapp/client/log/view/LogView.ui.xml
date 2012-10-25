@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c='urn:import:com.google.gwt.user.cellview.client'>
+	<ui:style>
+
+	</ui:style>
+	<g:HTMLPanel >
+		<g:VerticalPanel>
+			<g:Anchor ui:field="logcat" text="logcat.csv"/>
+			<g:Anchor ui:field="bwfLeft" text="bwfLeftData.csv"/>
+			<g:Anchor ui:field="bwfRight" text="bwfRightData.csv"/>
+			<g:Anchor ui:field="rangeLeft" text="rangeLeftData.csv"/>
+			<g:Anchor ui:field="rangeRight" text="rangeRightData.csv"/>
+		</g:VerticalPanel>
+	</g:HTMLPanel>
+</ui:UiBinder>

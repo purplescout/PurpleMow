@@ -17,6 +17,7 @@ import org.codehaus.jackson.type.TypeReference;
 
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import se.purplescout.purplemow.onboard.web.WebServer.Request;
+import se.purplescout.purplemow.onboard.web.service.log.LogService;
 import se.purplescout.purplemow.onboard.web.service.remote.RemoteService;
 import se.purplescout.purplemow.onboard.web.service.remote.RemoteService.Direction;
 import se.purplescout.purplemow.onboard.web.service.schedule.ScheduleService;
@@ -27,10 +28,12 @@ public class RpcDispatcher {
 
 	private RemoteService remoteService;
 	private ScheduleService scheduleService;
+	private LogService logService;
 
-	public RpcDispatcher(RemoteService remoteService, ScheduleService scheduleService) {
+	public RpcDispatcher(RemoteService remoteService, ScheduleService scheduleService, LogService logService) {
 		this.remoteService = remoteService;
 		this.scheduleService = scheduleService;
+		this.logService = logService;
 	}
 
 	public Response dispatch(Request request) {
@@ -81,15 +84,58 @@ public class RpcDispatcher {
 					mapper.getDeserializationConfig().withDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz"));
 					List<ScheduleEventDTO> dtos = mapper.readValue(content, new TypeReference<List<ScheduleEventDTO>>() { });
 					scheduleService.save(dtos);
+
 					return new Response(NanoHTTPD.HTTP_OK, NanoHTTPD.MIME_PLAINTEXT, "200 Ok");
+				}
+			}
+
+			// LogService
+			if (request.getUri().startsWith("/log")) {
+				String suffix = request.getUri().replaceFirst("/log", "");
+
+				if (suffix.equals("/getLogcat")) {
+					InputStream logcat = logService.getLogcatAsHTML();
+					return new Response(NanoHTTPD.HTTP_OK, NanoHTTPD.MIME_HTML, logcat);
+				}
+				if (suffix.equals("/logcat.csv")) {
+					InputStream logcat = logService.getLogcat();
+					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", logcat);
+					response.header.setProperty("Content-Disposition", "attachment; filename=\"logcat.csv\"");
+					return response;
+				}
+				if (suffix.equals("/bwfLeftData.csv")) {
+					InputStream data = logService.getLeftBwfData();
+					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
+					response.header.setProperty("Content-Disposition", "attachment; filename=\"bwfLeftData.csv\"");
+					return response;
+				}
+				if (suffix.equals("/bwfRightData.csv")) {
+					InputStream data = logService.getRightBwfData();
+					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
+					response.header.setProperty("Content-Disposition", "attachment; filename=\"bwfRightData.csv\"");
+					return response;
+				}
+				if (suffix.equals("/rangeLeftData.csv")) {
+					InputStream data = logService.getLeftRangeData();
+					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
+					response.header.setProperty("Content-Disposition", "attachment; filename=\"rangeLeftData.csv\"");
+					return response;
+				}
+				if (suffix.equals("/rangeRightData.csv")) {
+					InputStream data = logService.getRightRangeData();
+					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
+					response.header.setProperty("Content-Disposition", "attachment; filename=\"rangeRightData.csv\"");
+					return response;
 				}
 			}
 		} catch (JsonParseException e) {
 			return new Response(NanoHTTPD.HTTP_BADREQUEST, NanoHTTPD.MIME_PLAINTEXT, "400 Invalid argument");
 		} catch (JsonMappingException e) {
-			return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.HTTP_INTERNALERROR, "500 Internal error");
+			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
 		} catch (IOException e) {
-			return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.HTTP_INTERNALERROR, "500 Internal error");
+			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
+		} catch (Exception e) {
+			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
 		}
 
 		return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "404 Resource not found");

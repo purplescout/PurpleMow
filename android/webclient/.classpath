@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/model"/>
+	<classpathentry kind="lib" path="lib/gwt-visualization-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/gwt-visualization.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

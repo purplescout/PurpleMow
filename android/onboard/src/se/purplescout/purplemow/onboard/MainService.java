@@ -20,6 +20,8 @@ import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAOImp
 import se.purplescout.purplemow.onboard.db.sqlhelper.PurpleMowSqliteOpenHelper;
 import se.purplescout.purplemow.onboard.web.WebServer;
 import se.purplescout.purplemow.onboard.web.dispatcher.RpcDispatcher;
+import se.purplescout.purplemow.onboard.web.service.log.LogService;
+import se.purplescout.purplemow.onboard.web.service.log.LogServiceImpl;
 import se.purplescout.purplemow.onboard.web.service.remote.RemoteService;
 import se.purplescout.purplemow.onboard.web.service.remote.RemoteServiceImpl;
 import se.purplescout.purplemow.onboard.web.service.schedule.ScheduleService;
@@ -155,7 +157,8 @@ public class MainService extends IntentService {
 			RemoteService remoteService = new RemoteServiceImpl(motorFSM);
 			ScheduleEventDAO scheduleEntryDAO = new ScheduleEventDAOImpl(connectionSource);
 			ScheduleService scheduleService = new ScheduleServiceImpl(scheduleEntryDAO, scheduler, motorFSM);
-			RpcDispatcher dispatcher = new RpcDispatcher(remoteService, scheduleService);
+			LogService logService = new LogServiceImpl(sensorReader);
+			RpcDispatcher dispatcher = new RpcDispatcher(remoteService, scheduleService, logService);
 			webServer = new WebServer(8080, this, dispatcher);
 			scheduleService.initScheduler();
 		} catch (IOException e) {

@@ -1,6 +1,7 @@
 package se.purplescout.purplemow.webapp.client.menu.presenter;
 
 import se.purplescout.purplemow.webapp.client.home.place.HomePlace;
+import se.purplescout.purplemow.webapp.client.log.place.LogPlace;
 import se.purplescout.purplemow.webapp.client.remote.place.RemotePlace;
 import se.purplescout.purplemow.webapp.client.schedule.place.SchedulePlace;
 
@@ -37,5 +38,6 @@ public class MenuPresenter extends AbstractActivity {
 		view.addMenu("Home", historyMapper.getToken(new HomePlace()), (place instanceof HomePlace));
 		view.addMenu("Remote", historyMapper.getToken(new RemotePlace()), (place instanceof RemotePlace));
 		view.addMenu("Schedule", historyMapper.getToken(new SchedulePlace()), (place instanceof SchedulePlace));
+		view.addMenu("Log", historyMapper.getToken(new LogPlace()), (place instanceof LogPlace));
 	}
 }
