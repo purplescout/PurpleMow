@@ -12,7 +12,6 @@ public abstract class AbstractFSM<T extends FSMEvent<?, T>> extends Thread {
 
 	private PriorityBlockingQueue<T> queue = new PriorityBlockingQueue<T>();
 	private boolean isRunning = true;
-	private StringBuilder logger = new StringBuilder();
 
 	@Override
 	public void run() {
@@ -20,7 +19,6 @@ public abstract class AbstractFSM<T extends FSMEvent<?, T>> extends Thread {
 			while (isRunning) {
 				T event;
 				event = queue.take();
-				log(event);
 				handleEvent(event);
 			}
 		} catch (InterruptedException e) {
@@ -50,12 +48,4 @@ public abstract class AbstractFSM<T extends FSMEvent<?, T>> extends Thread {
 	}
 
 	protected abstract void handleEvent(T event);
-	
-	public StringBuilder getLogger() {
-		return logger;
-	}
-	
-	private void log(T event) {
-		logger.append(event).append(",").append(System.currentTimeMillis() - event.getTimeStamp()).append("\n");
-	}
 }
