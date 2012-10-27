@@ -49,7 +49,7 @@ public class UsbActivity extends Activity {
 	}
 	
 	private void startMainService() {
-		Log.d(this.getClass().getName(), "Starting service: " + MainService.class.getName());
+		Log.d(this.getClass().getSimpleName(), "Starting service: " + MainService.class.getSimpleName());
 		Intent serviceIntent = new Intent(this, MainService.class);
 		serviceIntent.fillIn(getIntent(), 0);
 		startService(serviceIntent);

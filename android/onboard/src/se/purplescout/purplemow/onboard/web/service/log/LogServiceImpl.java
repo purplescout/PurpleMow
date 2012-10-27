@@ -13,11 +13,13 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.SensorReader.SensorData;
+import se.purplescout.purplemow.onboard.shared.log.dto.LogcatFilterDTO;
 import android.util.Log;
 
 public class LogServiceImpl implements LogService {
 
-	private static DateFormat dateFormat = new SimpleDateFormat("MM-dd hh:mm:ss.SSS");
+	private static final String LOGCAT_CMD = "logcat -d -v time";
+	private static final DateFormat dateFormat = new SimpleDateFormat("MM-dd hh:mm:ss.SSS");
 
 	private SensorReader sensorReader;
 
@@ -26,31 +28,46 @@ public class LogServiceImpl implements LogService {
 	}
 
 	@Override
-	public InputStream getLogcatAsHTML() {
+	public InputStream getLogcatAsJSON(List<LogcatFilterDTO> filterDTOs) {
+		StringBuilder filter = new StringBuilder();
+		for (LogcatFilterDTO filterDTO : filterDTOs) {
+			filter.append(filterDTO.getTag()).append(":").append(filterDTO.getPriorityConstant()).append(" ");
+		}
+		// Remove trailing ' '
+		if (filter.length() > 0) {
+			filter.replace(filter.length() - 1, filter.length(), "");
+		}
+		
 		try {
-			Process process = Runtime.getRuntime().exec("logcat -d");
+			Process process = Runtime.getRuntime().exec(String.format("%s %s *:S", LOGCAT_CMD, filter.toString()));
 			InputStream inputStream = process.getInputStream();
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-			StringBuilder log = new StringBuilder();
+			StringBuilder json = new StringBuilder();
 			String line;
+			json.append("[");
 			while ((line = bufferedReader.readLine()) != null) {
-				String color = "";
-				if (line.charAt(0) == 'I') {
-					color = "green";
-				} else if (line.charAt(0) == 'D') {
-					color = "blue";
-				} else {
-					color = "black";
+				String[] logEntry = line.split(" ");
+				if (logEntry.length < 4) {
+					continue;
 				}
-				log.append(String.format("<span style=\"color: %s\">", color));
-				log.append(StringEscapeUtils.escapeHtml(line));
-				log.append("</span><br/>");
+				json.append("{");
+				char priorityConstant = logEntry[2].charAt(0);
+				json.append("\"priorityConstant\"").append(":").append("\"" + priorityConstant + "\"");
+				json.append(",");
+				json.append("\"entry\"").append(":").append("\"" + StringEscapeUtils.escapeJavaScript(line) + "\"");
+				json.append("}");
+				json.append(",");
 			}
+			// Remove trailing ','
+			if (json.length() > 1) {
+				json.replace(json.length() - 1, json.length(), "");
+			}
+			json.append("]");
 
-			return new ByteArrayInputStream(log.toString().getBytes());
+			return new ByteArrayInputStream(json.toString().getBytes());
 		} catch (IOException e) {
-			Log.e(this.getClass().getName(), e.getMessage(), e);
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -58,7 +75,7 @@ public class LogServiceImpl implements LogService {
 	@Override
 	public InputStream getLogcat() {
 		try {
-			Process process = Runtime.getRuntime().exec("logcat -d");
+			Process process = Runtime.getRuntime().exec(LOGCAT_CMD);
 			InputStream inputStream = process.getInputStream();
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -71,7 +88,7 @@ public class LogServiceImpl implements LogService {
 
 			return new ByteArrayInputStream(log.toString().getBytes());
 		} catch (IOException e) {
-			Log.e(this.getClass().getName(), e.getMessage(), e);
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}

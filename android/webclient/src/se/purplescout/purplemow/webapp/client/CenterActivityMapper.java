@@ -1,9 +1,9 @@
 package se.purplescout.purplemow.webapp.client;
 
 import se.purplescout.purplemow.webapp.client.log.place.LogPlace;
-import se.purplescout.purplemow.webapp.client.log.presenter.LogPresenter;
+import se.purplescout.purplemow.webapp.client.log.presenter.LogcatPresenter;
 import se.purplescout.purplemow.webapp.client.log.service.LogService;
-import se.purplescout.purplemow.webapp.client.log.view.LogView;
+import se.purplescout.purplemow.webapp.client.log.view.LogcatView;
 import se.purplescout.purplemow.webapp.client.remote.place.RemotePlace;
 import se.purplescout.purplemow.webapp.client.remote.presenter.RemotePresenter;
 import se.purplescout.purplemow.webapp.client.remote.service.RemoteService;
@@ -32,7 +32,7 @@ public class CenterActivityMapper implements ActivityMapper {
 			return new SchedulePresenter(new ScheduleView(), GWT.<ScheduleService>create(ScheduleService.class));
 		}
 		if (place instanceof LogPlace) {
-			return new LogPresenter(new LogView(), GWT.<LogService>create(LogService.class));
+			return new LogcatPresenter(new LogcatView(), GWT.<LogService>create(LogService.class));
 		}
 		
 		return null;

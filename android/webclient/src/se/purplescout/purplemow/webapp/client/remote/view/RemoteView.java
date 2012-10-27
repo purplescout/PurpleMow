@@ -1,7 +1,7 @@
 package se.purplescout.purplemow.webapp.client.remote.view;
 
 import se.purplescout.purplemow.webapp.client.remote.presenter.RemotePresenter;
-import se.purplescout.purplemow.webapp.client.resource.Resources;
+import se.purplescout.purplemow.webapp.client.resources.PurpleMowResources;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.CssResource;
@@ -41,29 +41,29 @@ public class RemoteView extends Composite implements RemotePresenter.View {
 	public RemoteView() {
 		initWidget(uiBinder.createAndBindUi(this));
 
-		forward.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowUp()).getElement());
+		forward.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowUp()).getElement());
 		forward.addStyleName(style.remoteButton());
-		left.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowLeft()).getElement());	
+		left.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowLeft()).getElement());
 		left.addStyleName(style.remoteButton());
-		stop.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowStop()).getElement());	
+		stop.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowStop()).getElement());
 		stop.addStyleName(style.remoteButton());
-		right.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowRight()).getElement());	
+		right.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowRight()).getElement());
 		right.addStyleName(style.remoteButton());
-		reverse.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowDown()).getElement());	
+		reverse.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowDown()).getElement());
 		reverse.addStyleName(style.remoteButton());
-		dummy1.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowDown()).getElement());	
+		dummy1.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowDown()).getElement());
 		dummy1.addStyleName(style.remoteButton());
 		dummy1.addStyleName(style.hidden());
-		dummy2.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowDown()).getElement());	
+		dummy2.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowDown()).getElement());
 		dummy2.addStyleName(style.remoteButton());
 		dummy2.addStyleName(style.hidden());
-		dummy3.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowDown()).getElement());	
+		dummy3.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowDown()).getElement());
 		dummy3.addStyleName(style.remoteButton());
 		dummy3.addStyleName(style.hidden());
 		
-		cutter_on.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowPlus()).getElement());	
+		cutter_on.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowPlus()).getElement());
 		cutter_on.addStyleName(style.remoteButton());
-		cutter_of.getElement().appendChild(new Image(Resources.RESOURCE.stripArrowMinus()).getElement());	
+		cutter_of.getElement().appendChild(new Image(PurpleMowResources.RESOURCE.stripArrowMinus()).getElement());
 		cutter_of.addStyleName(style.remoteButton());
 	}
 

@@ -15,8 +15,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
 
-import android.util.Log;
-
+import se.purplescout.purplemow.onboard.shared.log.dto.LogcatFilterDTO;
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import se.purplescout.purplemow.onboard.web.WebServer.Request;
 import se.purplescout.purplemow.onboard.web.service.log.LogService;
@@ -25,6 +24,7 @@ import se.purplescout.purplemow.onboard.web.service.remote.RemoteService.Directi
 import se.purplescout.purplemow.onboard.web.service.schedule.ScheduleService;
 import se.purplescout.purplemow.onboard.web.thirdparty.NanoHTTPD;
 import se.purplescout.purplemow.onboard.web.thirdparty.NanoHTTPD.Response;
+import android.util.Log;
 
 public class RpcDispatcher {
 
@@ -96,8 +96,12 @@ public class RpcDispatcher {
 				String suffix = request.getUri().replaceFirst("/log", "");
 
 				if (suffix.equals("/getLogcat")) {
-					InputStream logcat = logService.getLogcatAsHTML();
-					return new Response(NanoHTTPD.HTTP_OK, NanoHTTPD.MIME_HTML, logcat);
+					String content = request.getParms().getProperty("content");
+					ObjectMapper mapper = new ObjectMapper();
+					List<LogcatFilterDTO> dtos = mapper.readValue(content, new TypeReference<List<LogcatFilterDTO>>() { });
+					InputStream response = logService.getLogcatAsJSON(dtos);
+					
+					return new Response(NanoHTTPD.HTTP_OK, "application/json", response);
 				}
 				if (suffix.equals("/logcat.csv")) {
 					InputStream logcat = logService.getLogcat();
@@ -131,16 +135,16 @@ public class RpcDispatcher {
 				}
 			}
 		} catch (JsonParseException e) {
-			Log.e(getClass().getName(), e.getMessage(), e);
+			Log.e(getClass().getSimpleName(), e.getMessage(), e);
 			return new Response(NanoHTTPD.HTTP_BADREQUEST, NanoHTTPD.MIME_PLAINTEXT, "400 Invalid argument");
 		} catch (JsonMappingException e) {
-			Log.e(getClass().getName(), e.getMessage(), e);
+			Log.e(getClass().getSimpleName(), e.getMessage(), e);
 			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
 		} catch (IOException e) {
-			Log.e(getClass().getName(), e.getMessage(), e);
+			Log.e(getClass().getSimpleName(), e.getMessage(), e);
 			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
 		} catch (Exception e) {
-			Log.e(getClass().getName(), e.getMessage(), e);
+			Log.e(getClass().getSimpleName(), e.getMessage(), e);
 			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
 		}
 

@@ -19,24 +19,24 @@ public class PurpleMowSqliteOpenHelper extends OrmLiteSqliteOpenHelper {
 
 	public PurpleMowSqliteOpenHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		Log.i(PurpleMowSqliteOpenHelper.class.getName(), "constructor");
+		Log.i(PurpleMowSqliteOpenHelper.class.getSimpleName(), "constructor");
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db, ConnectionSource conn) {
-		Log.i(PurpleMowSqliteOpenHelper.class.getName(), "onCreate");
+		Log.i(PurpleMowSqliteOpenHelper.class.getSimpleName(), "onCreate");
 		try {
 			TableUtils.createTable(conn, ScheduleEvent.class);
 			MigrationScript.insertData(db);
 		} catch (SQLException e) {
-			Log.e(getClass().getName(), e.getMessage(), e);
+			Log.e(getClass().getSimpleName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, ConnectionSource conn, int currentVersion, int targetVersion) {
-		Log.i(PurpleMowSqliteOpenHelper.class.getName(), "onUpgrade");
+		Log.i(PurpleMowSqliteOpenHelper.class.getSimpleName(), "onUpgrade");
 		MigrationScript.execute(db, conn, currentVersion);
 	}
 }

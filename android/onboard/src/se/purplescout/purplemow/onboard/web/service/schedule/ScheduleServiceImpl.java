@@ -84,7 +84,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 				scheduleEntryDAO.update(entity);
 				changed = true;
 			} else {
-				Log.e(this.getClass().getName(), "Invalid entity not persisted");
+				Log.e(this.getClass().getSimpleName(), "Invalid entity not persisted");
 			}
 		}
 		if (changed) {
@@ -99,7 +99,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 		for (ScheduleEvent event : events) {
 			if (event.getInterval() == null || event.getInterval() != RecurringInterval.WEEKLY) {
-				Log.w(this.getClass().getName(), "Only weekly events are supported");
+				Log.w(this.getClass().getSimpleName(), "Only weekly events are supported");
 				continue;
 			}
 			if (!event.isActive()) {
@@ -138,7 +138,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			val = cal.getTime().getTime() - new Date().getTime();
 		}
 
-		Log.i(this.getClass().getName(), "Start will occur in " + val + " millis");
+		Log.i(this.getClass().getSimpleName(), "Start will occur in " + val + " millis");
 		return cal.getTime().getTime() - new Date().getTime();
 	}
 
@@ -161,7 +161,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			val = cal.getTime().getTime() - new Date().getTime();
 		}
 
-		Log.i(this.getClass().getName(), "Stop will occur in " + val + " millis");
+		Log.i(this.getClass().getSimpleName(), "Stop will occur in " + val + " millis");
 		return val;
 	}
 
@@ -170,7 +170,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 			@Override
 			public void run() {
-				Log.i(ScheduleService.class.getName(), "Stop event");
+				Log.i(ScheduleService.class.getSimpleName(), "Stop event");
 				motorrFSM.queueEvent(new MotorFSMEvent(EventType.STOP));
 				scheduleNextStopMowEvent(event);
 			}
@@ -182,7 +182,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 			@Override
 			public void run() {
-				Log.i(ScheduleService.class.getName(), "Start event");
+				Log.i(ScheduleService.class.getSimpleName(), "Start event");
 				motorrFSM.queueEvent(new MotorFSMEvent(EventType.MOVE_FWD, Constants.FULL_SPEED));
 				scheduleNextStartMowEvent(event);
 			}

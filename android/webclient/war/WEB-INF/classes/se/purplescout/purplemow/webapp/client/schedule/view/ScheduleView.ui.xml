@@ -1,28 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c='urn:import:com.google.gwt.user.cellview.client'>
+	<ui:with field='res' type='se.purplescout.purplemow.webapp.client.resources.PurpleMowResources' />
 	<ui:style type="se.purplescout.purplemow.webapp.client.schedule.view.ScheduleView.Style">
-		.box {
-			border: 1px solid #d7d7d7;
-			border-radius: 5px;
-			padding: 20px;
-		}
-		
-		.box h1 {
-			margin: 0 0 10px 10px;
-			color: #4B4B4B;
-			font-size: 22px;
-			line-height: 24px;
-			font-weight: normal;
-		}
-		
-		.box h2 {
-			margin: 0 0 10px 10px;
-			color: #4B4B4B;
-			font-size: 16px;
-			line-height: 20px;
-			font-weight: normal;
-		}
-		
 		table {
 			border-collapse: collapse;
 			border-spacing: 2px;
@@ -82,7 +61,7 @@
 	</ui:style>
 	<g:HTMLPanel>
 		<h1>Schedule</h1>
-		<g:HTMLPanel styleName="{style.box}" ui:field="panel">
+		<g:HTMLPanel styleName="{res.style.box}" ui:field="panel">
 			<g:FlexTable ui:field="table" />
 
 			<g:FlowPanel>

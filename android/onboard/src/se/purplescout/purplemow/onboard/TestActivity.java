@@ -79,6 +79,7 @@ public class TestActivity extends Activity {
 		try {
 			mainFSM = new MainFSM(logCallback);
 			motorFSM = new MotorFSM(comStream, logCallback);
+			mainFSM.setMotorFSM(motorFSM);
 			motorFSM.setMainFSM(mainFSM);
 			scheduler = Executors.newScheduledThreadPool(1);
 			sensorReader = new SensorReader(comStream);
@@ -98,10 +99,10 @@ public class TestActivity extends Activity {
 			new WebServer(8080, this, dispatcher);
 			scheduleService.initScheduler();
 		} catch (IOException e) {
-			Log.e(this.getClass().getName(), e.getMessage(), e);
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (SQLException e) {
-			Log.e(this.getClass().getName(), e.getMessage(), e);
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}

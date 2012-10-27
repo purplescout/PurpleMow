@@ -1,6 +1,7 @@
 package se.purplescout.purplemow.webapp.client;
 
 import se.purplescout.purplemow.webapp.client.remote.place.RemotePlace;
+import se.purplescout.purplemow.webapp.client.resources.PurpleMowResources;
 
 import com.google.gwt.activity.shared.ActivityManager;
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -29,9 +30,11 @@ public class PurpleMowEntryPoint extends Composite implements EntryPoint {
 	PurpleMowViewUIBinder uiBinder = GWT.create(PurpleMowViewUIBinder.class);
 
 	@UiField SimplePanel menu;
+	@UiField SimplePanel top;
 	@UiField SimplePanel center;
 
 	public PurpleMowEntryPoint() {
+		PurpleMowResources.RESOURCE.style().ensureInjected();
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
@@ -43,12 +46,15 @@ public class PurpleMowEntryPoint extends Composite implements EntryPoint {
 		PlaceHistoryHandler historyHandler = new PlaceHistoryHandler(historyMapper);
 		
 		ActivityMapper menuActivityMapper = new MenuActivityMapper(historyMapper);
+		ActivityMapper topActivityMapper = new TopActivityMapper();
 		ActivityMapper centerActivityMapper = new CenterActivityMapper();
 
 		ActivityManager menuActivityManager = new ActivityManager(menuActivityMapper, eventBus);
+		ActivityManager topActivityManager = new ActivityManager(topActivityMapper, eventBus);
 		ActivityManager centerActivityManager = new ActivityManager(centerActivityMapper, eventBus);
 
 		menuActivityManager.setDisplay(menu);
+		topActivityManager.setDisplay(top);
 		centerActivityManager.setDisplay(center);
 		
 		historyHandler.register(placeController, eventBus, new RemotePlace());

@@ -108,7 +108,7 @@ public class SensorReader extends Thread {
 		} catch (IOException e) {
 			// Prevents flooding the log
 			if (thrownExceptions < 2) {
-				Log.e(this.getClass().getName(), e.getMessage(), e);
+				Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 				thrownExceptions++;
 			}
 		}
@@ -138,7 +138,7 @@ public class SensorReader extends Thread {
 		} catch (IOException e) {
 			// Prevents flooding the log
 			if (thrownExceptions < 2) {
-				Log.e(this.getClass().getName(), e.getMessage(), e);
+				Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 				thrownExceptions++;
 			}
 		}

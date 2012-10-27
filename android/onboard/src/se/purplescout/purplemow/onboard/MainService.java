@@ -65,7 +65,7 @@ public class MainService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		Log.d(this.getClass().getName(), "onHandleIntent");
+		Log.d(this.getClass().getSimpleName(), "onHandleIntent");
 		UsbManager usbManager = UsbManager.getInstance(getApplicationContext());
 
 		usbDetachedReceiver = new BroadcastReceiver() {
@@ -79,14 +79,14 @@ public class MainService extends IntentService {
 		
 		UsbAccessory accessory = UsbManager.getAccessory(intent);
 		if (accessory == null) {
-			Log.e(this.getClass().getName(), "UsbAccessory is null");
+			Log.e(this.getClass().getSimpleName(), "UsbAccessory is null");
 			throw new RuntimeException("UsbAccessory is null");
 		} else {
-			Log.d(this.getClass().getName(), "Created UsbAccessory " + accessory.getDescription() + ", " + accessory.getManufacturer());
+			Log.d(this.getClass().getSimpleName(), "Created UsbAccessory " + accessory.getDescription() + ", " + accessory.getManufacturer());
 		}
 		ParcelFileDescriptor fileDescriptor = usbManager.openAccessory(accessory);
 		if (fileDescriptor == null) {
-			Log.e(this.getClass().getName(), "ParcelFileDescriptor is null");
+			Log.e(this.getClass().getSimpleName(), "ParcelFileDescriptor is null");
 			throw new RuntimeException("ParcelFileDescriptor is null");
 		}
 
@@ -95,7 +95,7 @@ public class MainService extends IntentService {
 		FileOutputStream fileOutputStream = new FileOutputStream(fd);
 
 		comStream = new UsbComStream(fileInputStream, fileOutputStream);
-		Log.d(this.getClass().getName(), "Created usb stream: " + comStream.toString());
+		Log.d(this.getClass().getSimpleName(), "Created usb stream: " + comStream.toString());
 
 		setupNotification();
 		setupContext();
@@ -124,7 +124,7 @@ public class MainService extends IntentService {
 	}
 
 	private void setupContext() {
-		Log.d(this.getClass().getName(), "Startup");
+		Log.d(this.getClass().getSimpleName(), "Startup");
 
 		LogCallback logCallback = new LogCallback() {
 
@@ -144,7 +144,7 @@ public class MainService extends IntentService {
 		motorFSM.setMainFSM(mainFSM);
 		sensorReader.setMainFSM(mainFSM);
 
-		Log.d(this.getClass().getName(), "Starting FSM");
+		Log.d(this.getClass().getSimpleName(), "Starting FSM");
 		mainFSM.start();
 		motorFSM.start();
 		sensorReader.start();
@@ -162,10 +162,10 @@ public class MainService extends IntentService {
 			webServer = new WebServer(8080, this, dispatcher);
 			scheduleService.initScheduler();
 		} catch (IOException e) {
-			Log.e(this.getClass().getName(), e.getMessage(), e);
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (SQLException e) {
-			Log.e(this.getClass().getName(), e.getMessage(), e);
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -173,7 +173,7 @@ public class MainService extends IntentService {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.d(this.getClass().getName(), "Destroy");
+		Log.d(this.getClass().getSimpleName(), "Destroy");
 		
 		unregisterReceiver(usbDetachedReceiver);
 		

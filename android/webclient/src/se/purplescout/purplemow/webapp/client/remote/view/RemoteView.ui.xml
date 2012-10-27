@@ -1,29 +1,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui">
-	<ui:with field='res' type='se.purplescout.purplemow.webapp.client.resource.Resources' />
+	<ui:with field='res' type='se.purplescout.purplemow.webapp.client.resources.PurpleMowResources' />
 	<ui:style type="se.purplescout.purplemow.webapp.client.remote.view.RemoteView.Style">
-		.box {
-			border: 1px solid #d7d7d7;
-			border-radius: 5px;
-			padding: 20px;
-		}
-		
-		.box h1 {
-			margin: 0 0 10px 10px;
-			color: #4B4B4B;
-			font-size: 22px;
-			line-height: 24px;
-			font-weight: normal;
-		}
-		
-		.box h2 {
-			margin: 0 0 10px 10px;
-			color: #4B4B4B;
-			font-size: 16px;
-			line-height: 20px;
-			font-weight: normal;
-		}
-		
 		.leftPanel {
 			float: left;
 		}
@@ -88,7 +66,7 @@
 	</ui:style>
 	<g:HTMLPanel>
 		<h1>Remote</h1>
-		<g:HTMLPanel styleName="{style.box}">
+		<g:HTMLPanel styleName="{res.style.box}">
 			<g:HTMLPanel styleName="{style.leftPanel}">
 				<h2>Mower</h2>
 				<g:HTMLPanel styleName="{style.remoteWrapper}">
