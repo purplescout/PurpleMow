@@ -15,6 +15,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
 
+import android.util.Log;
+
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import se.purplescout.purplemow.onboard.web.WebServer.Request;
 import se.purplescout.purplemow.onboard.web.service.log.LogService;
@@ -129,12 +131,16 @@ public class RpcDispatcher {
 				}
 			}
 		} catch (JsonParseException e) {
+			Log.e(getClass().getName(), e.getMessage(), e);
 			return new Response(NanoHTTPD.HTTP_BADREQUEST, NanoHTTPD.MIME_PLAINTEXT, "400 Invalid argument");
 		} catch (JsonMappingException e) {
+			Log.e(getClass().getName(), e.getMessage(), e);
 			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
 		} catch (IOException e) {
+			Log.e(getClass().getName(), e.getMessage(), e);
 			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
 		} catch (Exception e) {
+			Log.e(getClass().getName(), e.getMessage(), e);
 			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "500 Internal error");
 		}
 

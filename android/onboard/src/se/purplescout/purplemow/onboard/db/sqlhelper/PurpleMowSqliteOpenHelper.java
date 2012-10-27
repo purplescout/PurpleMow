@@ -29,7 +29,7 @@ public class PurpleMowSqliteOpenHelper extends OrmLiteSqliteOpenHelper {
 			TableUtils.createTable(conn, ScheduleEvent.class);
 			MigrationScript.insertData(db);
 		} catch (SQLException e) {
-			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
+			Log.e(getClass().getName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}

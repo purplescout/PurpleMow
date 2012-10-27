@@ -63,7 +63,7 @@ public class WebServer extends NanoHTTPD {
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Properties files) {
 		if (uri.startsWith(RPC_ROOT)) {
-			Log.i(this.getClass().getCanonicalName(), "Received remote procedure call: " + uri);
+			Log.i(this.getClass().getName(), "Received remote procedure call: " + uri);
 			return dispatcher.dispatch(new Request(uri.replaceFirst(RPC_ROOT, ""), method, header, parms, files));
 		} else {
 			return serveFile(uri, header, new File("dummy"), false);
@@ -87,10 +87,10 @@ public class WebServer extends NanoHTTPD {
 			InputStream fileStream = context.getAssets().open(root + uri);
 			return new Response(HTTP_OK, mimeType, fileStream);
 		} catch (FileNotFoundException e) {
-			Log.i(this.getClass().getCanonicalName(), e.getMessage());
+			Log.i(this.getClass().getName(), e.getMessage());
 			return new Response(HTTP_NOTFOUND, MIME_PLAINTEXT, "404 File not found");
 		} catch (IOException e) {
-			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+			Log.e(this.getClass().getName(), e.getMessage(), e);
 			return new Response(HTTP_NOTFOUND, MIME_PLAINTEXT, e.getMessage());
 		}
 	}

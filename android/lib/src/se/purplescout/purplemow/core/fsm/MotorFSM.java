@@ -31,7 +31,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		try {
 			stopMotors();
 		} catch (IOException e) {
-			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+			Log.e(this.getClass().getName(), e.getMessage(), e);
 		} finally {
 			super.shutdown();
 		}
@@ -97,7 +97,7 @@ public class MotorFSM extends AbstractFSM<MotorFSMEvent> {
 		} catch (IOException e) {
 			// Prevents flooding the log
 			if (thrownExceptions < 2) {
-				Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+				Log.e(this.getClass().getName(), e.getMessage(), e);
 				thrownExceptions++;
 			}
 		}

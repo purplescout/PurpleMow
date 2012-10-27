@@ -22,7 +22,7 @@ public abstract class AbstractFSM<T extends FSMEvent<?, T>> extends Thread {
 				handleEvent(event);
 			}
 		} catch (InterruptedException e) {
-			Log.e(getClass().getCanonicalName(), e.getMessage(), e);
+			Log.e(getClass().getName(), e.getMessage(), e);
 		}
 	}
 

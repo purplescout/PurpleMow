@@ -98,10 +98,10 @@ public class TestActivity extends Activity {
 			new WebServer(8080, this, dispatcher);
 			scheduleService.initScheduler();
 		} catch (IOException e) {
-			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+			Log.e(this.getClass().getName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (SQLException e) {
-			Log.e(this.getClass().getCanonicalName(), e.getMessage(), e);
+			Log.e(this.getClass().getName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
