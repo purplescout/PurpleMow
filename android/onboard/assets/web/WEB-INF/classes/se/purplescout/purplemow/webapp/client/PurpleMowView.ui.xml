@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c='urn:import:com.google.gwt.user.cellview.client'>
+	<ui:style>
+		#header_wrap {
+			background: url(images/purple_header_bg.gif) repeat-x scroll 0 0;
+			height: 250px
+		}
+		
+		#header_bg {
+			margin: 0 auto;
+			background: url(images/purple_header_bg_graphic.gif) no-repeat scroll
+				center center
+		}
+		
+		#header {
+			width: 980px;
+			height: 250px;
+			margin: 0 auto;
+			position: relative;
+		}
+		
+		#logo {
+			padding: 150px 0 0 0;
+			color: white;
+			font-size: 34px;
+			font-weight: bold
+		}
+		
+		#content_wrapper {
+			background: url(images/content_repeat.jpg) repeat-x
+		}
+		
+		#content {
+			margin: 0 auto;
+			width: 980px;
+			padding-top: 25px;
+		}
+		
+		#content h1 {
+			margin: 0 0 10px 10px;
+			color: #4B4B4B;
+			font-size: 22px;
+			line-height: 24px;
+			font-weight: normal;
+		}
+	</ui:style>
+	<g:HTMLPanel>
+		<div id="header_wrap">
+			<div id="header_bg">
+				<div id="header">
+					<h1 id="logo">Purple Mow</h1>
+					<g:SimplePanel ui:field="menu" />
+				</div>
+			</div>
+		</div>
+		<div id="content_wrapper">
+			<div id="content">
+				<g:SimplePanel ui:field="top" />
+				<g:SimplePanel ui:field="center" />
+			</div>
+		</div>
+	</g:HTMLPanel>
+</ui:UiBinder>
