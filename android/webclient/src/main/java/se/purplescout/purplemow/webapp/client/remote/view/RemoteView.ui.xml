@@ -1,0 +1,106 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:with field='res' type='se.purplescout.purplemow.webapp.client.resources.PurpleMowResources' />
+	<ui:style type="se.purplescout.purplemow.webapp.client.remote.view.RemoteView.Style">
+		.leftPanel {
+			float: left;
+		}
+
+		.rightPanel {
+			float: right;
+			margin-right: 550px;
+		}
+
+		.remoteWrapper {
+			padding-left: 50px;
+		}
+
+		.remoteWrapper .center {
+			margin: 5px 0 5px 0
+		}
+
+		.button {
+			-moz-box-shadow: inset 0px 1px 0px 0px #9e70e0;
+			-webkit-box-shadow: inset 0px 1px 0px 0px #9e70e0;
+			box-shadow: inset 0px 1px 0px 0px #9e70e0;
+			background: -webkit-gradient(linear, literal("left top"),
+				literal("left bottom"), color-stop(0.05, #5b4478),
+				color-stop(1, #876fa8) );
+			background: -moz-linear-gradient(center top, #5b4478 5%, #876fa8 100%);
+			background-color: #5b4478;
+			-moz-border-radius: 6px;
+			-webkit-border-radius: 6px;
+			border-radius: 6px;
+			border: 1px solid #553d75;
+			display: inline-block;
+			color: #ffffff;
+			font-size: 15px;
+			font-weight: bold;
+			padding: 6px 24px;
+			text-decoration: none;
+			text-shadow: 1px 1px 0px #9b14b3;
+			-moz-box-shadow: inset 0px 1px 0px 0px #9e70e0;
+			padding: 0;
+		}
+
+		.button:HOVER {
+			background: -webkit-gradient(linear, literal("left top"),
+				literal("left bottom"), color-stop(0.05, #876fa8),
+				color-stop(1, #5b4478) );
+			background: -moz-linear-gradient(center top, #876fa8 5%, #5b4478 100%);
+		}
+
+		.button:ACTIVE {
+			position: relative;
+			top: 1px;
+		}
+
+		.hidden {
+			visibility: hidden;
+		}
+
+		.remoteButton {
+			width: 50px;
+			height: 50px;
+		}
+	</ui:style>
+	<g:HTMLPanel>
+		<h1>Remote</h1>
+		<g:HTMLPanel styleName="{res.style.box}">
+			<g:HTMLPanel styleName="{style.leftPanel}">
+				<h2>Mower</h2>
+				<g:HTMLPanel styleName="{style.remoteWrapper}">
+					<g:HTMLPanel>
+						<g:Button styleName="{style.button}" ui:field="dummy1" />
+						<g:Button styleName="{style.button}" ui:field="forward" />
+					</g:HTMLPanel>
+					<g:HTMLPanel styleName="{style.center}">
+						<g:Button styleName="{style.button}" ui:field="left" />
+						<g:Button styleName="{style.button}" ui:field="stop" />
+						<g:Button styleName="{style.button}" ui:field="right" />
+					</g:HTMLPanel>
+					<g:HTMLPanel>
+						<g:Button styleName="{style.button}" ui:field="dummy2" />
+						<g:Button styleName="{style.button}" ui:field="reverse" />
+					</g:HTMLPanel>
+				</g:HTMLPanel>
+				<div style="clear: both;" />
+			</g:HTMLPanel>
+			<g:HTMLPanel styleName="{style.rightPanel}">
+				<h2>Cutter</h2>
+				<g:HTMLPanel styleName="{style.remoteWrapper}">
+					<g:HTMLPanel>
+						<g:HTMLPanel>
+							<g:Button styleName="{style.button}" ui:field="dummy3" />
+						</g:HTMLPanel>
+						<g:HTMLPanel styleName="{style.center}">
+							<g:Button styleName="{style.button}" ui:field="cutter_of" />
+							<g:Button styleName="{style.button}" ui:field="cutter_on" />
+						</g:HTMLPanel>
+					</g:HTMLPanel>
+				</g:HTMLPanel>
+			</g:HTMLPanel>
+			<div style="clear: both;" />
+		</g:HTMLPanel>
+	</g:HTMLPanel>
+</ui:UiBinder>

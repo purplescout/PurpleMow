@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>se.purplescout.purplemow</groupId>
+    <artifactId>android-sdk</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>android-sdk</name>
+
+    <properties>
+        <!-- absolute path to the Android SDK install as defined in the ANDROID_HOME environment variable -->
+        <android.sdk.path>${env.ANDROID_HOME}/</android.sdk.path>
+
+        <!-- The repository server for your android artifacts (e.g. Nexus instance in this example)-->
+        <repo.id>android.repo</repo.id>
+        <repo.url>http://localhost:8081/nexus/content/repositories/thirdparty</repo.url>
+        <!-- you need to provide username and password for the server in your settings.xml, see documentation
+            for the maven-deploy-plugin -->
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.7</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>1.0-alpha-2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <modules>
+        <module>android-10</module>
+        <module>google-apis-10</module>
+    </modules>
+</project>

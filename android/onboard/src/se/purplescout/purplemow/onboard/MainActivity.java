@@ -1,9 +1,6 @@
 package se.purplescout.purplemow.onboard;
 
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
-
-import se.purplescout.R;
+import se.purplescout.purplemow.R;
 import se.purplescout.purplemow.core.LogMessage;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -14,6 +11,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import com.android.future.usb.UsbManager;
 
 public class MainActivity extends Activity {
 	

@@ -1,0 +1,175 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>purplemow-onboard</artifactId>
+	<packaging>apk</packaging>
+	<name>purplemow-onboard</name>
+
+	<parent>
+		<groupId>se.purplescout.purplemow</groupId>
+		<artifactId>purplemow</artifactId>
+		<version>1.0</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>se.purplescout.purplemow</groupId>
+			<artifactId>purplemow-core</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>se.purplescout.purplemow</groupId>
+			<artifactId>purplemow-shared</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<!-- Android -->
+		<dependency>
+			<groupId>android</groupId>
+			<artifactId>android</artifactId>
+			<version>10_r2</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.android.future</groupId>
+			<artifactId>usb</artifactId>
+			<version>10_r2</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<!-- Jackson -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-lgpl</artifactId>
+			<version>1.9.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-lgpl</artifactId>
+			<version>1.9.9</version>
+		</dependency>
+
+		<!-- DB -->
+		<dependency>
+			<groupId>javax.persistence</groupId>
+			<artifactId>persistence-api</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.j256.ormlite</groupId>
+			<artifactId>ormlite-android</artifactId>
+			<version>4.41</version>
+		</dependency>
+		<dependency>
+			<groupId>com.j256.ormlite</groupId>
+			<artifactId>ormlite-core</artifactId>
+			<version>4.41</version>
+		</dependency>
+
+	</dependencies>
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.jayway.maven.plugins.android.generation2</groupId>
+					<artifactId>android-maven-plugin</artifactId>
+					<version>3.4.0</version>
+
+					<extensions>true</extensions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.5.1</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>se.purplescout.purplemow</groupId>
+									<artifactId>purplemow-webclient</artifactId>
+									<version>1.0</version>
+									<type>war</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${basedir}/assets/web</outputDirectory>
+									<destFileName>optional-new-name.jar</destFileName>
+									<includes>purplemow/,purplemow.html</includes>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- See http://code.google.com/p/maven-android-plugin/ for info -->
+				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
+				<artifactId>android-maven-plugin</artifactId>
+				<configuration>
+					<sdk>
+						<path>${env.ANDROID_HOME}</path>
+						<platform>2.3.3</platform>
+					</sdk>
+				</configuration>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<!-- Use profile 'deploy' to install and run the application on an android device -->
+		<profile>
+			<id>deploy</id>
+<!-- 			<activation> -->
+<!-- 				<property> -->
+<!-- 					<name>environment.type</name> -->
+<!-- 					<value>dev</value> -->
+<!-- 				</property> -->
+<!-- 			</activation> -->
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.jayway.maven.plugins.android.generation2</groupId>
+						<artifactId>android-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>deploy</goal>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<sdk>
+								<path>${env.ANDROID_HOME}</path>
+								<platform>2.3.3</platform>
+							</sdk>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
