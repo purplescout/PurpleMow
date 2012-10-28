@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>android-sdk-android-10</artifactId>
+    <packaging>pom</packaging>
+    <name>android-sdk-android-10</name>
+
+    <parent>
+        <groupId>se.purplescout.purplemow</groupId>
+        <artifactId>android-sdk</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <properties>
+    	<jar.path>${env.ANDROID_HOME}/platforms/android-10/android.jar</jar.path>
+    	<platform.android.groupid>android</platform.android.groupid>
+    	<platform.android.artifactid>android</platform.android.artifactid>
+    	<jar.version>10_r2</jar.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals><goal>install-file</goal></goals>
+                        <configuration>
+                       		<groupId>${platform.android.groupid}</groupId>
+							<artifactId>${platform.android.artifactid}</artifactId>
+							<version>${jar.version}</version>
+                            <packaging>jar</packaging>
+                            <file>${jar.path}</file>
+                            <javadoc>${javadoc.path}</javadoc>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>a</id>
+                        <phase>deploy</phase>
+                        <goals><goal>deploy-file</goal></goals>
+                        <configuration>
+                            <groupId>${platform.android.groupid}</groupId>
+                            <artifactId>${platform.android.artifactid}</artifactId>
+                            <packaging>jar</packaging>
+                            <version>${jar.version}</version>
+                            <file>${jar.path}</file>
+                            <url>${repo.url}</url>
+                            <repositoryId>${repo.id}</repositoryId>
+                            <javadoc>${javadoc.path}</javadoc>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

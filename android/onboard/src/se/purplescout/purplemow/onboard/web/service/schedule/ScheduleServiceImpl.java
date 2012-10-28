@@ -15,7 +15,7 @@ import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent;
-import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent.RecurringInterval;
+import se.purplescout.purplemow.onboard.shared.schedule.dto.RecurringInterval;
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import android.util.Log;
 

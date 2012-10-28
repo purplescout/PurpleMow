@@ -1,6 +1,6 @@
 package se.purplescout.purplemow.onboard;
 
-import se.purplescout.R;
+import se.purplescout.purplemow.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;

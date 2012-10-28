@@ -1,7 +1,3 @@
-Follow the Project on the Blog:
-
-http://www.purplescout.se/blog/category/purplemow
-
 Build instructions for the Android project.
 
 Download the latest Android SDK from http://developer.android.com/sdk/index.html following the instructions there.
@@ -12,4 +8,6 @@ Set up the environment variable ANDROID_HOME to contain the absolute folder you 
 
 Run the command 'mvn clean install' to build the entire project.
 
-Run the command 'mvn clean install -P deploy' to deploy and start the application on an emulator or a connected device.
+Run the command 'mvn clean install -P deploy' to deploy and start the application on an emulator or a connected device. 
+
+
