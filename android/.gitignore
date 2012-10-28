@@ -16,10 +16,13 @@ gen/
 local.properties
 
 # Eclipse project files
-#.classpath
-#.project
+.classpath
+.project
+.settings
 
 gwt-unitCache/
 output/
 
 webclient/war/purplemow/sc/
+
+target

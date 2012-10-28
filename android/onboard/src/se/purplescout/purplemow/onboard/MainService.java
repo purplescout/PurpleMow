@@ -113,7 +113,7 @@ public class MainService extends IntentService {
 	private void setupNotification() {
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-		Notification notification = new Notification(se.purplescout.R.drawable.ic_statusbar, "Purple Mow", System.currentTimeMillis());
+		Notification notification = new Notification(se.purplescout.purplemow.R.drawable.ic_statusbar, "Purple Mow", System.currentTimeMillis());
 		Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);

@@ -1,0 +1,11 @@
+Build instructions for the Android project.
+
+Download the latest Android SDK from http://developer.android.com/sdk/index.html following the instructions there.
+
+From Android SDK Manager install Android SDK Platform API 10 and Google APIs 10.
+
+Set up the environment variable ANDROID_HOME to contain the absolute folder you just installed the SDK to.
+
+Run the command 'mvn clean install' to build the entire project.
+
+Run the command 'mvn clean install -P deploy' to deploy and start the application on an emulator or a connected device.

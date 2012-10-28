@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c='urn:import:com.google.gwt.user.cellview.client'>
+	<ui:with type="se.purplescout.purplemow.webapp.client.resources.PurpleMowResources" field="res" />
+	<g:HTMLPanel>
+		<g:HTMLPanel styleName="{res.style.headerWrap}">
+			<g:HTMLPanel styleName="{res.style.headerBg}">
+				<g:HTMLPanel styleName="{res.style.header}">
+					<g:Label styleName="{res.style.logo}">Purple Mow</g:Label>
+					<g:SimplePanel ui:field="menu" />
+				</g:HTMLPanel>
+			</g:HTMLPanel>
+		</g:HTMLPanel>
+		<g:HTMLPanel styleName="{res.style.contentWrapper}">
+			<g:HTMLPanel styleName="{res.style.content}">
+				<g:SimplePanel ui:field="top" />
+				<g:SimplePanel ui:field="center" />
+			</g:HTMLPanel>
+		</g:HTMLPanel>
+	</g:HTMLPanel>
+</ui:UiBinder>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c='urn:import:com.google.gwt.user.cellview.client'>
+	<ui:style type="se.purplescout.purplemow.webapp.client.menu.view.MenuView.Style">
+		.active {
+			text-decoration: underline;
+		}
+		.menu {
+			color: white
+		}
+
+		.menu ul {
+			list-style: none;
+			padding: 0;
+		}
+
+		.menu li {
+			display: inline-block;
+			margin: 0 50px 0 0;
+		}
+
+		.menu li a {
+			color: white;
+			text-decoration: none;
+		}
+
+		.menu li a:hover {
+			text-decoration: underline;
+		}
+	</ui:style>
+	<g:HTMLPanel ui:field="menu" styleName="{style.menu}"/>
+</ui:UiBinder>
