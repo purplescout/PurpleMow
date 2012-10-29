@@ -109,7 +109,7 @@ static error_code dcn_start(void* data)
  *
  * @ingroup dcn
  *
- * @param[out] buffer   Returend value
+ * @param[out] buffer   Returned value
  *
  * @return              Success status
  */

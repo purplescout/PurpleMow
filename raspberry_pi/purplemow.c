@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
 
 #include "io.h"
 #include "auto_management.h"
@@ -17,7 +20,7 @@
 #include "test.h"
 #include "test_thread.h"
 
-#define DO_ARGS     0
+#define DO_ARGS     1
 #define DO_I2C      1
 #define DO_COMM     1
 #define DO_DCN      1
@@ -31,6 +34,9 @@
 // Set this to 1 to enable debug of main()
 #define DEBUG_MAIN  0
 
+// Default daemonize value
+#define DAEMON 0
+
 /**
  * @defgroup purplemow PurpleMow Main
  * PurpleMow main function.
@@ -42,10 +48,74 @@
  * @ingroup purplemow
  */
 struct purplemow {
-    int                     debug;
+    int             debug;
+    int	            daemon;
+    pid_t           pid;
+    pid_t           sid;
 };
 
-static struct purplemow this = { .debug = DEBUG_MAIN };
+static struct purplemow this = { .debug = DEBUG_MAIN,
+				 .daemon = DAEMON };
+
+
+/** Daemonize
+ *
+ * @ingroup purplemow
+ *
+ */
+
+void daemonize()
+{
+    int i;
+
+    this.pid = fork();
+
+    /* No proper pid, fail */
+    if( this.pid < 0 )
+    {
+	exit(EXIT_FAILURE);
+    }    
+
+    /* Exit parent process */
+    if( this.pid > 0 ) 
+    {
+        exit(EXIT_SUCCESS);
+    }
+
+    umask(0);
+    
+    /* Create new session id, exit if it fails */
+    this.sid = setsid();
+    
+    if( this.sid < 0 )
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    
+    /* Redirect output to /dev/null */
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO); 
+
+    i = open("/dev/null", O_RDWR); //stdin
+    dup(i); //stdout
+    dup(i); //stderr   
+
+    chdir("/");
+}
+
+/** Help function, print command line options
+  @ingroup purplemow
+  @return void
+*/
+void usage()
+{
+	printf("\n"
+		"Usage:\n"
+		"\t -d: Run in background\n"
+		"\t -X: Enable debugging (foreground)\n");
+}
 
 /**
  * Main function, initializes and starts all the modules.
@@ -62,17 +132,43 @@ int main(int argc, char **argv)
     int state;
 
 #if DO_ARGS
-    // args on the command line
-    if ( argc < 2 )
+    int aflag;
+    // Parse args using getopt 
+    while (( aflag = getopt (argc, argv, "dX")) != -1)
     {
-        printf("Wrong\n");
-        exit(0);
+        switch(aflag)
+        {
+            case 'd':
+		// Daemonize
+		this.daemon=1;
+		break;
+            case 'X':
+                //Enable debugging
+                this.debug=1;
+                break;
+            default:
+                usage();
+                exit(1);
+                break;
+        }
     }
+
 #endif // DO_ARGS
 
     /*************
      *  I N I T  *
      *************/
+    if( this.debug )
+    {
+	printf("Forcing foreground debugging\n");
+        this.daemon=0;
+    }
+    
+    if( this.daemon )
+    {
+	//printf("Starting PurpleMow and daemonizing\n");
+        daemonize();
+    }
 
     if ( this.debug )
         printf("Initializing... ");
@@ -158,9 +254,18 @@ int main(int argc, char **argv)
     if ( this.debug )
         printf("OK\n");
 
+    if( this.debug )
+       printf( "Starting mowing... ");
+
     modules_run_phase(phase_MOW);
+
+    if ( this.debug )
+       printf( "OK\n");
+
 
     while ( 1 )
         sleep(10);
+
+    exit(EXIT_SUCCESS);
 }
 
