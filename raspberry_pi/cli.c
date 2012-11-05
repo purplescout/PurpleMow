@@ -73,55 +73,7 @@ error_code cli_init()
     cli_register_command("echo", command_echo);
     cli_register_command("exit", command_exit);
 
-    module_register_to_phase(phase_START, cli_start, NULL);
-
     return err_OK;
-}
-
-/**
- * Start the cli
- *
- * @ingroup cli
- *
- * @return  Success status
- */
-static error_code cli_start(void* data)
-{
-    error_code result;
-
-    result = thread_start(&this.thread, cli_listen);
-
-    if ( FAILURE(result) ) {
-        return result;
-    }
-
-    return err_OK;
-}
-
-/**
- * Handles incoming messages.
- *
- * @ingroup cli
- *
- * @param[in] data  Data to the thread
- *
- * @return          Return value from thread
- */
-static void* cli_listen(void *data)
-{
-    char buffer[BUFFER_SIZE] = { 0 };
-
-    while ( 1 ) {
-        int result;
-        printf("> ");
-        fgets(buffer, sizeof(buffer), stdin);
-
-        result = parse_command(buffer);
-
-        if ( result == err_UNKNOWN_COMMAND ) {
-            printf("Unknown command: %s\n", buffer);
-        }
-    }
 }
 
 /**
@@ -150,73 +102,6 @@ static error_code compare_command(void* data1, void* data2)
     if( status > 0 )
         return err_GREATER_THAN;
     return err_EQUAL;
-}
-
-/**
- * Parse a command and execute registered callback function.
- *
- * @ingroup cli
- *
- * @param[in] command   Command to parse
- *
- * @return              Success status
- */
-static error_code parse_command(char *command)
-{
-    int size;
-    char* args = "";
-    int i;
-    struct cli_item command_item;
-    struct cli_item* item;
-    list_iterator_t iterator;
-    error_code status;
-
-    size = strlen(command);
-
-    // strip off ending white spaces
-    while ( command[size-1] == '\n' ||
-            command[size-1] == '\t' ||
-            command[size-1] == ' ' )
-    {
-        command[size-1] = '\0';
-        size--;
-    }
-
-    if ( strlen(command) == 0 ) {
-        return err_OK;
-    }
-
-    i = 0;
-    while ( command[i] != ' ' ) {
-        i++;
-    }
-
-    if ( i+1 < size ) {
-        command[i] = '\0';
-        args = &command[i+1];
-    }
-
-    snprintf(command_item.command, sizeof(command_item.command), "%s", command);
-
-    list_create_iterator(this.list, &iterator);
-
-    pthread_mutex_lock(&this.list_mutex);
-    list_set_iterator_first(iterator);
-
-    list_find_item(iterator, &command_item, compare_command);
-    pthread_mutex_unlock(&this.list_mutex);
-
-    status = list_get_iterator_data(iterator, (void*)&item);
-
-    list_destroy_iterator(iterator);
-
-    if( status == err_OK ) {
-        item->function(args, printf);
-    } else {
-        return err_UNKNOWN_COMMAND;
-    }
-
-    return err_OK;
 }
 
 /**
@@ -432,5 +317,72 @@ int cli_read_int(char *args)
     }
 
     return value;
+}
+
+/**
+ * Execute registered callback function.
+ *
+ * @ingroup cli
+ *
+ * @param[in] command   Command to execute
+ *
+ * @return              Success status
+ */
+error_code cli_execute_command(char* command)
+{
+    int size;
+    char* args = "";
+    int i;
+    struct cli_item command_item;
+    struct cli_item* item;
+    list_iterator_t iterator;
+    error_code status;
+
+    size = strlen(command);
+
+    // strip off ending white spaces
+    while ( command[size-1] == '\n' ||
+            command[size-1] == '\t' ||
+            command[size-1] == ' ' )
+    {
+        command[size-1] = '\0';
+        size--;
+    }
+
+    if ( strlen(command) == 0 ) {
+        return err_OK;
+    }
+
+    i = 0;
+    while ( command[i] != ' ' ) {
+        i++;
+    }
+
+    if ( i+1 < size ) {
+        command[i] = '\0';
+        args = &command[i+1];
+    }
+
+    snprintf(command_item.command, sizeof(command_item.command), "%s", command);
+
+    list_create_iterator(this.list, &iterator);
+
+    pthread_mutex_lock(&this.list_mutex);
+    list_set_iterator_first(iterator);
+
+    list_find_item(iterator, &command_item, compare_command);
+    pthread_mutex_unlock(&this.list_mutex);
+
+    status = list_get_iterator_data(iterator, (void*)&item);
+
+    list_destroy_iterator(iterator);
+
+    if( status == err_OK ) {
+        item->function(args, printf);
+    } else {
+        return err_UNKNOWN_COMMAND;
+    }
+
+    return err_OK;
 }
 

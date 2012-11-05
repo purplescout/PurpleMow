@@ -16,6 +16,8 @@
 #include "sensors.h"
 #include "modules.h"
 #include "config.h"
+#include "remote_cli.h"
+#include "local_cli.h"
 
 #include "test.h"
 #include "test_thread.h"
@@ -27,6 +29,8 @@
 #define DO_NET      0
 #define DO_SENSORS  1
 #define DO_CONFIG   1
+#define DO_RLOGIN   0
+#define DO_LLOGIN   1
 
 #define DO_TEST          0
 #define DO_TEST_THREADS  0
@@ -177,6 +181,14 @@ int main(int argc, char **argv)
 
     message_init();
     cli_init();
+
+#if DO_LLOGIN
+    local_cli_init();
+#endif
+
+#if DO_RLOGIN
+    remote_cli_init();
+#endif // RLOGIN_H
 
 #if DO_CONFIG
     config_init();

@@ -25,6 +25,8 @@ purplemow_src = purplemow.c \
 				io.c \
 				$(IO_LAYER) \
 				auto_management.c \
+				remote_cli.c \
+				local_cli.c \
 				cli.c \
 				dcn.c \
 				messages.c \
