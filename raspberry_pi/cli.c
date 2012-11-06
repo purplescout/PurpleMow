@@ -354,7 +354,7 @@ error_code cli_execute_command(char* command)
     }
 
     i = 0;
-    while ( command[i] != ' ' ) {
+    while ( i<size && command[i] != ' ' ) {
         i++;
     }
 

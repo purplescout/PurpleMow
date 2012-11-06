@@ -15,9 +15,20 @@ CC = gcc
 ECHO = echo
 RM = rm
 
+ifeq ($(IO_LAYER), )
+  ARCH = $(shell uname -m)
+  ifeq ($(ARCH), armv6l)
+    IO_LAYER = io_i2c.c
+  else
+    IO_LAYER = io_net.c
+  endif
+endif
+
+$(info Building with IO_LAYER=$(IO_LAYER))
+
 # select which io to use
 # IO_LAYER = io_i2c.c
-IO_LAYER = io_net.c
+# IO_LAYER = io_net.c
 # IO_LAYER = io_gpio.c
 
 purplemow_src = purplemow.c \

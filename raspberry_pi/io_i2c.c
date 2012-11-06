@@ -13,7 +13,7 @@
 #include "io.h"
 #include "commands.h"
 
-#define I2C_DEVICE "/dev/i2c-2"
+#define I2C_DEVICE "/dev/i2c-0"
 //#define I2C_DEVICE "/dev/i2c-4"
 #define I2C_ADDRESS 0x35
 
@@ -40,10 +40,15 @@ struct i2c
 {
     int fd;
     struct timeval last_command;
-    int debug;
+    int debug_rx;
+    int debug_tx;
 };
 
-static struct i2c this = { .fd = -1, .debug = 0 };
+#if 1 // NODEBUG
+static struct i2c this = { .fd = -1, .debug_rx = 0, .debug_tx = 0 };
+#else // DEBUG
+static struct i2c this = { .fd = -1, .debug_rx = 1, .debug_tx = 1 };
+#endif
 
 // Private functions
 static error_code io_i2c_start();
@@ -58,8 +63,8 @@ static error_code io_i2c_stop();
  */
 error_code io_transport_init()
 {
-    module_register_to_phase(phase_START, io_i2c_start);
-    module_register_to_phase(phase_STOP, io_i2c_stop);
+    module_register_to_phase(phase_START, io_i2c_start, NULL);
+    module_register_to_phase(phase_STOP, io_i2c_stop, NULL);
     return err_OK;
 }
 
@@ -112,12 +117,26 @@ static error_code command_i2c(char *args, int (*print)(const char *format, ...))
 {
     if ( strcmp("debug", args) == 0 ) {
         print("Enabled i2c debugging\n");
-        this.debug = 1;
+        this.debug_rx = 1;
+        this.debug_tx = 1;
+    } else if ( strcmp("debug rx", args) == 0 ) {
+        print("Enabled i2c (RX) debugging\n");
+        this.debug_rx = 1;
+    } else if ( strcmp("debug tx", args) == 0 ) {
+        print("Enabled i2c (TX) debugging\n");
+        this.debug_tx = 1;
     } else if ( strcmp("nodebug", args) == 0 ) {
         print("Disabled i2c debugging\n");
-        this.debug = 0;
+        this.debug_rx = 0;
+        this.debug_tx = 0;
+    } else if ( strcmp("nodebug rx", args) == 0 ) {
+        print("Disabled i2c (RX) debugging\n");
+        this.debug_rx = 0;
+    } else if ( strcmp("nodebug tx", args) == 0 ) {
+        print("Disabled i2c (TX) debugging\n");
+        this.debug_tx = 0;
     } else {
-        print("Valid arguments: debug, nodebug"
+        print("Valid arguments: debug, nodebug, debug rx, debug tx, nodebug rx nodebug tx"
               "\n");
     }
     return err_OK;
@@ -157,8 +176,8 @@ error_code io_transport_send_command(uint8_t* msg, int length)
 
     res = i2c_smbus_write_block_data(this.fd, CMD_I2C_MAGIC, length, msg);
 
-    if ( this.debug ) {
-        printf("i2c:");
+    if ( this.debug_tx ) {
+        printf("i2c (TX):");
         i = 0;
         while ( i < length ) {
             printf(" %02x", msg[i]);
@@ -187,6 +206,18 @@ error_code io_transport_read_data(uint8_t* msg, int length)
     {
         msg[i] = i2c_smbus_read_byte(this.fd);
         i++;
+    }
+
+    length = i - 1;
+
+    if ( this.debug_rx ) {
+        printf("i2c (RX):");
+        i = 0;
+        while ( i < length ) {
+            printf(" %02x", msg[i]);
+            i++;
+        }
+        printf("\n");
     }
 
     return err_OK;
