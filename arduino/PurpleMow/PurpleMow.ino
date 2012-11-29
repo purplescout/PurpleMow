@@ -20,8 +20,8 @@
 
 #define  RANGE_SENSOR_LEFT      A2
 #define  RANGE_SENSOR_RIGHT     A3
-#define  VOLTAGE_SENSOR         A4
-#define  BWF_SENSOR_RIGHT       A5
+#define  BWF_SENSOR_RIGHT       A4
+#define  VOLTAGE_SENSOR         A5
 #define  BWF_SENSOR_LEFT        A6
 #define  MOIST_SENSOR           A7
 
@@ -50,7 +50,7 @@ int i2c_data;
 int i2c_read_pos;
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     Serial.print("\r\nStart");
     pinMode(MOTOR_RIGHT_PWM, OUTPUT);   // sets the pin as output
     pinMode(MOTOR_LEFT_PWM, OUTPUT);   // sets the pin as output
@@ -224,6 +224,9 @@ void i2c_receive(int bytes)
                 i2c_msg[i] = c;
             }
         }
+        char buff[256];
+        snprintf(buff, sizeof(buff),"\r\nGott!  %02x %02x %02x %02x", i2c_msg[0], i2c_msg[1], i2c_msg[2], i2c_msg[3] );
+        Serial.print(buff);
         i2c_data = process_command(i2c_msg, sizeof(i2c_msg));
         i2c_read_pos = 0;
     }
