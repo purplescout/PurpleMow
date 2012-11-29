@@ -1,29 +1,39 @@
 package se.purplescout.purplemow.onboard;
 
-import com.android.future.usb.UsbManager;
-
 import se.purplescout.R;
 import se.purplescout.purplemow.core.LogMessage;
+import se.purplescout.purplemow.core.fsm.MainFSM;
+import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
+import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
+import se.purplescout.purplemow.onboard.MainService.LocalBinder;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.android.future.usb.UsbManager;
+
 public class MainActivity extends Activity {
 	
 	public static boolean serviceRunning = false;
+	public static boolean batteryLevelLow = false;
 	
 	private static final String ACTION_LOG_MSG = "se.purplescout.purplemow.LOG_MSG";
 	public static final String START_MOWER = "se.purplescout.purplemow.START_MOWER";
 	public static final String STOP_MOWER = "se.purplescout.purplemow.STOP_MOWER";
+    private boolean mBound;
 
 	public interface Display {
 
@@ -55,7 +65,9 @@ public class MainActivity extends Activity {
 
 	BroadcastReceiver logReceiver;
 	BroadcastReceiver usbDetachedReceiver;
+	MainService mainService;
 
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,6 +75,7 @@ public class MainActivity extends Activity {
 		Log.i("PurpleMow", "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ Nu startar det! ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤");
 		display = new MainDisplay(this);
 		bind();
+		bindService(new Intent(this, MainService.class), mConnection, Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
@@ -74,18 +87,28 @@ public class MainActivity extends Activity {
 
 	private void bind() {
 
-		display.getBattLowBtn().setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				 boolean checked = ((CheckBox) buttonView).isChecked();
-				    if(R.id.battLow == buttonView.getId()) {
-					if(checked){
-
-					}
-				    }
-			}
-		});
+//		display.getBattLowBtn().setOnCheckedChangeListener(new OnCheckedChangeListener() {
+//
+//			@Override
+//			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//				 boolean checked = ((CheckBox) buttonView).isChecked();
+//				    if(R.id.battLow == buttonView.getId()) {
+//				    	if(checked){
+//				    		mainService.postEventOnMainFSM(new MainFSMEvent(EventType.BATTERY_LOW));
+//				    	}
+//				    }	
+//
+//			}
+//		});
+//		
+//		display.getBattLowBtn().setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View buttonView) {
+//				mainService.postEventOnMainFSM(new MainFSMEvent(EventType.BATTERY_LOW));
+//			}
+//		});
+//		
 		logReceiver = new BroadcastReceiver() {
 
 			@Override
@@ -134,7 +157,26 @@ public class MainActivity extends Activity {
 		}
 
 	}
+	 /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
 
+		@Override
+        public void onServiceConnected(ComponentName className,
+                IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            LocalBinder binder = (LocalBinder) service;
+            mainService = binder.getService();
+            mBound = true;
+        }
 
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+    
+    public void onCheckboxClicked(View view) {
+    	mainService.postEventOnMainFSM(new MainFSMEvent(EventType.BATTERY_LOW));   	
+    }
 
 }

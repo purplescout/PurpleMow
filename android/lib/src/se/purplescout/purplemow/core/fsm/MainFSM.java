@@ -64,12 +64,20 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 			} else if (event.getEventType() == EventType.BWF_LEFT) {
 				logCallback.post(LogMessage.create(Type.BWF_LEFT, Integer.toString(event.getValue())));
 				if (event.getValue() < Constants.BWF_LIMIT) {
-					changeState(State.AVOIDING_OBSTACLE);
-					avoidOstacle(event.getEventType().name());
+					if(batteryLow) {
+						changeState(State.GOING_HOME);
+						goHome();
+					} else {
+						changeState(State.AVOIDING_OBSTACLE);
+						avoidOstacle(event.getEventType().name());
+					}
 				}
 			}
 			break;
 		case AVOIDING_OBSTACLE:
+			if(event.getEventType().equals(EventType.BWF_LEFT)) {
+				logCallback.post(LogMessage.create(Type.BWF_LEFT, Integer.toString(event.getValue())));
+			} 
 			if (event.getEventType() == EventType.STARTED_MOWING) {
 				changeState(State.MOWING);
 			}

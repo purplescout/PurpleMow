@@ -14,6 +14,8 @@ import se.purplescout.purplemow.core.LogMessage;
 import se.purplescout.purplemow.core.SensorReader;
 import se.purplescout.purplemow.core.fsm.MainFSM;
 import se.purplescout.purplemow.core.fsm.MotorFSM;
+import se.purplescout.purplemow.core.fsm.event.MainFSMEvent;
+import se.purplescout.purplemow.core.fsm.event.MainFSMEvent.EventType;
 import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAOImpl;
@@ -34,6 +36,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Binder;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -48,6 +52,8 @@ public class MainService extends IntentService {
 	private static final String ACTION_LOG_MSG = "se.purplescout.purplemow.LOG_MSG";
 	public static final String SERVICE_IS_RUNNING = "se.purplescout.purplemow.SERVICE_IS_RUNNING";
 	public static boolean serviceRunning;
+	 // Binder given to clients
+    private final IBinder mBinder = new LocalBinder();
 
 	MainFSM mainFSM;
 	MotorFSM motorFSM;
@@ -63,6 +69,23 @@ public class MainService extends IntentService {
 		super("se.purplescout.purplemow");
 	}
 
+	
+	 /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class LocalBinder extends Binder {
+        MainService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return MainService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+    
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Log.d(this.getClass().getSimpleName(), "onHandleIntent");
@@ -196,5 +219,10 @@ public class MainService extends IntentService {
 		mainFSM.shutdown();
 		motorFSM.shutdown();
 		sensorReader.shutdown();
+	}
+	
+	public void postEventOnMainFSM(MainFSMEvent event) {
+		mainFSM.queueEvent(event);
+		return;
 	}
 }

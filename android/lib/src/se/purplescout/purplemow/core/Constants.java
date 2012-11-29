@@ -5,5 +5,5 @@ public class Constants {
 	public static final int STOP = 0;
 
 	public static final int RANGE_LIMIT = 290;
-	public static final int BWF_LIMIT = 870;
+	public static final int BWF_LIMIT = 330;
 }
