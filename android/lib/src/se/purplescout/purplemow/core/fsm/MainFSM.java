@@ -21,6 +21,11 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 	private AbstractFSM<MotorFSMEvent> motorFSM;
 	private LogCallback logCallback;
 	private boolean batteryLow;
+	private  int offset;
+	private int hysteres=0;
+	private int HysterVal = 5;
+	private static final int THRESHOLD1 = 15;
+	private static final int THRESHOLD2 = 30;
 
 	public MainFSM(LogCallback log) {
 		this.logCallback = log;
@@ -55,22 +60,23 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 				if (event.getValue() < Constants.BWF_LIMIT) {
 					if(batteryLow) {
 						changeState(State.GOING_HOME);
-						goHome();
-					} else {
-					changeState(State.AVOIDING_OBSTACLE);
-					avoidOstacle(event.getEventType().name());
-					}
-				}
-			} else if (event.getEventType() == EventType.BWF_LEFT) {
-				logCallback.post(LogMessage.create(Type.BWF_LEFT, Integer.toString(event.getValue())));
-				if (event.getValue() < Constants.BWF_LIMIT) {
-					if(batteryLow) {
-						changeState(State.GOING_HOME);
-						goHome();
+						offset = event.getValue();
+						goHome(event.getValue());
 					} else {
 						changeState(State.AVOIDING_OBSTACLE);
 						avoidOstacle(event.getEventType().name());
 					}
+				}
+			} else if (event.getEventType() == EventType.BWF_LEFT) {
+				logCallback.post(LogMessage.create(Type.BWF_LEFT, Integer.toString(event.getValue())));
+				if (event.getValue() < Constants.BWF__GO_HOME_LIMIT && batteryLow) {
+					//Dags att åka hem!
+					changeState(State.GOING_HOME);
+					offset = event.getValue();
+					goHome(event.getValue());
+				} else 	if (event.getValue() < Constants.BWF_LIMIT ) {
+					changeState(State.AVOIDING_OBSTACLE);
+					avoidOstacle(event.getEventType().name());
 				}
 			}
 			break;
@@ -85,6 +91,8 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 		case GOING_HOME:
 			if (event.getEventType() == EventType.CHARGER_CONNECTED) {
 				changeState(State.CHARGING);
+			} else 	if (event.getEventType() == EventType.BWF_LEFT) {
+				goHome(event.getValue());
 			}
 		}
 
@@ -107,12 +115,38 @@ public class MainFSM extends AbstractFSM<MainFSMEvent> {
 
 	/**
 	 * Routing for following the BWF cable until a
+	 * @param i 
 	 */
-	private void goHome() {
-		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
-		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT, Constants.FULL_SPEED), 500);
-		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP), 4000);
-		motorFSM.queueDelayedEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED), 4500);
+	private void goHome(int bwfReading) {
+		//motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
+		int diff = bwfReading - offset - hysteres;
+		Log.d("goHome()", "Diff is: " + diff);
+		if (diff >= -THRESHOLD1 && diff <= THRESHOLD1){
+			 // We are centered - drive straight
+			 motorFSM.queueEvent(new MotorFSMEvent(se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType.MOVE_FWD, Constants.HALF_SPEED));
+			 hysteres = 0;
+		} else {
+			if (diff > 0) {
+				if (diff > THRESHOLD2)
+				// Very off center: turn in place
+				{
+					motorFSM.queueEvent(new MotorFSMEvent(se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType.TURN_LEFT, Constants.FULL_SPEED));
+				} else {
+					// Slightly off center: shallow turn
+					motorFSM.queueEvent(new MotorFSMEvent(se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType.TURN_LEFT, Constants.HALF_SPEED));
+				}
+				// sets hysteresis to avoid over-turning
+				hysteres = HysterVal;
+			} else {
+				if (diff < -THRESHOLD2) {
+					motorFSM.queueEvent(new MotorFSMEvent(se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType.TURN_RIGHT, Constants.FULL_SPEED));
+				} else {
+					motorFSM.queueEvent(new MotorFSMEvent(se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType.TURN_RIGHT, Constants.HALF_SPEED));
+				}
+				hysteres = -HysterVal;
+			}
+		}
+		
 	}
 
 	public void setMotorFSM(AbstractFSM<MotorFSMEvent> fsm) {

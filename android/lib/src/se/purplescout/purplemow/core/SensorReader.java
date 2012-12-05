@@ -62,6 +62,7 @@ public class SensorReader extends Thread {
 
 	private boolean isRunning = true;
 	private int thrownExceptions = 0;
+	private Integer[] bwfVals = new Integer[] {1023, 1023};
 
 	AbstractFSM<MainFSMEvent> mainFSM;
 
@@ -90,7 +91,7 @@ public class SensorReader extends Thread {
 //				requestSensor(ComStream.BWF_SENSOR_RIGHT);
 //				readSensor();
 
-				Thread.sleep(SLEEP_TIME);
+//				Thread.sleep(SLEEP_TIME);
 
 				requestSensor(ComStream.BWF_SENSOR_LEFT);
 				readSensor();
@@ -128,12 +129,14 @@ public class SensorReader extends Thread {
 			} else if (buffer[1] == ComStream.RANGE_SENSOR_RIGHT) {
 				sensorData.get(ComStream.RANGE_SENSOR_RIGHT).add(new SensorData(new Date(), val));
 				mainFSM.queueEvent(new MainFSMEvent(EventType.RANGE_RIGHT, val));
-			} else if (buffer[1] == ComStream.BWF_SENSOR_RIGHT) {
-				sensorData.get(ComStream.BWF_SENSOR_RIGHT).add(new SensorData(new Date(), val));
-				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_RIGHT, val));
+//			} else if (buffer[1] == ComStream.BWF_SENSOR_RIGHT) {
+//				sensorData.get(ComStream.BWF_SENSOR_RIGHT).add(new SensorData(new Date(), val));
+//				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_RIGHT, val));
 			} else if (buffer[1] == ComStream.BWF_SENSOR_LEFT) {
+				bwfVals[1] = bwfVals[0];
+				bwfVals[0] = val;
 				sensorData.get(ComStream.BWF_SENSOR_LEFT).add(new SensorData(new Date(), val));
-				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_LEFT, val));
+				mainFSM.queueEvent(new MainFSMEvent(EventType.BWF_LEFT, getRunningAverage(bwfVals)));
 			}
 		} catch (IOException e) {
 			// Prevents flooding the log
@@ -144,10 +147,16 @@ public class SensorReader extends Thread {
 		}
 	}
 
+	private int getRunningAverage(Integer[] bwfVals) {
+		int sum = bwfVals[0] + bwfVals[1];
+		return sum / 2;
+	}
+
 	private int composeInt(byte hi, byte lo) {
 		int val = hi & 0xff;
 		val *= 256;
 		val += lo & 0xff;
+		
 		return val;
 	}
 
