@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.core;
+package se.purplescout.purplemow.core.common;
 
 public class Constants {
 	public static final int FULL_SPEED = 245;

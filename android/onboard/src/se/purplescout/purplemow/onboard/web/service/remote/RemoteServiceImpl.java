@@ -1,81 +1,45 @@
 package se.purplescout.purplemow.onboard.web.service.remote;
 
-import se.purplescout.purplemow.core.fsm.MotorFSM;
-import se.purplescout.purplemow.core.fsm.MotorFSM.State;
-import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
+import se.purplescout.purplemow.core.bus.CoreBus;
+import se.purplescout.purplemow.core.fsm.motor.event.StopEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.DecrementCutterSpeedEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.IncrementCutterSpeedEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.IncrementMovementSpeedEvent;
 
 public class RemoteServiceImpl implements RemoteService {
 
-	private static final int STEP = 85;
-
-	private MotorFSM motorFSM;
-
-	public RemoteServiceImpl(MotorFSM motorFSM) {
-		this.motorFSM = motorFSM;
-	}
+	private CoreBus coreBus = CoreBus.getInstance();
 
 	@Override
 	public void incrementMovmentSpeed(Direction direction) {
 		switch (direction) {
 		case FORWARD:
-			forward();
+			coreBus.fireEvent(new IncrementMovementSpeedEvent(se.purplescout.purplemow.core.MotorController.Direction.FORWARD));
 			break;
 		case REVERSE:
-			reverse();
+			coreBus.fireEvent(new IncrementMovementSpeedEvent(se.purplescout.purplemow.core.MotorController.Direction.BACKWARD));
 			break;
 		case LEFT:
-			left();
+			coreBus.fireEvent(new IncrementMovementSpeedEvent(se.purplescout.purplemow.core.MotorController.Direction.LEFT));
 			break;
 		case RIGHT:
-			right();
+			coreBus.fireEvent(new IncrementMovementSpeedEvent(se.purplescout.purplemow.core.MotorController.Direction.RIGHT));
 			break;
 		}
 	}
 
 	@Override
 	public void stop() {
-		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.STOP));
+		coreBus.fireEvent(new StopEvent());
 	}
 
 	@Override
 	public void incrementCutterSpeed() {
-		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOW, motorFSM.getCurrentCutterSpeed() + STEP));
+		coreBus.fireEvent(new IncrementCutterSpeedEvent());
 	}
 
 	@Override
 	public void decrementCutterSpeed() {
-		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOW, motorFSM.getCurrentCutterSpeed() - STEP));
-	}
-
-	private void forward() {
-		if (motorFSM.getCurrentState().equals(State.MOVING_FWD)) {
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, motorFSM.getCurrentSpeed() + STEP));
-		} else {
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, STEP));
-		}
-	}
-
-	private void reverse() {
-		if (motorFSM.getCurrentState().equals(State.BACKING_UP)) {
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE, motorFSM.getCurrentSpeed() + STEP));
-		} else {
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.REVERSE, STEP));
-		}
-	}
-
-	private void left() {
-		if (motorFSM.getCurrentState().equals(State.TURNING_LEFT)) {
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT, motorFSM.getCurrentSpeed() + STEP));
-		} else {
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_LEFT, STEP));
-		}
-	}
-
-	private void right() {
-		if (motorFSM.getCurrentState().equals(State.TURNING_RIGHT)) {
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_RIGHT, motorFSM.getCurrentSpeed() + STEP));
-		} else {
-			motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.TURN_RIGHT, STEP));
-		}
+		coreBus.fireEvent(new DecrementCutterSpeedEvent());
 	}
 }

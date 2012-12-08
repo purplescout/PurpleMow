@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.core.fsm.event;
+package se.purplescout.purplemow.core.old.event;
 
 public class MainFSMEvent extends FSMEvent<MainFSMEvent.EventType, MainFSMEvent> {
 	public enum EventType {

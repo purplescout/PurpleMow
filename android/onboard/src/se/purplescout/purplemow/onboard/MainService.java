@@ -8,13 +8,12 @@ import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import se.purplescout.purplemow.core.Constants;
-import se.purplescout.purplemow.core.LogCallback;
-import se.purplescout.purplemow.core.LogMessage;
-import se.purplescout.purplemow.core.SensorReader;
-import se.purplescout.purplemow.core.fsm.MainFSM;
-import se.purplescout.purplemow.core.fsm.MotorFSM;
-import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
+import se.purplescout.purplemow.core.MotorController.Direction;
+import se.purplescout.purplemow.core.bus.CoreBus;
+import se.purplescout.purplemow.core.common.Constants;
+import se.purplescout.purplemow.core.controller.CoreController;
+import se.purplescout.purplemow.core.controller.CoreControllerImpl;
+import se.purplescout.purplemow.core.fsm.motor.event.MoveEvent;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAOImpl;
 import se.purplescout.purplemow.onboard.db.sqlhelper.PurpleMowSqliteOpenHelper;
@@ -49,9 +48,8 @@ public class MainService extends IntentService {
 	public static final String SERVICE_IS_RUNNING = "se.purplescout.purplemow.SERVICE_IS_RUNNING";
 	public static boolean serviceRunning;
 
-	MainFSM mainFSM;
-	MotorFSM motorFSM;
-	SensorReader sensorReader;
+	CoreController coreController = new CoreControllerImpl();
+	CoreBus coreBus = CoreBus.getInstance();
 	UsbComStream comStream;
 
 	WebServer webServer;
@@ -126,38 +124,21 @@ public class MainService extends IntentService {
 	private void setupContext() {
 		Log.d(this.getClass().getSimpleName(), "Startup");
 
-		LogCallback logCallback = new LogCallback() {
-
-			@Override
-			public void post(LogMessage msg) {
-				Intent intent = new Intent(ACTION_LOG_MSG);
-				intent.putExtra(ACTION_LOG_MSG, msg);
-				MainService.this.getApplicationContext().sendBroadcast(intent);
-			}
-		};
-
 		scheduler = Executors.newScheduledThreadPool(1);
-		mainFSM = new MainFSM(logCallback);
-		motorFSM = new MotorFSM(comStream, logCallback);
-		sensorReader = new SensorReader(comStream);
-		mainFSM.setMotorFSM(motorFSM);
-		motorFSM.setMainFSM(mainFSM);
-		sensorReader.setMainFSM(mainFSM);
+		coreController.prepare(comStream);
 
 		Log.d(this.getClass().getSimpleName(), "Starting FSM");
-		mainFSM.start();
-		motorFSM.start();
-		sensorReader.start();
+		coreController.start();
 
-		motorFSM.queueEvent(new MotorFSMEvent(MotorFSMEvent.EventType.MOVE_FWD, Constants.FULL_SPEED));
+		coreBus.fireEvent(new MoveEvent(Constants.FULL_SPEED, Direction.FORWARD));
 		try {
 			OrmLiteSqliteOpenHelper sqliteOpenHelper = new PurpleMowSqliteOpenHelper(this);
 			ConnectionSource connectionSource = sqliteOpenHelper.getConnectionSource();
 
-			RemoteService remoteService = new RemoteServiceImpl(motorFSM);
+			RemoteService remoteService = new RemoteServiceImpl();
 			ScheduleEventDAO scheduleEntryDAO = new ScheduleEventDAOImpl(connectionSource);
-			ScheduleService scheduleService = new ScheduleServiceImpl(scheduleEntryDAO, scheduler, motorFSM);
-			LogService logService = new LogServiceImpl(sensorReader);
+			ScheduleService scheduleService = new ScheduleServiceImpl(scheduleEntryDAO, scheduler);
+			LogService logService = new LogServiceImpl(coreController);
 			RpcDispatcher dispatcher = new RpcDispatcher(remoteService, scheduleService, logService);
 			webServer = new WebServer(8080, this, dispatcher);
 			scheduleService.initScheduler();
@@ -193,8 +174,6 @@ public class MainService extends IntentService {
 
 		webServer.stop();
 
-		mainFSM.shutdown();
-		motorFSM.shutdown();
-		sensorReader.shutdown();
+		coreController.shutdown();
 	}
 }

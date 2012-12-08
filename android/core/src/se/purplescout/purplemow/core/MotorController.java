@@ -1,8 +1,10 @@
 package se.purplescout.purplemow.core;
 
-import static se.purplescout.purplemow.core.Constants.FULL_SPEED;
+import static se.purplescout.purplemow.core.common.Constants.FULL_SPEED;
 
 import java.io.IOException;
+
+import se.purplescout.purplemow.core.common.Constants;
 
 public class MotorController {
 	public enum Direction {
@@ -18,6 +20,12 @@ public class MotorController {
 	}
 
 	public void move(int speed) throws IOException {
+		if (speed > Constants.FULL_SPEED) {
+			speed = Constants.FULL_SPEED;
+		}
+		if (speed < 0) {
+			speed = 0;
+		}
 		comStream.sendCommand(ComStream.MOTOR_COMMAND, ComStream.MOTOR_LEFT, speed);
 		comStream.sendCommand(ComStream.MOTOR_COMMAND, ComStream.MOTOR_RIGHT, speed);
 
