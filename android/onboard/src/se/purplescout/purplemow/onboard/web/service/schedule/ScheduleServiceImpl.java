@@ -9,10 +9,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import se.purplescout.purplemow.core.Constants;
-import se.purplescout.purplemow.core.fsm.MotorFSM;
-import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent;
-import se.purplescout.purplemow.core.fsm.event.MotorFSMEvent.EventType;
+import se.purplescout.purplemow.core.MotorController.Direction;
+import se.purplescout.purplemow.core.bus.CoreBus;
+import se.purplescout.purplemow.core.common.Constants;
+import se.purplescout.purplemow.core.fsm.motor.event.MoveEvent;
+import se.purplescout.purplemow.core.fsm.motor.event.StopEvent;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent;
 import se.purplescout.purplemow.onboard.shared.schedule.dto.RecurringInterval;
@@ -23,14 +24,13 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 	private final ScheduleEventDAO scheduleEntryDAO;
 	private final ScheduledExecutorService scheduler;
-	private final MotorFSM motorrFSM;
-
+	private final CoreBus coreBus = CoreBus.getInstance();
+	
 	private final List<ScheduledFuture<?>> scheduledEvents = new ArrayList<ScheduledFuture<?>>();
 
-	public ScheduleServiceImpl(ScheduleEventDAO scheduleEntryDAO, ScheduledExecutorService scheduler, MotorFSM motorrFSM) {
+	public ScheduleServiceImpl(ScheduleEventDAO scheduleEntryDAO, ScheduledExecutorService scheduler) {
 		this.scheduleEntryDAO = scheduleEntryDAO;
 		this.scheduler = scheduler;
-		this.motorrFSM = motorrFSM;
 	}
 
 	@Override
@@ -171,7 +171,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			@Override
 			public void run() {
 				Log.i(ScheduleService.class.getSimpleName(), "Stop event");
-				motorrFSM.queueEvent(new MotorFSMEvent(EventType.STOP));
+				coreBus.fireEvent(new StopEvent());
 				scheduleNextStopMowEvent(event);
 			}
 		}, getTimeUntilNextStop(event), TimeUnit.MILLISECONDS);
@@ -183,7 +183,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			@Override
 			public void run() {
 				Log.i(ScheduleService.class.getSimpleName(), "Start event");
-				motorrFSM.queueEvent(new MotorFSMEvent(EventType.MOVE_FWD, Constants.FULL_SPEED));
+				coreBus.fireEvent(new MoveEvent(Constants.FULL_SPEED, Direction.FORWARD));
 				scheduleNextStartMowEvent(event);
 			}
 		}, getTimeUntilNextStart(event), TimeUnit.MILLISECONDS);

@@ -11,8 +11,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import se.purplescout.purplemow.core.SensorReader;
-import se.purplescout.purplemow.core.SensorReader.SensorData;
+import se.purplescout.purplemow.core.controller.SensorLogger;
+import se.purplescout.purplemow.core.controller.SensorLogger.SensorData;
 import se.purplescout.purplemow.onboard.shared.log.dto.LogcatFilterDTO;
 import android.util.Log;
 
@@ -21,10 +21,10 @@ public class LogServiceImpl implements LogService {
 	private static final String LOGCAT_CMD = "logcat -d -v time";
 	private static final DateFormat dateFormat = new SimpleDateFormat("MM-dd hh:mm:ss.SSS");
 
-	private SensorReader sensorReader;
+	private SensorLogger sensorLogger;
 
-	public LogServiceImpl(SensorReader sensorReader) {
-		this.sensorReader = sensorReader;
+	public LogServiceImpl(SensorLogger sensorReader) {
+		this.sensorLogger = sensorReader;
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class LogServiceImpl implements LogService {
 
 	@Override
 	public InputStream getLeftBwfData() {
-		List<SensorData> sendorData = sensorReader.getBwfLeft();
+		List<SensorData> sendorData = sensorLogger.getBwfSensorData();
 		String log = createSensorOutput(sendorData);
 
 		return new ByteArrayInputStream(log.getBytes());
@@ -103,7 +103,7 @@ public class LogServiceImpl implements LogService {
 
 	@Override
 	public InputStream getRightBwfData() {
-		List<SensorData> sendorData = sensorReader.getBwfRight();
+		List<SensorData> sendorData = sensorLogger.getBwfSensorData();
 		String log = createSensorOutput(sendorData);
 
 		return new ByteArrayInputStream(log.getBytes());
@@ -111,7 +111,7 @@ public class LogServiceImpl implements LogService {
 
 	@Override
 	public InputStream getLeftRangeData() {
-		List<SensorData> sendorData = sensorReader.getRangeLeft();
+		List<SensorData> sendorData = sensorLogger.getLeftRangeSensorData();
 		String log = createSensorOutput(sendorData);
 
 		return new ByteArrayInputStream(log.getBytes());
@@ -119,7 +119,7 @@ public class LogServiceImpl implements LogService {
 
 	@Override
 	public InputStream getRightRangeData() {
-		List<SensorData> sendorData = sensorReader.getRangeRight();
+		List<SensorData> sendorData = sensorLogger.getRightRangeSensorData();
 		String log = createSensorOutput(sendorData);
 
 		return new ByteArrayInputStream(log.getBytes());

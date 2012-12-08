@@ -1,7 +1,7 @@
 package se.purplescout.purplemow.onboard;
 
 import se.purplescout.purplemow.R;
-import se.purplescout.purplemow.core.LogMessage;
+import se.purplescout.purplemow.core.common.LogMessage;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;

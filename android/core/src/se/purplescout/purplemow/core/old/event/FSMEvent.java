@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.core.fsm.event;
+package se.purplescout.purplemow.core.old.event;
 
 
 public abstract class FSMEvent<ET, E> implements Comparable<E> {

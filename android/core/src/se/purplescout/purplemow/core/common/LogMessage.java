@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.core;
+package se.purplescout.purplemow.core.common;
 
 import java.io.Serializable;
 
