@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:weightSum="1" >
+
+    <se.purplescout.purplemow.onboard.ui.widget.DashboardLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.2" >
+
+        <Button
+            android:id="@+id/homeRemoteBtn"
+            style="@style/DashboardButton"
+            android:drawableTop="@android:drawable/btn_star"
+            android:text="@string/remote" />
+
+        <Button
+            android:id="@+id/homeScheduleBtn"
+            style="@style/DashboardButton"
+            android:drawableTop="@android:drawable/btn_star"
+            android:text="@string/schedule" />
+
+        <Button
+            android:id="@+id/homeCalibrateBtn"
+            style="@style/DashboardButton"
+            android:drawableTop="@android:drawable/btn_star"
+            android:text="@string/calibrate" />
+        
+        <Button
+            android:id="@+id/homeSensorsBtn"
+            style="@style/DashboardButton"
+            android:drawableTop="@android:drawable/btn_star"
+            android:text="@string/sensors" />
+
+        <Button
+            android:id="@+id/homeLogsBtn"
+            style="@style/DashboardButton"
+            android:drawableTop="@android:drawable/btn_star"
+            android:text="@string/logs" />
+
+        <Button
+            android:id="@+id/homeSettingsBtn"
+            style="@style/DashboardButton"
+            android:drawableTop="@android:drawable/btn_star"
+            android:text="@string/settings" />
+    </se.purplescout.purplemow.onboard.ui.widget.DashboardLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.8"
+        android:padding="10dp" >
+
+        <Button
+            android:id="@+id/homeStartBtn"
+            style="@style/DashboardStartButton"
+            android:text="@string/start_mower" />
+    </FrameLayout>
+
+</LinearLayout>

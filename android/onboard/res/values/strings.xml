@@ -6,5 +6,28 @@
     <string name="start_mower">Start mower</string>
     <string name="log">Log:</string>
     <string name="connecting_usb_accessory">Connecting usb accessory.</string>
-
+    <string name="remote">Remote</string>
+    <string name="logs">Logs</string>
+    <string name="settings">Settings</string>
+    <string name="calibrate">Calibrate</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="schedule">Schedule</string>
+    <string name="sensors">Sensors</string>
+    <string name="mower">Mower</string>
+    <string name="forward">Forward</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
+    <string name="reverse">Reverse</string>
+    <string name="cutter">Cutter</string>
+    <string name="speed_down">Speed down</string>
+    <string name="speed_up">Speed up</string>
+    <string name="no_usb_title">Mower not connected</string>
+	<string name="no_usb_msg">Mower not connected, do you want to run in debug mode?</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
+	<string name="go_home">Go home</string>
+	<string name="clock_in">Clock in</string>
+	<string name="from">From</string>
+	<string name="to">To</string>
 </resources>

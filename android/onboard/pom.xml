@@ -29,17 +29,21 @@
 		<dependency>
 			<groupId>android</groupId>
 			<artifactId>android</artifactId>
-			<version>10_r2</version>
+			<version>15</version>
 			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.android.future</groupId>
 			<artifactId>usb</artifactId>
-			<version>10_r2</version>
+			<version>15</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>com.google.android</groupId>
+			<artifactId>support-v4</artifactId>
+			<version>r7</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>com.google.android</groupId>
 			<artifactId>support-v4</artifactId>
@@ -58,14 +62,11 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
-<<<<<<< HEAD
-=======
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.1</version>
 		</dependency>
->>>>>>> 59afa4b... Onboard - Roboguice & UIBinder
 
 		<!-- Jackson -->
 		<dependency>
@@ -153,11 +154,7 @@
 				<configuration>
 					<sdk>
 						<path>${env.ANDROID_HOME}</path>
-<<<<<<< HEAD
-						<platform>2.3.3</platform>
-=======
 						<platform>${android.platform}</platform>
->>>>>>> 59afa4b... Onboard - Roboguice & UIBinder
 					</sdk>
 				</configuration>
 				<extensions>true</extensions>
@@ -169,12 +166,12 @@
 		<!-- Use profile 'deploy' to install and run the application on an android device -->
 		<profile>
 			<id>deploy</id>
-<!-- 			<activation> -->
-<!-- 				<property> -->
-<!-- 					<name>environment.type</name> -->
-<!-- 					<value>dev</value> -->
-<!-- 				</property> -->
-<!-- 			</activation> -->
+			<!-- <activation> -->
+			<!-- <property> -->
+			<!-- <name>environment.type</name> -->
+			<!-- <value>dev</value> -->
+			<!-- </property> -->
+			<!-- </activation> -->
 			<build>
 				<plugins>
 					<plugin>

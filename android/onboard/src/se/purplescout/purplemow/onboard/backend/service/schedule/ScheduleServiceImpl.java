@@ -96,6 +96,23 @@ public class ScheduleServiceImpl implements ScheduleService {
 	}
 
 	@Override
+	public void save(ScheduleEventDTO scheduleEvent) {
+		boolean changed = false;
+		if (scheduleEvent.isChanged()) {
+			ScheduleEvent entity = createEntity(scheduleEvent);
+			if (validateEvent(entity)) {
+				scheduleEntryDAO.update(entity);
+				changed = true;
+			} else {
+				Log.e(this.getClass().getSimpleName(), "Invalid entity not persisted");
+			}
+		}
+		if (changed) {
+			initScheduler();
+		}
+	}
+
+	@Override
 	public void initScheduler() {
 		clearScheduler();
 		List<ScheduleEvent> events = scheduleEntryDAO.listAll();

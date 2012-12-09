@@ -4,25 +4,31 @@ import java.lang.reflect.Field;
 
 import se.purplescout.purplemow.onboard.ui.common.binder.annotation.ContentView;
 import se.purplescout.purplemow.onboard.ui.common.binder.annotation.UiField;
-import android.app.Activity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 
-public class BinderView {
+public class InflaterBinderView {
 
-	public BinderView(Activity activity) {
+	protected View parentView;
+	
+	public InflaterBinderView(LayoutInflater layoutInflater, View parentView) {
 		ContentView contentView = getClass().getAnnotation(ContentView.class);
 		if (contentView == null) {
 			throw new IllegalStateException(String.format("A @ContentType must be set on the class %s", this.getClass().getSimpleName()));
 		}
-		activity.setContentView(contentView.value());
+		if (parentView == null) {
+			parentView = layoutInflater.inflate(contentView.value(), null);
+		}
+		this.parentView = parentView;
+		
 		for (Field field : getClass().getDeclaredFields()) {
 			UiField injectView = field.getAnnotation(UiField.class);
 			if (injectView == null) {
 				continue;
 			}
 			int viewId = injectView.value();
-			View view = activity.findViewById(viewId);
+			View view = parentView.findViewById(viewId);
 			if (view == null) {
 				throw new IllegalStateException(String.format("View %d could not be injected in %s because it is not present in the provided content view",
 						viewId, this.getClass().getSimpleName()));

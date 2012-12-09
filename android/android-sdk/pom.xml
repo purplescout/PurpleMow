@@ -39,7 +39,7 @@
     </build>
 
     <modules>
-        <module>android-10</module>
-        <module>google-apis-10</module>
+	<module>android-15</module>
+        <module>google-apis-15</module>
     </modules>
 </project>

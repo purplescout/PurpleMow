@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.common.Constants;
@@ -23,6 +24,7 @@ import se.purplescout.purplemow.onboard.backend.service.remote.RemoteServiceImpl
 import se.purplescout.purplemow.onboard.backend.service.schedule.ScheduleService;
 import se.purplescout.purplemow.onboard.backend.service.schedule.ScheduleServiceImpl;
 import se.purplescout.purplemow.onboard.db.sqlhelper.PurpleMowSqliteOpenHelper;
+import se.purplescout.purplemow.onboard.ui.home.activity.HomeActivity;
 import se.purplescout.purplemow.onboard.web.WebServer;
 import se.purplescout.purplemow.onboard.web.dispatcher.RpcDispatcher;
 import android.app.IntentService;
@@ -46,11 +48,12 @@ public class MainService extends IntentService {
 	private static final int NOTIFICATION_FLAG = 0;
 	private static final String ACTION_LOG_MSG = "se.purplescout.purplemow.LOG_MSG";
 	public static final String SERVICE_IS_RUNNING = "se.purplescout.purplemow.SERVICE_IS_RUNNING";
+	public static final String SERVICE_IS_FINISHED = "se.purplescout.purplemow.SERVICE_IS_FINISHED";
 	public static boolean serviceRunning;
 
 	CoreController coreController = new CoreControllerImpl();
 	CoreBus coreBus = CoreBus.getInstance();
-	UsbComStream comStream;
+	ComStream comStream;
 
 	WebServer webServer;
 	ScheduledExecutorService scheduler;
@@ -64,8 +67,6 @@ public class MainService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Log.d(this.getClass().getSimpleName(), "onHandleIntent");
-		UsbManager usbManager = UsbManager.getInstance(getApplicationContext());
-
 		usbDetachedReceiver = new BroadcastReceiver() {
 			
 			@Override
@@ -75,7 +76,8 @@ public class MainService extends IntentService {
 		};
 		registerReceiver(usbDetachedReceiver, new IntentFilter(UsbManager.ACTION_USB_ACCESSORY_DETACHED));
 		
-		UsbAccessory accessory = UsbManager.getAccessory(intent);
+		UsbManager usbManager = UsbManager.getInstance(getApplicationContext());
+		UsbAccessory accessory = usbManager.getAccessoryList()[0];
 		if (accessory == null) {
 			Log.e(this.getClass().getSimpleName(), "UsbAccessory is null");
 			throw new RuntimeException("UsbAccessory is null");
@@ -93,13 +95,13 @@ public class MainService extends IntentService {
 		FileOutputStream fileOutputStream = new FileOutputStream(fd);
 
 		comStream = new UsbComStream(fileInputStream, fileOutputStream);
+//		comStream = new DebugComStream();
 		Log.d(this.getClass().getSimpleName(), "Created usb stream: " + comStream.toString());
 
 		setupNotification();
 		setupContext();
 
-		MainActivity.serviceRunning = true;
-		
+		HomeActivity.serviceRunning = true;		
 		sendBroadcast(new Intent(SERVICE_IS_RUNNING));
 		
 		// To keep service alive
@@ -110,9 +112,8 @@ public class MainService extends IntentService {
 
 	private void setupNotification() {
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-		Notification notification = new Notification(se.purplescout.purplemow.R.drawable.ic_statusbar, "Purple Mow", System.currentTimeMillis());
-		Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+		Notification notification = new Notification(se.purplescout.purplemow.onboard.R.drawable.ic_statusbar, "Purple Mow", System.currentTimeMillis());
+		Intent notificationIntent = new Intent(getApplicationContext(), HomeActivity.class);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
 		
@@ -156,12 +157,15 @@ public class MainService extends IntentService {
 		super.onDestroy();
 		Log.d(this.getClass().getSimpleName(), "Destroy");
 		
-		unregisterReceiver(usbDetachedReceiver);
+		if (usbDetachedReceiver != null) {
+			unregisterReceiver(usbDetachedReceiver);
+		}
 		
 		tearDownContext();
 		tearDownNotification();
 		
-		MainActivity.serviceRunning = false;
+		HomeActivity.serviceRunning = false;
+		sendBroadcast(new Intent(SERVICE_IS_FINISHED));
 	}
 
 	private void tearDownNotification() {
