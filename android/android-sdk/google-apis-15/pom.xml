@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>android-sdk-google-apis-10</artifactId>
+    <packaging>pom</packaging>
+    <name>android-sdk-google-apis-10</name>
+
+    <parent>
+        <groupId>se.purplescout.purplemow</groupId>
+        <artifactId>android-sdk</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <properties>
+	<usb.jar.path>${env.ANDROID_HOME}/add-ons/addon-google_apis-google-15/libs/usb.jar</usb.jar.path>
+	<addon.android.future.usb.groupid>com.android.future</addon.android.future.usb.groupid>
+	<addon.android.future.usb.artifactid>usb</addon.android.future.usb.artifactid>
+	<jar.version>15</jar.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>usb</id>
+                        <phase>install</phase>
+                        <goals><goal>install-file</goal></goals>
+                        <configuration>
+                            <groupId>${addon.android.future.usb.groupid}</groupId>
+                            <artifactId>${addon.android.future.usb.artifactid}</artifactId>
+                            <packaging>jar</packaging>
+                            <version>${jar.version}</version>
+                            <file>${usb.jar.path}</file>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>usb</id>
+                        <phase>deploy</phase>
+                        <goals><goal>deploy-file</goal></goals>
+                        <configuration>
+                            <groupId>${addon.android.future.usb.groupid}</groupId>
+                            <artifactId>${addon.android.future.usb.artifactid}</artifactId>
+                            <packaging>jar</packaging>
+                            <version>${jar.version}</version>
+                            <file>${usb.jar.path}</file>
+                            <url>${repo.url}</url>
+                            <repositoryId>${repo.id}</repositoryId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

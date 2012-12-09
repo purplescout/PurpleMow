@@ -14,4 +14,6 @@ public interface ScheduleService {
 	void save(List<ScheduleEventDTO> dtos);
 
 	void initScheduler();
+
+	void save(ScheduleEventDTO scheduleEvent);
 }

@@ -23,7 +23,7 @@ public class PurpleMowSqliteOpenHelper extends OrmLiteSqliteOpenHelper {
 	}
 
 	@Override
-	public void onCreate(SQLiteDatabase db, ConnectionSource conn) {
+	public synchronized void onCreate(SQLiteDatabase db, ConnectionSource conn) {
 		Log.i(PurpleMowSqliteOpenHelper.class.getSimpleName(), "onCreate");
 		try {
 			TableUtils.createTable(conn, ScheduleEvent.class);
@@ -35,7 +35,7 @@ public class PurpleMowSqliteOpenHelper extends OrmLiteSqliteOpenHelper {
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase db, ConnectionSource conn, int currentVersion, int targetVersion) {
+	public synchronized void onUpgrade(SQLiteDatabase db, ConnectionSource conn, int currentVersion, int targetVersion) {
 		Log.i(PurpleMowSqliteOpenHelper.class.getSimpleName(), "onUpgrade");
 		MigrationScript.execute(db, conn, currentVersion);
 	}

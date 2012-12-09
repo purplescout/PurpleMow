@@ -1,54 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="se.purplescout.purplemow"
+    package="se.purplescout.purplemow.onboard"
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="10" />
+    <uses-sdk
+        android:minSdkVersion="10"
+        android:targetSdkVersion="15" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.READ_LOGS"/>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.Light"
+        android:name=".context.PurpleMowApplication">
         <uses-library android:name="com.android.future.usb.accessory" />
 
         <activity
-            android:name=".onboard.MainActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:name=".ui.splash.activity.SplashActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".onboard.UsbActivity"
-            android:label="@string/app_name"
-            android:noHistory="true"
-            android:screenOrientation="portrait" >
-            <intent-filter>
+
                 <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <meta-data
                 android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
                 android:resource="@xml/accessory_filter" />
         </activity>
-<!--         <activity -->
-<!--             android:name=".onboard.TestActivity" -->
-<!--             android:label="WebClient Test" > -->
-<!--             <intent-filter> -->
-<!--                 <action android:name="android.intent.action.MAIN" /> -->
+        <activity
+            android:name=".ui.home.activity.HomeActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".ui.sensors.activity.SensorsActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".ui.remote.activity.RemoteActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".ui.schedule.activity.ScheduleActivity"
+            android:screenOrientation="portrait" >
+        </activity>
 
-<!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
-<!--             </intent-filter> -->
-<!--         </activity> -->
-
-        <service android:name=".onboard.MainService" />
+        <service android:name=".MainService" />
     </application>
-
 </manifest>

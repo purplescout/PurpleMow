@@ -8,9 +8,9 @@ import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 
-public class BinderView {
+public class ActivityBinderView {
 
-	public BinderView(Activity activity) {
+	public ActivityBinderView(Activity activity) {
 		ContentView contentView = getClass().getAnnotation(ContentView.class);
 		if (contentView == null) {
 			throw new IllegalStateException(String.format("A @ContentType must be set on the class %s", this.getClass().getSimpleName()));
