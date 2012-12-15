@@ -3,6 +3,8 @@ package se.purplescout.purplemow.onboard.ui.remote.activity;
 import com.google.inject.Inject;
 
 import roboguice.activity.RoboActivity;
+import se.purplescout.purplemow.core.bus.CoreBus;
+import se.purplescout.purplemow.core.fsm.mower.event.BatterySensorReceiveEvent;
 import se.purplescout.purplemow.onboard.backend.service.remote.RemoteService;
 import se.purplescout.purplemow.onboard.backend.service.remote.RemoteService.Direction;
 import se.purplescout.purplemow.onboard.ui.remote.view.RemoteView;
@@ -16,6 +18,10 @@ public class RemoteActivity extends RoboActivity {
 
 	public interface ViewDisplay {
 
+		Button getGoHomeBtn();
+		
+		Button getClockInBtn();
+		
 		Button getForwardBtn();
 
 		Button getLeftBtn();
@@ -34,6 +40,7 @@ public class RemoteActivity extends RoboActivity {
 	@Inject RemoteService remoteService;
 	
 	ViewDisplay display;
+	CoreBus coreBus = CoreBus.getInstance();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +50,20 @@ public class RemoteActivity extends RoboActivity {
 	}
 
 	private void bind() {
+		display.getGoHomeBtn().setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				coreBus.fireEvent(new BatterySensorReceiveEvent(0));
+			}
+		});
+		display.getClockInBtn().setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				coreBus.fireEvent(new BatterySensorReceiveEvent(1023));
+			}
+		});
 		display.getForwardBtn().setOnClickListener(new OnClickListener() {
 
 			@Override

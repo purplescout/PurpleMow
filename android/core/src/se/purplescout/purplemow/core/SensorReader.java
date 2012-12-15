@@ -38,7 +38,8 @@ public class SensorReader extends Thread {
 	private boolean isRunning = true;
 	private int thrownExceptions = 0;
 	private CoreBus coreBus = CoreBus.getInstance();
-
+	private Integer[] bwfVals = new Integer[] {1023, 1023};
+	
 	public SensorReader(ComStream comStream) {
 		this.comStream = comStream;
 	}
@@ -94,12 +95,19 @@ public class SensorReader extends Thread {
 				sensorData.get(ComStream.RANGE_SENSOR_RIGHT).add(new SensorData(new Date(), val));
 				coreBus.fireEvent(new RangeSensorReceiveEvent(val, Side.RIGHT));
 			} else if (buffer[1] == ComStream.BWF_SENSOR_LEFT) {
-				sensorData.get(ComStream.BWF_SENSOR_LEFT).add(new SensorData(new Date(), val));
-				coreBus.fireEvent(new BwfSensorReceiveEvent(val));
+				bwfVals[1] = bwfVals[0];
+				bwfVals[0] = val;
+				sensorData.get(ComStream.BWF_SENSOR_LEFT).add(new SensorData(new Date(), getRunningAverage(bwfVals)));
+				coreBus.fireEvent(new BwfSensorReceiveEvent(getRunningAverage(bwfVals)));
 			}
 		} catch (IOException e) {
 			handleIOException(e);
 		}
+	}
+	
+	private int getRunningAverage(Integer[] bwfVals) {
+		int sum = bwfVals[0] + bwfVals[1];
+		return sum / 2;
 	}
 
 	private void handleIOException(IOException e) {

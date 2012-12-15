@@ -12,6 +12,8 @@ import android.widget.Button;
 @ContentView(R.layout.activity_remote)
 public class RemoteView extends ActivityBinderView implements RemoteActivity.ViewDisplay {
 
+	@UiField(R.id.goHomeBtn) Button goHomeBtn;
+	@UiField(R.id.clockInBtn) Button clockInBtn;
 	@UiField(R.id.forwardBtn) Button forwardBtn;
 	@UiField(R.id.leftBtn) Button leftBtn;
 	@UiField(R.id.rightBtn) Button rightBtn;
@@ -57,5 +59,15 @@ public class RemoteView extends ActivityBinderView implements RemoteActivity.Vie
 	@Override
 	public View getStopBtn() {
 		return stopBtn;
+	}
+
+	@Override
+	public Button getGoHomeBtn() {
+		return goHomeBtn;
+	}
+
+	@Override
+	public Button getClockInBtn() {
+		return clockInBtn;
 	}
 }
