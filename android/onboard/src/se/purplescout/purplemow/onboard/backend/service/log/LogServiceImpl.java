@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import com.google.inject.Inject;
+
 import se.purplescout.purplemow.core.controller.SensorLogger;
 import se.purplescout.purplemow.core.controller.SensorLogger.SensorData;
 import se.purplescout.purplemow.onboard.shared.log.dto.LogcatFilterDTO;
@@ -23,6 +25,7 @@ public class LogServiceImpl implements LogService {
 
 	private SensorLogger sensorLogger;
 
+	@Inject
 	public LogServiceImpl(SensorLogger sensorReader) {
 		this.sensorLogger = sensorReader;
 	}

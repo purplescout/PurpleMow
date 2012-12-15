@@ -15,6 +15,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.google.inject.Inject;
+
 import se.purplescout.purplemow.onboard.backend.service.log.LogService;
 import se.purplescout.purplemow.onboard.backend.service.remote.RemoteService;
 import se.purplescout.purplemow.onboard.backend.service.remote.RemoteService.Direction;
@@ -32,6 +34,7 @@ public class RpcDispatcher {
 	private ScheduleService scheduleService;
 	private LogService logService;
 
+	@Inject
 	public RpcDispatcher(RemoteService remoteService, ScheduleService scheduleService, LogService logService) {
 		this.remoteService = remoteService;
 		this.scheduleService = scheduleService;

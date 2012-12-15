@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.google.inject.Inject;
+
 import se.purplescout.purplemow.onboard.web.dispatcher.RpcDispatcher;
 import se.purplescout.purplemow.onboard.web.thirdparty.NanoHTTPD;
 import android.content.Context;
@@ -54,6 +56,7 @@ public class WebServer extends NanoHTTPD {
 	private Context context;
 	private RpcDispatcher dispatcher;
 
+	@Inject
 	public WebServer(int port, Context context, RpcDispatcher dispatcher) throws IOException {
 		super(port, new File("dummy"));
 		this.context = context;
