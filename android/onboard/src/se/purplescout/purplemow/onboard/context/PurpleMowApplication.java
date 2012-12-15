@@ -4,8 +4,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import roboguice.RoboGuice;
+import se.purplescout.purplemow.core.controller.CoreController;
+import se.purplescout.purplemow.core.controller.CoreControllerImpl;
+import se.purplescout.purplemow.core.controller.SensorLogger;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAO;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAOImpl;
+import se.purplescout.purplemow.onboard.backend.service.log.LogService;
+import se.purplescout.purplemow.onboard.backend.service.log.LogServiceImpl;
 import se.purplescout.purplemow.onboard.backend.service.remote.RemoteService;
 import se.purplescout.purplemow.onboard.backend.service.remote.RemoteServiceImpl;
 import se.purplescout.purplemow.onboard.backend.service.schedule.ScheduleService;
@@ -22,6 +27,7 @@ public class PurpleMowApplication extends Application {
 	ScheduledExecutorService scheduledExecutorService;
 	OrmLiteSqliteOpenHelper sqliteOpenHelper;
 	ConnectionSource connectionSource;
+	CoreController coreController;
 	
 	@Override
 	public void onCreate() {
@@ -30,7 +36,8 @@ public class PurpleMowApplication extends Application {
 		scheduledExecutorService = Executors.newScheduledThreadPool(1);
 		sqliteOpenHelper = new PurpleMowSqliteOpenHelper(this);
 		connectionSource = sqliteOpenHelper.getConnectionSource();
-		 
+		coreController = new CoreControllerImpl(); 
+		
 		RoboGuice.setBaseApplicationInjector(this, RoboGuice.DEFAULT_STAGE, RoboGuice.newDefaultRoboModule(this), new AbstractModule() {
 			
 			@Override
@@ -40,6 +47,9 @@ public class PurpleMowApplication extends Application {
 				bind(RemoteService.class).to(RemoteServiceImpl.class);
 				bind(ScheduleService.class).to(ScheduleServiceImpl.class);
 				bind(ScheduledExecutorService.class).toInstance(scheduledExecutorService);
+				bind(LogService.class).to(LogServiceImpl.class);
+				bind(SensorLogger.class).toInstance(coreController);
+				bind(CoreController.class).toInstance(coreController);
 			}
 		});
 	}

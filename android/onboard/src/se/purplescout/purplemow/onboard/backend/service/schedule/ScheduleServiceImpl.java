@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.bus.CoreBus;
@@ -22,6 +23,7 @@ import se.purplescout.purplemow.onboard.shared.schedule.dto.RecurringInterval;
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import android.util.Log;
 
+@Singleton
 public class ScheduleServiceImpl implements ScheduleService {
 
 	private final ScheduleEventDAO scheduleEntryDAO;

@@ -5,7 +5,11 @@ import se.purplescout.purplemow.onboard.ui.common.binder.ActivityBinderView;
 import se.purplescout.purplemow.onboard.ui.common.binder.annotation.ContentView;
 import se.purplescout.purplemow.onboard.ui.common.binder.annotation.UiField;
 import se.purplescout.purplemow.onboard.ui.home.activity.HomeActivity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.widget.Button;
 
 @ContentView(R.layout.activity_home)
@@ -18,6 +22,7 @@ public class HomeView extends ActivityBinderView implements HomeActivity.ViewDis
 	@UiField(R.id.homeLogsBtn) Button homeLogsBtn;
 	@UiField(R.id.homeSettingsBtn) Button homeSettingsBtn;
 	@UiField(R.id.homeStartBtn) Button homeStartBtn;
+
 	private final ProgressDialog loadingDialog;
 	
 	public HomeView(HomeActivity activity) {
@@ -67,5 +72,23 @@ public class HomeView extends ActivityBinderView implements HomeActivity.ViewDis
 		} else {
 			loadingDialog.hide();
 		}
+	}
+
+	@Override
+	public void showNoUsbDialog(Context context, OnClickListener clickListener) {
+		new AlertDialog.Builder(context)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle(R.string.no_usb_title)
+			.setMessage(R.string.no_usb_msg)
+			.setPositiveButton(R.string.yes, clickListener)
+			.setNegativeButton(R.string.no, new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+				}
+			})
+			.create()
+			.show();
 	}
 }

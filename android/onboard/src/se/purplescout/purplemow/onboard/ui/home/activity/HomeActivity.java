@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -18,12 +19,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
 public class HomeActivity extends Activity {
+
+	private static final boolean IN_NORMAL_MODE = false;
+
+	private static final boolean IN_DEBUG_MODE = true;
 
 	public static boolean serviceRunning = false;
 	
@@ -46,6 +50,9 @@ public class HomeActivity extends Activity {
 		Button getStartBtn();
 
 		void setLoading(boolean b);
+
+
+		void showNoUsbDialog(Context context, android.content.DialogInterface.OnClickListener clickListener);
 	}
 	
 	ViewDisplay display;
@@ -110,7 +117,13 @@ public class HomeActivity extends Activity {
 		if (usbIsConnected()) {
 			ensurePermissionAndRunService();
 		} else {
-			Toast.makeText(this, "Ingen usb ansluten", Toast.LENGTH_SHORT).show();
+			display.showNoUsbDialog(this, new android.content.DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					startMainService(IN_DEBUG_MODE);
+				}
+			});
 		}
 	}
 	
@@ -125,7 +138,7 @@ public class HomeActivity extends Activity {
 		        if (ACTION_USB_PERMISSION.equals(action)) {
 		            synchronized (this) {
 		                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-		                    startMainService();
+		                    startMainService(IN_NORMAL_MODE);
 		                }
 		            }
 		        }
@@ -146,7 +159,7 @@ public class HomeActivity extends Activity {
 		return true;
 	}
 
-	private void startMainService() {
+	private void startMainService(boolean inDebugMode) {
 		serviceRunningReceiver = new BroadcastReceiver() {
 
 			@Override
@@ -158,6 +171,7 @@ public class HomeActivity extends Activity {
 		registerReceiver(serviceRunningReceiver, new IntentFilter(MainService.SERVICE_IS_RUNNING));
 		Log.d(this.getClass().getSimpleName(), "Starting service: " + MainService.class.getSimpleName());
 		Intent serviceIntent = new Intent(this, MainService.class);
+		serviceIntent.putExtra("Debug", inDebugMode);
 		startService(serviceIntent);
 		display.setLoading(true);
 	}
