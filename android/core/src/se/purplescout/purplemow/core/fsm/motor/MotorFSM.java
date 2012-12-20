@@ -2,11 +2,14 @@ package se.purplescout.purplemow.core.fsm.motor;
 
 import java.io.IOException;
 
+import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.MotorController;
 import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.bus.CoreBusSubscriberThread;
 import se.purplescout.purplemow.core.common.Constants;
+import se.purplescout.purplemow.core.fsm.common.event.NewConstantsEvent;
+import se.purplescout.purplemow.core.fsm.common.event.NewConstantsEventHandler;
 import se.purplescout.purplemow.core.fsm.motor.event.EmergencyStopEvent;
 import se.purplescout.purplemow.core.fsm.motor.event.EmergencyStopEventHandler;
 import se.purplescout.purplemow.core.fsm.motor.event.MoveEvent;
@@ -25,7 +28,7 @@ import se.purplescout.purplemow.core.fsm.mower.event.StartedMowingEvent;
 import android.util.Log;
 
 public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEventHandler, MoveEventHandler, MowEventHandler, StopEventHandler,
-		IncrementMovementSpeedEventHandler, IncrementCutterSpeedEventHandler, DecrementCutterSpeedEventHandler {
+		IncrementMovementSpeedEventHandler, IncrementCutterSpeedEventHandler, DecrementCutterSpeedEventHandler, NewConstantsEventHandler {
 
 	private static final int STEP = 85;
 
@@ -38,9 +41,11 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 	private int currentMovementSpeed;
 	private int currentCutterSpeed;
 	private CoreBus coreBus = CoreBus.getInstance();
+	private Constants constants;
 
-	public MotorFSM(MotorController motorController) {
-		this.motorController = motorController;
+	public MotorFSM(Constants constants, ComStream comStream) {
+		this.constants = constants;
+		this.motorController = new MotorController(comStream, constants);
 		setupSubscriptions();
 	}
 
@@ -119,8 +124,8 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 	public void onIncrementCutterSpeed(IncrementCutterSpeedEvent event) {
 		try {
 			int newCutterSpeed = currentCutterSpeed + STEP;
-			if (newCutterSpeed > Constants.FULL_SPEED) {
-				newCutterSpeed = Constants.FULL_SPEED;
+			if (newCutterSpeed > constants.getFullSpeed()) {
+				newCutterSpeed = constants.getFullSpeed();
 			}
 			cutterEngine(newCutterSpeed);
 		} catch (IOException e) {
@@ -132,8 +137,8 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 	public void onIncrementMovementSpeed(IncrementMovementSpeedEvent event) {
 		try {
 			int newMovementSpeed = currentMovementSpeed + STEP;
-			if (newMovementSpeed > Constants.FULL_SPEED) {
-				newMovementSpeed = Constants.FULL_SPEED;
+			if (newMovementSpeed > constants.getFullSpeed()) {
+				newMovementSpeed = constants.getFullSpeed();
 			}
 			if (event.getDirection() == Direction.FORWARD && state != State.MOVING_FWD) {
 				newMovementSpeed = STEP;
@@ -151,6 +156,12 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 		} catch (IOException e) {
 			handleIOException(e);
 		}
+	}
+
+	@Override
+	public void onNewConstants(NewConstantsEvent event) {
+		this.constants = event.getConstants();
+		motorController.updateConstants(constants);
 	}
 
 	private void move(Direction direction, int velocity) throws IOException {

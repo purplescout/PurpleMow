@@ -15,7 +15,7 @@ import com.j256.ormlite.table.TableUtils;
 public class PurpleMowSqliteOpenHelper extends OrmLiteSqliteOpenHelper {
 
 	private static final String DATABASE_NAME = "purplemow.db";
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 6;
 
 	public PurpleMowSqliteOpenHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -27,9 +27,8 @@ public class PurpleMowSqliteOpenHelper extends OrmLiteSqliteOpenHelper {
 		Log.i(PurpleMowSqliteOpenHelper.class.getSimpleName(), "onCreate");
 		try {
 			TableUtils.createTable(conn, ScheduleEvent.class);
-			MigrationScript.insertData(db);
+			MigrationScript.insertData(db, conn);
 		} catch (SQLException e) {
-			Log.e(getClass().getSimpleName(), e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -37,6 +36,10 @@ public class PurpleMowSqliteOpenHelper extends OrmLiteSqliteOpenHelper {
 	@Override
 	public synchronized void onUpgrade(SQLiteDatabase db, ConnectionSource conn, int currentVersion, int targetVersion) {
 		Log.i(PurpleMowSqliteOpenHelper.class.getSimpleName(), "onUpgrade");
-		MigrationScript.execute(db, conn, currentVersion);
+		try {
+			MigrationScript.execute(db, conn, currentVersion);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

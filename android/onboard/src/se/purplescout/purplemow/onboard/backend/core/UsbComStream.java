@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard;
+package se.purplescout.purplemow.onboard.backend.core;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,7 +29,7 @@ public class UsbComStream extends ComStream {
 			outputStream.write(buffer);
 		}
 	}
-	
+
 	@Override
 	public synchronized void sendCommand(byte command, byte target) throws IOException {
 		sendCommand(command, target, -1);

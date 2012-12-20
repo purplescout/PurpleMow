@@ -2,6 +2,9 @@ package se.purplescout.purplemow.onboard.shared.schedule.dto;
 
 import java.util.Date;
 
+import se.purplescout.purplemow.onboard.shared.schedule.enums.RecurringInterval;
+import se.purplescout.purplemow.onboard.shared.schedule.enums.Type;
+
 public class ScheduleEventDTO {
 
 	private int id;
