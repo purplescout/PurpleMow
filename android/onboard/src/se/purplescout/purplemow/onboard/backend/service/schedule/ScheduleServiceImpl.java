@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard.web.service.schedule;
+package se.purplescout.purplemow.onboard.backend.service.schedule;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import com.google.inject.Inject;
 
 import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.bus.CoreBus;
@@ -28,6 +30,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 	private final List<ScheduledFuture<?>> scheduledEvents = new ArrayList<ScheduledFuture<?>>();
 
+	@Inject
 	public ScheduleServiceImpl(ScheduleEventDAO scheduleEntryDAO, ScheduledExecutorService scheduler) {
 		this.scheduleEntryDAO = scheduleEntryDAO;
 		this.scheduler = scheduler;
@@ -71,7 +74,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			weekDates.add(cal.getTime());
 			cal.add(Calendar.DATE, 1);
 		}
-		
+
 		return weekDates;
 	}
 
@@ -197,10 +200,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 		entity.setStartDate(dto.getStartDate());
 		entity.setStopDate(dto.getStopDate());
 		entity.setType(dto.getType());
-		
+
 		return entity;
 	}
-	
+
 	private boolean validateEvent(ScheduleEvent event) {
 		Calendar start = Calendar.getInstance();
 		Calendar stop = Calendar.getInstance();
@@ -218,7 +221,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		if (start.get(Calendar.DATE) != stop.get(Calendar.DATE)) {
 			return false;
 		}
-		
+
 		return true;
 	}
 }

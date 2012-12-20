@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard.web.service.remote;
+package se.purplescout.purplemow.onboard.backend.service.remote;
 
 import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.fsm.motor.event.StopEvent;

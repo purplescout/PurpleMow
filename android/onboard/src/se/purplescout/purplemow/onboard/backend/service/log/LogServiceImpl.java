@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard.web.service.log;
+package se.purplescout.purplemow.onboard.backend.service.log;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -37,7 +37,7 @@ public class LogServiceImpl implements LogService {
 		if (filter.length() > 0) {
 			filter.replace(filter.length() - 1, filter.length(), "");
 		}
-		
+
 		try {
 			Process process = Runtime.getRuntime().exec(String.format("%s %s *:S", LOGCAT_CMD, filter.toString()));
 			InputStream inputStream = process.getInputStream();

@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard.web.service.log;
+package se.purplescout.purplemow.onboard.backend.service.log;
 
 import java.io.InputStream;
 import java.util.List;

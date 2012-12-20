@@ -15,13 +15,13 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
 
+import se.purplescout.purplemow.onboard.backend.service.log.LogService;
+import se.purplescout.purplemow.onboard.backend.service.remote.RemoteService;
+import se.purplescout.purplemow.onboard.backend.service.remote.RemoteService.Direction;
+import se.purplescout.purplemow.onboard.backend.service.schedule.ScheduleService;
 import se.purplescout.purplemow.onboard.shared.log.dto.LogcatFilterDTO;
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
 import se.purplescout.purplemow.onboard.web.WebServer.Request;
-import se.purplescout.purplemow.onboard.web.service.log.LogService;
-import se.purplescout.purplemow.onboard.web.service.remote.RemoteService;
-import se.purplescout.purplemow.onboard.web.service.remote.RemoteService.Direction;
-import se.purplescout.purplemow.onboard.web.service.schedule.ScheduleService;
 import se.purplescout.purplemow.onboard.web.thirdparty.NanoHTTPD;
 import se.purplescout.purplemow.onboard.web.thirdparty.NanoHTTPD.Response;
 import android.util.Log;
