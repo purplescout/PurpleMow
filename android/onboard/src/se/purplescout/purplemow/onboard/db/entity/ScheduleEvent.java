@@ -10,8 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import se.purplescout.purplemow.onboard.shared.schedule.dto.RecurringInterval;
-import se.purplescout.purplemow.onboard.shared.schedule.dto.Type;
+import se.purplescout.purplemow.onboard.shared.schedule.enums.RecurringInterval;
+import se.purplescout.purplemow.onboard.shared.schedule.enums.Type;
 
 @Entity(name = "schedule_event")
 public class ScheduleEvent {

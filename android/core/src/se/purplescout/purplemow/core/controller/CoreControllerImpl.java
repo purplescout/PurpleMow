@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.util.Log;
-
 import se.purplescout.purplemow.core.ComStream;
-import se.purplescout.purplemow.core.MotorController;
 import se.purplescout.purplemow.core.SensorReader;
+import se.purplescout.purplemow.core.common.Constants;
 import se.purplescout.purplemow.core.fsm.motor.MotorFSM;
 import se.purplescout.purplemow.core.fsm.mower.MainFSM;
 import android.util.Log;
@@ -26,12 +24,12 @@ public class CoreControllerImpl implements CoreController {
 	private ComStream comStream;
 
 	@Override
-	public void prepare(ComStream comStream) {
+	public void prepare(ComStream comStream, Constants constants) {
 		if (state == State.STARTED) {
 			throw new IllegalStateException("Prepare cant be called after start. Call shutdown before trying to call prepare");
 		}
-		mowerFSM = new MainFSM();
-		motorFSM = new MotorFSM(new MotorController(comStream));
+		mowerFSM = new MainFSM(constants);
+		motorFSM = new MotorFSM(constants, comStream);
 		sensorReader = new SensorReader(comStream);
 		this.comStream = comStream;
 		state = State.PREPARED;

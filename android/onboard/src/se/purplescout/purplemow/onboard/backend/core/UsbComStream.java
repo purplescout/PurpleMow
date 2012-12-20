@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard;
+package se.purplescout.purplemow.onboard.backend.core;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

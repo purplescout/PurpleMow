@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard;
+package se.purplescout.purplemow.onboard.backend.core;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -13,6 +13,7 @@ import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.common.Constants;
 import se.purplescout.purplemow.core.controller.CoreController;
 import se.purplescout.purplemow.core.fsm.motor.event.MoveEvent;
+import se.purplescout.purplemow.onboard.backend.service.constant.ConstantService;
 import se.purplescout.purplemow.onboard.backend.service.schedule.ScheduleService;
 import se.purplescout.purplemow.onboard.ui.home.activity.HomeActivity;
 import se.purplescout.purplemow.onboard.web.WebServer;
@@ -38,13 +39,11 @@ public class MainService extends RoboIntentService {
 	public static final String SERVICE_IS_FINISHED = "se.purplescout.purplemow.SERVICE_IS_FINISHED";
 	public static boolean serviceRunning;
 
-	@Inject
-	CoreController coreController;
-	@Inject
-	RpcDispatcher dispatcher;
-	@Inject
-	ScheduleService scheduleService;
-
+	@Inject CoreController coreController;
+	@Inject RpcDispatcher dispatcher;
+	@Inject ScheduleService scheduleService;
+	@Inject ConstantService constantService;
+	
 	CoreBus coreBus = CoreBus.getInstance();
 
 	ComStream comStream;
@@ -127,14 +126,15 @@ public class MainService extends RoboIntentService {
 		Log.d(this.getClass().getSimpleName(), "Startup");
 
 		Log.d(this.getClass().getSimpleName(), "Preparing FSM");
-		coreController.prepare(comStream);
+		Constants constants = constantService.getConstants();
+		coreController.prepare(comStream, constants);
 
 		Log.d(this.getClass().getSimpleName(), "Starting FSM");
 		coreController.start();
 
 		scheduleService.initScheduler();
 
-		coreBus.fireEvent(new MoveEvent(Constants.FULL_SPEED, Direction.FORWARD));
+		coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
 
 		try {
 			webServer = new WebServer(8080, this, dispatcher);

@@ -9,23 +9,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.bus.CoreBus;
-import se.purplescout.purplemow.core.common.Constants;
 import se.purplescout.purplemow.core.fsm.motor.event.MoveEvent;
 import se.purplescout.purplemow.core.fsm.motor.event.StopEvent;
 import se.purplescout.purplemow.onboard.backend.dao.schedule.ScheduleEventDAO;
+import se.purplescout.purplemow.onboard.backend.service.constant.ConstantService;
 import se.purplescout.purplemow.onboard.db.entity.ScheduleEvent;
-import se.purplescout.purplemow.onboard.shared.schedule.dto.RecurringInterval;
 import se.purplescout.purplemow.onboard.shared.schedule.dto.ScheduleEventDTO;
+import se.purplescout.purplemow.onboard.shared.schedule.enums.RecurringInterval;
 import android.util.Log;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Singleton
 public class ScheduleServiceImpl implements ScheduleService {
 
+	@Inject ConstantService constantService;
+	
 	private final ScheduleEventDAO scheduleEntryDAO;
 	private final ScheduledExecutorService scheduler;
 	private final CoreBus coreBus = CoreBus.getInstance();
@@ -205,7 +207,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			@Override
 			public void run() {
 				Log.i(ScheduleService.class.getSimpleName(), "Start event");
-				coreBus.fireEvent(new MoveEvent(Constants.FULL_SPEED, Direction.FORWARD));
+				coreBus.fireEvent(new MoveEvent(constantService.getFullSpeed(), Direction.FORWARD));
 				scheduleNextStartMowEvent(event);
 			}
 		}, getTimeUntilNextStart(event), TimeUnit.MILLISECONDS);
