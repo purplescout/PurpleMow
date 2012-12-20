@@ -1,5 +1,7 @@
 package se.purplescout.purplemow.onboard.ui.controller;
 
+import se.purplescout.purplemow.onboard.ui.configure.activity.ConfigureActivity;
+import se.purplescout.purplemow.onboard.ui.configure.place.ConfigurePlace;
 import se.purplescout.purplemow.onboard.ui.home.activity.HomeActivity;
 import se.purplescout.purplemow.onboard.ui.remote.activity.RemoteActivity;
 import se.purplescout.purplemow.onboard.ui.remote.place.RemotePlace;
@@ -20,6 +22,9 @@ public class ActivityMapper {
 		}
 		if (place instanceof SchedulePlace) {
 			return ScheduleActivity.class;
+		}
+		if (place instanceof ConfigurePlace) {
+			return ConfigureActivity.class;
 		}
 		
 		return HomeActivity.class;

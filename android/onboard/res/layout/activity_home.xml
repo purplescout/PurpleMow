@@ -24,10 +24,10 @@
             android:text="@string/schedule" />
 
         <Button
-            android:id="@+id/homeCalibrateBtn"
+            android:id="@+id/homeConfigureBtn"
             style="@style/DashboardButton"
             android:drawableTop="@android:drawable/btn_star"
-            android:text="@string/calibrate" />
+            android:text="@string/configure" />
         
         <Button
             android:id="@+id/homeSensorsBtn"

@@ -47,6 +47,7 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 		subscribe(RangeSensorReceiveEvent.TYPE, this);
 		subscribe(StartedMowingEvent.TYPE, this);
 		subscribe(BatterySensorReceiveEvent.TYPE, this);
+		subscribe(NewConstantsEvent.TYPE, this);
 	}
 
 	@Override
@@ -82,12 +83,12 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	@Override
 	public void onBatterySensorReceived(BatterySensorReceiveEvent event) {
 		if (state == State.MOWING) {
-			if (event.getValue() < constants.getBatteryLow())
+			if (event.getValue() <= constants.getBatteryLow())
 				;
 			changeState(State.GOING_HOME);
 		}
-		if (state == State.CHARGING) {
-			if (event.getValue() > constants.getBatteryCharged()) {
+		if (state == State.CHARGING && state == State.GOING_HOME) {
+			if (event.getValue() >= constants.getBatteryCharged()) {
 				coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
 				changeState(State.MOWING);
 			}
