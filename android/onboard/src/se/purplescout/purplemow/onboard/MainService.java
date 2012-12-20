@@ -59,6 +59,7 @@ public class MainService extends IntentService {
 	ScheduledExecutorService scheduler;
 	
 	BroadcastReceiver usbDetachedReceiver;
+	ParcelFileDescriptor fileDescriptor;
 
 	public MainService() {
 		super("se.purplescout.purplemow");
@@ -84,7 +85,7 @@ public class MainService extends IntentService {
 		} else {
 			Log.d(this.getClass().getSimpleName(), "Created UsbAccessory " + accessory.getDescription() + ", " + accessory.getManufacturer());
 		}
-		ParcelFileDescriptor fileDescriptor = usbManager.openAccessory(accessory);
+		fileDescriptor = usbManager.openAccessory(accessory);
 		if (fileDescriptor == null) {
 			Log.e(this.getClass().getSimpleName(), "ParcelFileDescriptor is null");
 			throw new RuntimeException("ParcelFileDescriptor is null");
@@ -179,5 +180,13 @@ public class MainService extends IntentService {
 		webServer.stop();
 
 		coreController.shutdown();
+		
+		try {
+			fileDescriptor.close();
+		} catch (IOException e) {
+			Log.e(getClass().getSimpleName(), e.getMessage(), e);
+		} finally {
+			fileDescriptor = null;
+		}
 	}
 }

@@ -17,7 +17,7 @@ public class UsbComStream extends ComStream {
 	}
 
 	@Override
-	public void sendCommand(byte command, byte target, int value) throws IOException {
+	public synchronized void sendCommand(byte command, byte target, int value) throws IOException {
 		byte[] buffer = new byte[3];
 		if (value > 255)
 			value = 255;
@@ -31,12 +31,18 @@ public class UsbComStream extends ComStream {
 	}
 	
 	@Override
-	public void sendCommand(byte command, byte target) throws IOException {
+	public synchronized void sendCommand(byte command, byte target) throws IOException {
 		sendCommand(command, target, -1);
 	}
 
 	@Override
-	public void read(byte[] buffer) throws IOException {
+	public synchronized void read(byte[] buffer) throws IOException {
 		inputStream.read(buffer);
+	}
+
+	@Override
+	public synchronized void close() throws IOException {
+		inputStream.close();
+		outputStream.close();
 	}
 }

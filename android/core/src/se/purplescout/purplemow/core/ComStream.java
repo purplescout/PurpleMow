@@ -23,4 +23,6 @@ public abstract class ComStream {
 	public abstract void sendCommand(byte command, byte target) throws IOException;
 
 	public abstract void read(byte[] buffer) throws IOException;
+	
+	public abstract void close() throws IOException;
 }
