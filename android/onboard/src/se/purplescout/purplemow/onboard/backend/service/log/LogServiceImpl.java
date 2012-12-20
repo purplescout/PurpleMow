@@ -1,4 +1,4 @@
-package se.purplescout.purplemow.onboard.web.service.log;
+package se.purplescout.purplemow.onboard.backend.service.log;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
