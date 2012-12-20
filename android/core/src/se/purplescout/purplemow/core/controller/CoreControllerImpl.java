@@ -1,7 +1,10 @@
 package se.purplescout.purplemow.core.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import android.util.Log;
 
 import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.MotorController;
@@ -20,6 +23,7 @@ public class CoreControllerImpl implements CoreController {
 	private MainFSM mowerFSM;
 	private MotorFSM motorFSM;
 	private SensorReader sensorReader;
+	private ComStream comStream;
 
 	@Override
 	public void prepare(ComStream comStream) {
@@ -29,6 +33,7 @@ public class CoreControllerImpl implements CoreController {
 		mowerFSM = new MainFSM();
 		motorFSM = new MotorFSM(new MotorController(comStream));
 		sensorReader = new SensorReader(comStream);
+		this.comStream = comStream;
 		state = State.PREPARED;
 	}
 
@@ -49,6 +54,11 @@ public class CoreControllerImpl implements CoreController {
 			mowerFSM.shutdown();
 			motorFSM.shutdown();
 			sensorReader.shutdown();
+			try {
+				comStream.close();
+			} catch (IOException e) {
+				Log.e(getClass().getSimpleName(), e.getMessage(), e);
+			}
 			state = State.SHUTDOWN;
 		}
 	}
