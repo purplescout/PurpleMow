@@ -52,7 +52,11 @@
             android:name=".ui.schedule.activity.ScheduleActivity"
             android:screenOrientation="portrait" >
         </activity>
+		<activity
+            android:name=".ui.configure.activity.ConfigureActivity"
+            android:screenOrientation="portrait" >
+        </activity>
 
-        <service android:name=".MainService" />
+        <service android:name=".backend.core.MainService" />
     </application>
 </manifest>

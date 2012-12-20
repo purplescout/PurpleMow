@@ -1,7 +1,8 @@
 package se.purplescout.purplemow.onboard.ui.home.activity;
 
-import se.purplescout.purplemow.onboard.MainService;
 import se.purplescout.purplemow.onboard.R;
+import se.purplescout.purplemow.onboard.backend.core.MainService;
+import se.purplescout.purplemow.onboard.ui.configure.place.ConfigurePlace;
 import se.purplescout.purplemow.onboard.ui.controller.PlaceController;
 import se.purplescout.purplemow.onboard.ui.home.view.HomeView;
 import se.purplescout.purplemow.onboard.ui.remote.place.RemotePlace;
@@ -39,7 +40,7 @@ public class HomeActivity extends Activity {
 
 		Button getScheduleBtn();
 
-		Button getCalibrateBtn();
+		Button getConfigureBtn();
 
 		Button getSensorsBtn();
 
@@ -50,7 +51,6 @@ public class HomeActivity extends Activity {
 		Button getStartBtn();
 
 		void setLoading(boolean b);
-
 
 		void showNoUsbDialog(Context context, android.content.DialogInterface.OnClickListener clickListener);
 	}
@@ -91,6 +91,13 @@ public class HomeActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				PlaceController.goTo(HomeActivity.this, new SchedulePlace());
+			}
+		});
+		display.getConfigureBtn().setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				PlaceController.goTo(HomeActivity.this, new ConfigurePlace());
 			}
 		});
 		display.getSensorsBtn().setOnClickListener(new OnClickListener() {

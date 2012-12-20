@@ -7,7 +7,9 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 
+import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.common.Constants;
+import se.purplescout.purplemow.core.fsm.common.event.NewConstantsEvent;
 import se.purplescout.purplemow.onboard.backend.dao.constant.ConstantDAO;
 import se.purplescout.purplemow.onboard.db.entity.Constant;
 import se.purplescout.purplemow.onboard.shared.constant.dto.ConstantsDTO;
@@ -15,9 +17,9 @@ import se.purplescout.purplemow.onboard.shared.constant.enums.ConstantEnum;
 
 public class ConstantServiceImpl implements ConstantService {
 
-	@Inject
-	ConstantDAO constantDAO;
+	@Inject	ConstantDAO constantDAO;
 
+	CoreBus coreBus = CoreBus.getInstance();
 	@Override
 	public Constants getConstants() {
 		List<Constant> constants = constantDAO.listAll();
@@ -75,6 +77,8 @@ public class ConstantServiceImpl implements ConstantService {
 			constantDAO.save(ConstantEnum.GO_HOME_THRESHOLD_NEG, constantsDTO.getGoHomeThresholdNeg());
 			constantDAO.save(ConstantEnum.GO_HOME_THRESHOLD_POS, constantsDTO.getGoHomeThresholdPos());
 			constantDAO.save(ConstantEnum.GO_HOME_OFFSET, constantsDTO.getGoHomeOffset());
+
+			coreBus.fireEvent(new NewConstantsEvent(getConstants()));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

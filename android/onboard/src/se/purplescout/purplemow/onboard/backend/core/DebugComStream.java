@@ -9,7 +9,7 @@ public class DebugComStream extends ComStream {
 
 	@Override
 	public void sendCommand(byte command, byte target, int value) throws IOException {
-		Log.i(getClass().getSimpleName(), String.format("Received command %s %s %s", command, target, value));
+		Log.d(getClass().getSimpleName(), String.format("Received command %s %s %s", command, target, value));
 	}
 
 	@Override

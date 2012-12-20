@@ -17,7 +17,7 @@ public class HomeView extends ActivityBinderView implements HomeActivity.ViewDis
 
 	@UiField(R.id.homeRemoteBtn) Button homeRemoteBtn;
 	@UiField(R.id.homeScheduleBtn) Button homeScheduleBtn;
-	@UiField(R.id.homeCalibrateBtn) Button homeCalibrateBtn;
+	@UiField(R.id.homeConfigureBtn) Button homeConfigureBtn;
 	@UiField(R.id.homeSensorsBtn) Button homeSensorsBtn;
 	@UiField(R.id.homeLogsBtn) Button homeLogsBtn;
 	@UiField(R.id.homeSettingsBtn) Button homeSettingsBtn;
@@ -41,8 +41,8 @@ public class HomeView extends ActivityBinderView implements HomeActivity.ViewDis
 	}
 
 	@Override
-	public Button getCalibrateBtn() {
-		return homeCalibrateBtn;
+	public Button getConfigureBtn() {
+		return homeConfigureBtn;
 	}
 
 	@Override

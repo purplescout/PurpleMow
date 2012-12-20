@@ -30,4 +30,5 @@
 	<string name="clock_in">Clock in</string>
 	<string name="from">From</string>
 	<string name="to">To</string>
+	<string name="configure">Configure</string>
 </resources>
