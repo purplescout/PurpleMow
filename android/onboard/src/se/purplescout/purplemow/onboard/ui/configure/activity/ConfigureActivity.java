@@ -4,17 +4,16 @@ import roboguice.activity.RoboActivity;
 import se.purplescout.purplemow.onboard.R;
 import se.purplescout.purplemow.onboard.backend.service.constant.ConstantService;
 import se.purplescout.purplemow.onboard.shared.constant.dto.ConstantsDTO;
-import se.purplescout.purplemow.onboard.ui.common.SimpleOnSeekBarChangeListener;
 import se.purplescout.purplemow.onboard.ui.common.SimpleTextWatcher;
 import se.purplescout.purplemow.onboard.ui.configure.view.ConfigureView;
+import se.purplescout.purplemow.onboard.ui.widget.ValuePickerView;
+import se.purplescout.purplemow.onboard.ui.widget.ValuePickerView.ValuePickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import com.google.inject.Inject;
 
@@ -25,46 +24,26 @@ public class ConfigureActivity extends RoboActivity {
 		EditText getFullSpeedText();
 
 		EditText getNoSpeedText();
-
-		TextView getRangeLimitText();
-
-		SeekBar getRangeLimitSeekBar();
-
-		TextView getBwfLimitText();
-
-		SeekBar getBwfLimitSeekBar();
-
-		TextView getBatteryLowText();
-
-		SeekBar getBatteryLowSeekBar();
-
-		TextView getBatteryChargedText();
-
-		SeekBar getBatteryChargedSeekBar();
-
-		TextView getGoHomeOffsetText();
-
-		SeekBar getGoHomeOffsetSeekBar();
-
-		TextView getGoHomeHysteresText();
-
-		SeekBar getGoHomeHysteresSeekBar();
-
-		TextView getGoHomeThresholdPosNarrowText();
-
-		SeekBar getGoHomeThresholdPosNarrowSeekBar();
-
-		TextView getGoHomeThresholdNegNarrowText();
-
-		SeekBar getGoHomeThresholdNegNarrowSeekBar();
 		
-		TextView getGoHomeThresholdPosWideText();
+		ValuePickerView getRangeLimitPicker();
+		
+		ValuePickerView getBwfLimitPicker();
+		
+		ValuePickerView getBatteryLowPicker();
+		
+		ValuePickerView getBatteryChargedPicker();
+		
+		ValuePickerView getGoHomeOffsetPicker();
 
-		SeekBar getGoHomeThresholdPosWideSeekBar();
+		ValuePickerView getGoHomeHysteresPicker();
+		
+		ValuePickerView getGoHomeThresholdPosNarrowPicker();
+		
+		ValuePickerView getGoHomeThresholdNegNarrowPicker();
+		
+		ValuePickerView getGoHomeThresholdPosWidePicker();
 
-		TextView getGoHomeThresholdNegWideText();
-
-		SeekBar getGoHomeThresholdNegWideSeekBar();
+		ValuePickerView getGoHomeThresholdNegWidePicker();
 	}
 
 	@Inject
@@ -119,94 +98,85 @@ public class ConfigureActivity extends RoboActivity {
 				constants.setChanged(true);
 			}
 		});
-		display.getRangeLimitSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
 
+		display.getRangeLimitPicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setRangeLimit(progress);
+			public void onValuePicked(int value) {
+				constants.setRangeLimit(value);
 				constants.setChanged(true);
-				display.getRangeLimitText().setText(String.format("%d", progress));
 			}
 		});
-		display.getBwfLimitSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getBwfLimitPicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setBwfLimit(progress);
+			public void onValuePicked(int value) {
+				constants.setBwfLimit(value);
 				constants.setChanged(true);
-				display.getBwfLimitText().setText(String.format("%d", progress));
 			}
 		});
-		display.getBatteryLowSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getBatteryLowPicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setBatteryLow(progress);
+			public void onValuePicked(int value) {
+				constants.setBatteryLow(value);
 				constants.setChanged(true);
-				display.getBatteryLowText().setText(String.format("%d", progress));
 			}
 		});
-		display.getBatteryChargedSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getBatteryChargedPicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setBatteryCharged(progress);
+			public void onValuePicked(int value) {
+				constants.setBatteryCharged(value);
 				constants.setChanged(true);
-				display.getBatteryChargedText().setText(String.format("%d", progress));
 			}
 		});
-		display.getGoHomeOffsetSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getGoHomeOffsetPicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setGoHomeOffset(progress);
+			public void onValuePicked(int value) {
+				constants.setGoHomeOffset(value);
 				constants.setChanged(true);
-				display.getGoHomeOffsetText().setText(String.format("%d", progress));
 			}
 		});
-		display.getGoHomeHysteresSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getGoHomeHysteresPicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setGoHomeHysteres(progress);
+			public void onValuePicked(int value) {
+				constants.setGoHomeHysteres(value);
 				constants.setChanged(true);
-				display.getGoHomeHysteresText().setText(String.format("%d", progress));
 			}
 		});
-		display.getGoHomeThresholdPosNarrowSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getGoHomeThresholdPosNarrowPicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setGoHomeThresholdPosNarrow(progress);
+			public void onValuePicked(int value) {
+				constants.setGoHomeThresholdPosNarrow(value);
 				constants.setChanged(true);
-				display.getGoHomeThresholdPosNarrowText().setText(String.format("%d", progress));
 			}
 		});
-		display.getGoHomeThresholdNegNarrowSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getGoHomeThresholdNegNarrowPicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setGoHomeThresholdNegNarrow(progress);
+			public void onValuePicked(int value) {
+				constants.setGoHomeThresholdNegNarrow(value);
 				constants.setChanged(true);
-				display.getGoHomeThresholdNegNarrowText().setText(String.format("%d", progress));
 			}
 		});
-		display.getGoHomeThresholdPosWideSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getGoHomeThresholdPosWidePicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setGoHomeThresholdPosWide(progress);
+			public void onValuePicked(int value) {
+				constants.setGoHomeThresholdPosWide(value);
 				constants.setChanged(true);
-				display.getGoHomeThresholdPosWideText().setText(String.format("%d", progress));
 			}
 		});
-		display.getGoHomeThresholdNegWideSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
-
+		display.getGoHomeThresholdNegWidePicker().setOnValueChangeListener(new ValuePickListener() {
+			
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setGoHomeThresholdNegWide(progress);
+			public void onValuePicked(int value) {
+				constants.setGoHomeThresholdNegWide(value);
 				constants.setChanged(true);
-				display.getGoHomeThresholdNegWideText().setText(String.format("%d", progress));
 			}
 		});
 	}
@@ -246,45 +216,15 @@ public class ConfigureActivity extends RoboActivity {
 	private void updateView() {
 		display.getFullSpeedText().setText(String.format("%d", constants.getFullSpeed()));
 		display.getNoSpeedText().setText(String.format("%d", constants.getNoSpeed()));
-
-		display.getRangeLimitText().setText(String.format("%d", constants.getRangeLimit()));
-		display.getRangeLimitSeekBar().setProgress(constants.getRangeLimit());
-		display.getRangeLimitSeekBar().setSecondaryProgress(constants.getRangeLimit());
-
-		display.getBwfLimitText().setText(String.format("%d", constants.getBwfLimit()));
-		display.getBwfLimitSeekBar().setProgress(constants.getBwfLimit());
-		display.getBwfLimitSeekBar().setSecondaryProgress(constants.getBwfLimit());
-
-		display.getBatteryLowText().setText(String.format("%d", constants.getBatteryLow()));
-		display.getBatteryLowSeekBar().setProgress(constants.getBatteryLow());
-		display.getBatteryLowSeekBar().setSecondaryProgress(constants.getBatteryLow());
-
-		display.getBatteryChargedText().setText(String.format("%d", constants.getBatteryCharged()));
-		display.getBatteryChargedSeekBar().setProgress(constants.getBatteryCharged());
-		display.getBatteryChargedSeekBar().setSecondaryProgress(constants.getBatteryCharged());
-		
-		display.getGoHomeHysteresText().setText(String.format("%d", constants.getGoHomeHysteres()));
-		display.getGoHomeHysteresSeekBar().setProgress(constants.getGoHomeHysteres());
-		display.getGoHomeHysteresSeekBar().setSecondaryProgress(constants.getGoHomeHysteres());
-
-		display.getGoHomeOffsetText().setText(String.format("%d", constants.getGoHomeOffset()));
-		display.getGoHomeOffsetSeekBar().setProgress(constants.getGoHomeOffset());
-		display.getGoHomeOffsetSeekBar().setSecondaryProgress(constants.getGoHomeOffset());
-		
-		display.getGoHomeThresholdPosNarrowText().setText(String.format("%d", constants.getGoHomeThresholdPosNarrow()));
-		display.getGoHomeThresholdPosNarrowSeekBar().setProgress(constants.getGoHomeThresholdPosNarrow());
-		display.getGoHomeThresholdPosNarrowSeekBar().setSecondaryProgress(constants.getGoHomeThresholdPosNarrow());
-
-		display.getGoHomeThresholdNegNarrowText().setText(String.format("%d", constants.getGoHomeThresholdNegNarrow()));
-		display.getGoHomeThresholdNegNarrowSeekBar().setProgress(constants.getGoHomeThresholdNegNarrow());
-		display.getGoHomeThresholdNegNarrowSeekBar().setSecondaryProgress(constants.getGoHomeThresholdNegNarrow());
-		
-		display.getGoHomeThresholdPosWideText().setText(String.format("%d", constants.getGoHomeThresholdPosWide()));
-		display.getGoHomeThresholdPosWideSeekBar().setProgress(constants.getGoHomeThresholdPosWide());
-		display.getGoHomeThresholdPosWideSeekBar().setSecondaryProgress(constants.getGoHomeThresholdPosWide());
-
-		display.getGoHomeThresholdNegWideText().setText(String.format("%d", constants.getGoHomeThresholdNegWide()));
-		display.getGoHomeThresholdNegWideSeekBar().setProgress(constants.getGoHomeThresholdNegWide());
-		display.getGoHomeThresholdNegWideSeekBar().setSecondaryProgress(constants.getGoHomeThresholdNegWide());
+		display.getRangeLimitPicker().setValue(constants.getRangeLimit());
+		display.getBwfLimitPicker().setValue(constants.getBwfLimit());
+		display.getBatteryLowPicker().setValue(constants.getBatteryLow());
+		display.getBatteryChargedPicker().setValue(constants.getBatteryCharged());
+		display.getGoHomeHysteresPicker().setValue(constants.getGoHomeHysteres());
+		display.getGoHomeOffsetPicker().setValue(constants.getGoHomeOffset());
+		display.getGoHomeThresholdPosNarrowPicker().setValue(constants.getGoHomeThresholdPosNarrow());
+		display.getGoHomeThresholdNegNarrowPicker().setValue(constants.getGoHomeThresholdNegNarrow());
+		display.getGoHomeThresholdPosWidePicker().setValue(constants.getGoHomeThresholdPosWide());
+		display.getGoHomeThresholdNegWidePicker().setValue(constants.getGoHomeThresholdNegWide());
 	}
 }
