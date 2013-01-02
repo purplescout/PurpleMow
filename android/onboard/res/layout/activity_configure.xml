@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res/se.purplescout.purplemow.onboard">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -73,141 +73,49 @@
             android:text="Mower constants"
             android:textSize="18dp" />
 
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configRangeLimitPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            app:maxValue="1023"
+            app:title="Range limit"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Range limit" />
-
-                <TextView
-                    android:id="@+id/configRangeLimitText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configRangeLimitSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="1023" />
-        </LinearLayout>
-
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configBwfLimitPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            app:maxValue="1023"
+            app:title="Bwf limit"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:id="@+id/TextView02"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Bwf limit" />
-
-                <TextView
-                    android:id="@+id/configBwfLimitText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configBwfLimitSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="1023" />
-        </LinearLayout>
-
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configBatteryLowPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            app:maxValue="1023"
+            app:title="Battery Low"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:id="@+id/TextView01"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Battery low" />
-
-                <TextView
-                    android:id="@+id/configBatteryLowText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configBatteryLowSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="1023" />
-        </LinearLayout>
-
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configBatteryChargedPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:id="@+id/TextView03"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Battery charged" />
-
-                <TextView
-                    android:id="@+id/configBatteryChargedText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configBatteryChargedSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="1023" />
-        </LinearLayout>
+            android:paddingTop="20dp"
+            app:maxValue="1023"
+            app:title="Battery charged"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -218,206 +126,65 @@
             android:text="Go home constants"
             android:textSize="18dp" />
 
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configGoHomeOffsetPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            app:maxValue="1023"
+            app:title="Offset"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:id="@+id/TextView05"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Offset" />
-
-                <TextView
-                    android:id="@+id/configGoHomeOffsetText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configGoHomeOffsetSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="1023" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configGoHomeHysteresPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            app:maxValue="40"
+            app:title="Hysteres" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:id="@+id/TextView06"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hysteres" />
-
-                <TextView
-                    android:id="@+id/configGoHomeHysteresText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configGoHomeHysteresSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="30" />
-        </LinearLayout>
-
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configGoHomeThresholdPosNarrowPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            app:maxValue="400"
+            app:title="Threshold positive narrow" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Threshold positive narrow" />
-
-                <TextView
-                    android:id="@+id/configGoHomeThresholdPosNarrowText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configGoHomeThresholdPosNarrowSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="400" />
-        </LinearLayout>
-
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configGoHomeThresholdNegNarrowPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            app:maxValue="400"
+            app:title="Threshold negative narrow" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Threshold negative narrow" />
-
-                <TextView
-                    android:id="@+id/configGoHomeThresholdNegNarrowText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configGoHomeThresholdNegNarrowSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="400" />
-        </LinearLayout>
-
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configGoHomeThresholdPosWidePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            app:maxValue="400"
+            app:title="Threshold positive wide"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Threshold positive wide" />
-
-                <TextView
-                    android:id="@+id/configGoHomeThresholdPosWideText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configGoHomeThresholdPosWideSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="400" />
-        </LinearLayout>
-
-        <LinearLayout
+        <se.purplescout.purplemow.onboard.ui.widget.ValuePickerView
+            android:id="@+id/configGoHomeThresholdNegWidePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Threshold negative wide" />
-
-                <TextView
-                    android:id="@+id/configGoHomeThresholdNegWideText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="TextView" />
-            </LinearLayout>
-
-            <SeekBar
-                android:id="@+id/configGoHomeThresholdNegWideSeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="400" />
-        </LinearLayout>
+            android:paddingTop="20dp"
+            app:maxValue="400"
+            app:title="Threshold negative wide" />
 
     </LinearLayout>
 
