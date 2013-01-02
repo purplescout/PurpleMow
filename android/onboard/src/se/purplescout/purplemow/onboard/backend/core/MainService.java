@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import roboguice.RoboGuice;
-import roboguice.service.RoboIntentService;
+import roboguice.service.RoboService;
 import se.purplescout.purplemow.core.ComStream;
 import se.purplescout.purplemow.core.MotorController.Direction;
 import se.purplescout.purplemow.core.bus.CoreBus;
@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -32,7 +33,7 @@ import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 import com.google.inject.Inject;
 
-public class MainService extends RoboIntentService {
+public class MainService extends RoboService {
 
 	private static final int NOTIFICATION_FLAG = 0;
 	public static final String SERVICE_IS_RUNNING = "se.purplescout.purplemow.SERVICE_IS_RUNNING";
@@ -51,12 +52,8 @@ public class MainService extends RoboIntentService {
 	BroadcastReceiver usbDetachedReceiver;
 	ParcelFileDescriptor fileDescriptor;
 
-	public MainService() {
-		super("se.purplescout.purplemow");
-	}
-
 	@Override
-	protected void onHandleIntent(Intent intent) {
+	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.d(this.getClass().getSimpleName(), "onHandleIntent");
 		boolean inDebugMode = intent.getExtras().getBoolean("Debug");
 		if (inDebugMode) {
@@ -104,10 +101,13 @@ public class MainService extends RoboIntentService {
 		HomeActivity.serviceRunning = true;
 		sendBroadcast(new Intent(SERVICE_IS_RUNNING));
 
-		// To keep service alive
-		while (true) {
-			Thread.yield();
-		}
+		return START_STICKY;
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private void setupNotification() {
