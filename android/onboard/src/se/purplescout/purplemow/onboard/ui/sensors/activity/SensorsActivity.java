@@ -40,7 +40,7 @@ public class SensorsActivity extends CoreBusSubscriberActivity {
 		subscribe(BwfSensorReceiveEvent.TYPE, new BwfSensorReceiveEventHandler() {
 
 			@Override
-			public void onMowerChangeState(BwfSensorReceiveEvent event) {
+			public void onBWFSensorEvent(BwfSensorReceiveEvent event) {
 				String value = Integer.toString(event.getValue());
 				display.setBwfValue(value);
 			}

@@ -303,10 +303,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Threshold positive" />
+                    android:text="Threshold positive narrow" />
 
                 <TextView
-                    android:id="@+id/configGoHomeThresholdPosText"
+                    android:id="@+id/configGoHomeThresholdPosNarrowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
@@ -314,10 +314,10 @@
             </LinearLayout>
 
             <SeekBar
-                android:id="@+id/configGoHomeThresholdPosSeekBar"
+                android:id="@+id/configGoHomeThresholdPosNarrowSeekBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="100" />
+                android:max="400" />
         </LinearLayout>
 
         <LinearLayout
@@ -336,10 +336,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Threshold negative" />
+                    android:text="Threshold negative narrow" />
 
                 <TextView
-                    android:id="@+id/configGoHomeThresholdNegText"
+                    android:id="@+id/configGoHomeThresholdNegNarrowText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
@@ -347,10 +347,76 @@
             </LinearLayout>
 
             <SeekBar
-                android:id="@+id/configGoHomeThresholdNegSeekBar"
+                android:id="@+id/configGoHomeThresholdNegNarrowSeekBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="100" />
+                android:max="400" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="20dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Threshold positive wide" />
+
+                <TextView
+                    android:id="@+id/configGoHomeThresholdPosWideText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:text="TextView" />
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/configGoHomeThresholdPosWideSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="400" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="20dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Threshold negative wide" />
+
+                <TextView
+                    android:id="@+id/configGoHomeThresholdNegWideText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:text="TextView" />
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/configGoHomeThresholdNegWideSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="400" />
         </LinearLayout>
 
     </LinearLayout>

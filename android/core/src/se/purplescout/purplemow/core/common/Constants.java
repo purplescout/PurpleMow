@@ -9,12 +9,20 @@ public class Constants {
 	private final int batteryLow;
 	private final int batteryCharged;
 	private final int goHomeHysteres;
-	private final int goHomeThresholdNeg;
-	private final int goHomeThresholdPos;
+
+
+	private final int goHomeThresholdNegNarrow;
+	private final int goHomeThresholdPosNarrow;
+	private final int goHomeThresholdNegWide;
+	private final int goHomeThresholdPosWide;
 	private final int goHomeOffset;
 
-	public Constants(int fullSpeed, int noSpeed, int rangeLimit, int bwfLimit, int batteryLow, int batteryCharged, int goHomeHysteres, int goHomeThresholdNeg,
-			int goHomeThresholdPos, int goHomeOffset) {
+
+	public Constants(int fullSpeed, int noSpeed, int rangeLimit, int bwfLimit,
+			int batteryLow, int batteryCharged, int goHomeHysteres,
+			int goHomeThresholdNegNarrow, int goHomeThresholdPosNarrow,
+			int goHomeThresholdNegWide, int goHomeThresholdPosWide,
+			int goHomeOffset) {
 		this.fullSpeed = fullSpeed;
 		this.noSpeed = noSpeed;
 		this.rangeLimit = rangeLimit;
@@ -22,10 +30,14 @@ public class Constants {
 		this.batteryLow = batteryLow;
 		this.batteryCharged = batteryCharged;
 		this.goHomeHysteres = goHomeHysteres;
-		this.goHomeThresholdNeg = goHomeThresholdNeg;
-		this.goHomeThresholdPos = goHomeThresholdPos;
+		this.goHomeThresholdNegNarrow = goHomeThresholdNegNarrow;
+		this.goHomeThresholdPosNarrow = goHomeThresholdPosNarrow;
+		this.goHomeThresholdNegWide = goHomeThresholdNegWide;
+		this.goHomeThresholdPosWide = goHomeThresholdPosWide;
 		this.goHomeOffset = goHomeOffset;
 	}
+
+
 
 	public int getFullSpeed() {
 		return fullSpeed;
@@ -55,15 +67,23 @@ public class Constants {
 		return goHomeHysteres;
 	}
 
-	public int getGoHomeThresholdNeg() {
-		return goHomeThresholdNeg;
-	}
-
-	public int getGoHomeThresholdPos() {
-		return goHomeThresholdPos;
-	}
-
 	public int getGoHomeOffset() {
 		return goHomeOffset;
+	}
+
+	public int getGoHomeThresholdNegNarrow() {
+		return goHomeThresholdNegNarrow;
+	}
+
+	public int getGoHomeThresholdPosNarrow() {
+		return goHomeThresholdPosNarrow;
+	}
+
+	public int getGoHomeThresholdNegWide() {
+		return goHomeThresholdNegWide;
+	}
+
+	public int getGoHomeThresholdPosWide() {
+		return goHomeThresholdPosWide;
 	}
 }

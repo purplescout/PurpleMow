@@ -4,5 +4,5 @@ import se.purplescout.purplemow.core.bus.event.CoreEventHandler;
 
 public interface BwfSensorReceiveEventHandler extends CoreEventHandler {
 
-	void onMowerChangeState(BwfSensorReceiveEvent event);
+	void onBWFSensorEvent(BwfSensorReceiveEvent event);
 }

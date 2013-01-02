@@ -7,11 +7,18 @@ public class MoveEvent extends CoreEvent<MoveEventHandler> {
 
 	public static final CoreEvent.Type<MoveEventHandler> TYPE = new Type<MoveEventHandler>();
 
-	private final int velocity;
+	private final int speedRight;
+	private final int speedLeft;
 	private final Direction direction;
 
-	public MoveEvent(int velocity, Direction direction) {
-		this.velocity = velocity;
+	public MoveEvent(int speed, Direction direction) {
+		this.speedRight = speed;
+		this.speedLeft = speed;
+		this.direction = direction;
+	}
+	public MoveEvent(int speedRight, int speedLeft, Direction direction) {
+		this.speedRight = speedRight;
+		this.speedLeft = speedLeft;
 		this.direction = direction;
 	}
 
@@ -25,11 +32,13 @@ public class MoveEvent extends CoreEvent<MoveEventHandler> {
 		return TYPE;
 	}
 
-	public int getVelocity() {
-		return velocity;
-	}
-
 	public Direction getDirection() {
 		return direction;
+	}
+	public int getSpeedRight() {
+		return speedRight;
+	}
+	public int getSpeedLeft() {
+		return speedLeft;
 	}
 }

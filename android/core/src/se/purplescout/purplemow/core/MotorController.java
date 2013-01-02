@@ -6,7 +6,7 @@ import se.purplescout.purplemow.core.common.Constants;
 
 public class MotorController {
 	public enum Direction {
-		FORWARD, BACKWARD, LEFT, RIGHT
+		FORWARD, BACKWARD, LEFT, RIGHT, SHALLOW_LEFT, SHALLOW_RIGHT
 	}
 
 	private boolean moving;
@@ -21,6 +21,12 @@ public class MotorController {
 
 	public void updateConstants(Constants constants) {
 		this.constants = constants;
+	}
+
+	public void move(int speedRight, int speedLeft) throws IOException {
+		comStream.sendCommand(ComStream.MOTOR_COMMAND, ComStream.MOTOR_LEFT, speedLeft);
+		comStream.sendCommand(ComStream.MOTOR_COMMAND, ComStream.MOTOR_RIGHT, speedRight);
+		moving = (speedRight > 0 || speedLeft > 0);
 	}
 
 	public void move(int speed) throws IOException {
