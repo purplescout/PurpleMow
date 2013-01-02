@@ -19,11 +19,15 @@ public class MigrationScript  {
 		if (databaseVersion < 6) {
 			insertV6(db, conn);
 		}
+		if (databaseVersion < 7) {
+			insertV7(db);
+		}
 	}
 
 	public static void insertData(SQLiteDatabase db, ConnectionSource conn) throws SQLException {
 		instertV5(db);
 		insertV6(db, conn);
+		insertV7(db);
 	}
 
 	private static void insertV6(SQLiteDatabase db, ConnectionSource conn) throws SQLException {
@@ -35,11 +39,27 @@ public class MigrationScript  {
 		db.execSQL("insert into constant (id, name, value) values(5, '" + ConstantEnum.BATTERY_LOW + "', 100)");
 		db.execSQL("insert into constant (id, name, value) values(6, '" + ConstantEnum.BATTERY_CHARGED + "', 900)");
 		db.execSQL("insert into constant (id, name, value) values(7, '" + ConstantEnum.GO_HOME_HYSTERES + "', 5)");
-		db.execSQL("insert into constant (id, name, value) values(8, '" + ConstantEnum.GO_HOME_THRESHOLD_NEG + "', 15)");
-		db.execSQL("insert into constant (id, name, value) values(9, '" + ConstantEnum.GO_HOME_THRESHOLD_POS + "', 30)");
+		db.execSQL("insert into constant (id, name, value) values(8, '" + ConstantEnum.GO_HOME_THRESHOLD_NEG_NARROW + "', 15)");
+		db.execSQL("insert into constant (id, name, value) values(9, '" + ConstantEnum.GO_HOME_THRESHOLD_POS_NARROW + "', 30)");
 		db.execSQL("insert into constant (id, name, value) values(10, '" + ConstantEnum.GO_HOME_OFFSET + "', 380)");
 	}
 	
+	private static void insertV7(SQLiteDatabase db) throws SQLException {
+		db.execSQL("delete from constant");
+		db.execSQL("insert into constant (id, name, value) values(1, '" + ConstantEnum.FULL_SPEED + "', 245)");
+		db.execSQL("insert into constant (id, name, value) values(2, '" + ConstantEnum.NO_SPEED + "', 0)");
+		db.execSQL("insert into constant (id, name, value) values(3, '" + ConstantEnum.RANGE_LIMIT + "', 290)");
+		db.execSQL("insert into constant (id, name, value) values(4, '" + ConstantEnum.BWF_LIMIT + "', 400)");
+		db.execSQL("insert into constant (id, name, value) values(5, '" + ConstantEnum.BATTERY_LOW + "', 100)");
+		db.execSQL("insert into constant (id, name, value) values(6, '" + ConstantEnum.BATTERY_CHARGED + "', 900)");
+		db.execSQL("insert into constant (id, name, value) values(7, '" + ConstantEnum.GO_HOME_HYSTERES + "', 10)");
+		db.execSQL("insert into constant (id, name, value) values(8, '" + ConstantEnum.GO_HOME_THRESHOLD_NEG_NARROW + "', 100)");
+		db.execSQL("insert into constant (id, name, value) values(9, '" + ConstantEnum.GO_HOME_THRESHOLD_POS_NARROW + "', 80)");
+		db.execSQL("insert into constant (id, name, value) values(10, '" + ConstantEnum.GO_HOME_THRESHOLD_NEG_WIDE + "', 200)");
+		db.execSQL("insert into constant (id, name, value) values(11, '" + ConstantEnum.GO_HOME_THRESHOLD_POS_WIDE + "', 170)");
+		db.execSQL("insert into constant (id, name, value) values(12, '" + ConstantEnum.GO_HOME_OFFSET + "', 600)");
+	}
+
 	private static void instertV5(SQLiteDatabase db) {
 		db.execSQL("insert into schedule_event (type, interval, stop_date, start_date, is_active, id) values('MOWING', 'WEEKLY','2012-07-22 12:30:00.000', '2012-07-22 10:00:00.000', 1, 1)");
 		db.execSQL("insert into schedule_event (type, interval, stop_date, start_date, is_active, id) values('MOWING', 'WEEKLY','2012-07-23 12:30:00.000', '2012-07-23 10:00:00.000', 1, 2)");

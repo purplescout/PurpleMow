@@ -14,7 +14,7 @@ public class BwfSensorReceiveEvent extends CoreEvent<BwfSensorReceiveEventHandle
 
 	@Override
 	public void dispatch(BwfSensorReceiveEventHandler handler) {
-		handler.onMowerChangeState(this);
+		handler.onBWFSensorEvent(this);
 	}
 
 	@Override

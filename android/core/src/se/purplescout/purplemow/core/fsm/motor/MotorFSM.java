@@ -91,7 +91,7 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 	@Override
 	public void onMove(MoveEvent event) {
 		try {
-			move(event.getDirection(), event.getVelocity());
+			move(event.getDirection(), event.getSpeedRight(), event.getSpeedLeft());
 		} catch (IOException e) {
 			handleIOException(e);
 		}
@@ -152,7 +152,7 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 			if (event.getDirection() == Direction.RIGHT && state != State.TURNING_RIGHT) {
 				newMovementSpeed = STEP;
 			}
-			move(event.getDirection(), newMovementSpeed);
+			move(event.getDirection(), newMovementSpeed, newMovementSpeed);
 		} catch (IOException e) {
 			handleIOException(e);
 		}
@@ -164,20 +164,20 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 		motorController.updateConstants(constants);
 	}
 
-	private void move(Direction direction, int velocity) throws IOException {
+	private void move(Direction direction, int speedRight, int speedLeft) throws IOException {
 		switch (direction) {
 		case FORWARD:
-			moveForward(velocity);
+			moveForward(speedRight, speedLeft);
 			coreBus.fireEvent(new StartedMowingEvent());
 			break;
 		case BACKWARD:
-			backUp(velocity);
+			backUp(speedRight, speedLeft);
 			break;
 		case LEFT:
-			turnLeft(velocity);
+			turnLeft(speedRight, speedLeft);
 			break;
 		case RIGHT:
-			turnRight(velocity);
+			turnRight(speedRight, speedLeft);
 			break;
 		default:
 			break;
@@ -189,53 +189,53 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 		changeState(State.STOPPED);
 	}
 
-	private void moveForward(int value) throws IOException {
+	private void moveForward(int valueR, int valueL) throws IOException {
 		if (state == State.STOPPED || state == State.MOVING_FWD) {
 			motorController.setDirection(Direction.FORWARD);
-			move(value);
+			move(valueR, valueL);
 			changeState(State.MOVING_FWD);
 		} else {
 			coreBus.fireEvent(new StopEvent());
-			coreBus.fireDelaydEvent(new MoveEvent(value, Direction.FORWARD), 500);
+			coreBus.fireDelaydEvent(new MoveEvent(valueR, valueL, Direction.FORWARD), 500);
 		}
 	}
 
-	private void backUp(int value) throws IOException {
+	private void backUp(int valueR, int valueL) throws IOException {
 		if (state == State.STOPPED || state == State.BACKING_UP) {
 			motorController.setDirection(Direction.BACKWARD);
-			move(value);
+			move(valueR, valueL);
 			changeState(State.BACKING_UP);
 		} else {
 			coreBus.fireEvent(new StopEvent());
-			coreBus.fireDelaydEvent(new MoveEvent(value, Direction.BACKWARD), 500);
+			coreBus.fireDelaydEvent(new MoveEvent(valueR, valueL, Direction.BACKWARD), 500);
 		}
 	}
 
-	private void turnLeft(int value) throws IOException {
+	private void turnLeft(int valueR, int valueL) throws IOException {
 		if (state == State.STOPPED || state == State.TURNING_LEFT) {
 			motorController.setDirection(Direction.LEFT);
-			move(value);
+			move(valueR, valueL);
 			changeState(State.TURNING_LEFT);
 		} else {
 			coreBus.fireEvent(new StopEvent());
-			coreBus.fireDelaydEvent(new MoveEvent(value, Direction.LEFT), 500);
+			coreBus.fireDelaydEvent(new MoveEvent(valueR, valueL, Direction.LEFT), 500);
 		}
 	}
 
-	private void turnRight(int value) throws IOException {
+	private void turnRight(int valueR, int valueL) throws IOException {
 		if (state == State.STOPPED || state == State.TURNING_RIGHT) {
 			motorController.setDirection(Direction.RIGHT);
-			move(value);
+			move(valueR, valueL);
 			changeState(State.TURNING_RIGHT);
 		} else {
 			coreBus.fireEvent(new StopEvent());
-			coreBus.fireDelaydEvent(new MoveEvent(value, Direction.RIGHT), 500);
+			coreBus.fireDelaydEvent(new MoveEvent(valueR, valueL, Direction.RIGHT), 500);
 		}
 	}
 
-	private void move(int value) throws IOException {
-		motorController.move(value);
-		currentMovementSpeed = value;
+	private void move(int valueR, int valueL) throws IOException {
+		motorController.move(valueR, valueL);
+		currentMovementSpeed = Math.max(valueL, valueR);
 	}
 
 	private void cutterEngine(int value) throws IOException {

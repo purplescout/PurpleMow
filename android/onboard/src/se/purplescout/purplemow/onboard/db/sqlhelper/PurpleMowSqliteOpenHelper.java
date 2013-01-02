@@ -15,7 +15,7 @@ import com.j256.ormlite.table.TableUtils;
 public class PurpleMowSqliteOpenHelper extends OrmLiteSqliteOpenHelper {
 
 	private static final String DATABASE_NAME = "purplemow.db";
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 7;
 
 	public PurpleMowSqliteOpenHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);

@@ -50,13 +50,21 @@ public class ConfigureActivity extends RoboActivity {
 
 		SeekBar getGoHomeHysteresSeekBar();
 
-		TextView getGoHomeThresholdPosText();
+		TextView getGoHomeThresholdPosNarrowText();
 
-		SeekBar getGoHomeThresholdPosSeekBar();
+		SeekBar getGoHomeThresholdPosNarrowSeekBar();
 
-		TextView getGoHomeThresholdNegText();
+		TextView getGoHomeThresholdNegNarrowText();
 
-		SeekBar getGoHomeThresholdNegSeekBar();
+		SeekBar getGoHomeThresholdNegNarrowSeekBar();
+		
+		TextView getGoHomeThresholdPosWideText();
+
+		SeekBar getGoHomeThresholdPosWideSeekBar();
+
+		TextView getGoHomeThresholdNegWideText();
+
+		SeekBar getGoHomeThresholdNegWideSeekBar();
 	}
 
 	@Inject
@@ -165,22 +173,40 @@ public class ConfigureActivity extends RoboActivity {
 				display.getGoHomeHysteresText().setText(String.format("%d", progress));
 			}
 		});
-		display.getGoHomeThresholdPosSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
+		display.getGoHomeThresholdPosNarrowSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
 
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setGoHomeThresholdPos(progress);
+				constants.setGoHomeThresholdPosNarrow(progress);
 				constants.setChanged(true);
-				display.getGoHomeThresholdPosText().setText(String.format("%d", progress));
+				display.getGoHomeThresholdPosNarrowText().setText(String.format("%d", progress));
 			}
 		});
-		display.getGoHomeThresholdNegSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
+		display.getGoHomeThresholdNegNarrowSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
 
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				constants.setGoHomeThresholdNeg(progress);
+				constants.setGoHomeThresholdNegNarrow(progress);
 				constants.setChanged(true);
-				display.getGoHomeThresholdNegText().setText(String.format("%d", progress));
+				display.getGoHomeThresholdNegNarrowText().setText(String.format("%d", progress));
+			}
+		});
+		display.getGoHomeThresholdPosWideSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				constants.setGoHomeThresholdPosWide(progress);
+				constants.setChanged(true);
+				display.getGoHomeThresholdPosWideText().setText(String.format("%d", progress));
+			}
+		});
+		display.getGoHomeThresholdNegWideSeekBar().setOnSeekBarChangeListener(new SimpleOnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				constants.setGoHomeThresholdNegWide(progress);
+				constants.setChanged(true);
+				display.getGoHomeThresholdNegWideText().setText(String.format("%d", progress));
 			}
 		});
 	}
@@ -245,12 +271,20 @@ public class ConfigureActivity extends RoboActivity {
 		display.getGoHomeOffsetSeekBar().setProgress(constants.getGoHomeOffset());
 		display.getGoHomeOffsetSeekBar().setSecondaryProgress(constants.getGoHomeOffset());
 		
-		display.getGoHomeThresholdPosText().setText(String.format("%d", constants.getGoHomeThresholdPos()));
-		display.getGoHomeThresholdPosSeekBar().setProgress(constants.getGoHomeThresholdPos());
-		display.getGoHomeThresholdPosSeekBar().setSecondaryProgress(constants.getGoHomeThresholdPos());
+		display.getGoHomeThresholdPosNarrowText().setText(String.format("%d", constants.getGoHomeThresholdPosNarrow()));
+		display.getGoHomeThresholdPosNarrowSeekBar().setProgress(constants.getGoHomeThresholdPosNarrow());
+		display.getGoHomeThresholdPosNarrowSeekBar().setSecondaryProgress(constants.getGoHomeThresholdPosNarrow());
 
-		display.getGoHomeThresholdNegText().setText(String.format("%d", constants.getGoHomeThresholdNeg()));
-		display.getGoHomeThresholdNegSeekBar().setProgress(constants.getGoHomeThresholdNeg());
-		display.getGoHomeThresholdNegSeekBar().setSecondaryProgress(constants.getGoHomeThresholdNeg());
+		display.getGoHomeThresholdNegNarrowText().setText(String.format("%d", constants.getGoHomeThresholdNegNarrow()));
+		display.getGoHomeThresholdNegNarrowSeekBar().setProgress(constants.getGoHomeThresholdNegNarrow());
+		display.getGoHomeThresholdNegNarrowSeekBar().setSecondaryProgress(constants.getGoHomeThresholdNegNarrow());
+		
+		display.getGoHomeThresholdPosWideText().setText(String.format("%d", constants.getGoHomeThresholdPosWide()));
+		display.getGoHomeThresholdPosWideSeekBar().setProgress(constants.getGoHomeThresholdPosWide());
+		display.getGoHomeThresholdPosWideSeekBar().setSecondaryProgress(constants.getGoHomeThresholdPosWide());
+
+		display.getGoHomeThresholdNegWideText().setText(String.format("%d", constants.getGoHomeThresholdNegWide()));
+		display.getGoHomeThresholdNegWideSeekBar().setProgress(constants.getGoHomeThresholdNegWide());
+		display.getGoHomeThresholdNegWideSeekBar().setSecondaryProgress(constants.getGoHomeThresholdNegWide());
 	}
 }

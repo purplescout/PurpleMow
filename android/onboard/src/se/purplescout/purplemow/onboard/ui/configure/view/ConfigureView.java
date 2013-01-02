@@ -27,10 +27,14 @@ public class ConfigureView extends ActivityBinderView implements ConfigureActivi
 	@UiField(R.id.configGoHomeOffsetSeekBar) SeekBar goHomeOffsetSeekBar;
 	@UiField(R.id.configGoHomeHysteresText) TextView goHomeHysteresText;
 	@UiField(R.id.configGoHomeHysteresSeekBar) SeekBar goHomeHysteresSeekBar;
-	@UiField(R.id.configGoHomeThresholdNegText) TextView goHomeThresholdNegText;
-	@UiField(R.id.configGoHomeThresholdNegSeekBar) SeekBar goHomeThresholdNegSeekBar;
-	@UiField(R.id.configGoHomeThresholdPosText) TextView goHomeThresholdPosText;
-	@UiField(R.id.configGoHomeThresholdPosSeekBar) SeekBar goHomeThresholdPosSeekBar;
+	@UiField(R.id.configGoHomeThresholdNegNarrowText) TextView goHomeThresholdNegNarrowText;
+	@UiField(R.id.configGoHomeThresholdNegNarrowSeekBar) SeekBar goHomeThresholdNegNarrowSeekBar;
+	@UiField(R.id.configGoHomeThresholdPosNarrowText) TextView goHomeThresholdPosNarrowText;
+	@UiField(R.id.configGoHomeThresholdPosNarrowSeekBar) SeekBar goHomeThresholdPosNarrowSeekBar;
+	@UiField(R.id.configGoHomeThresholdNegWideText) TextView goHomeThresholdNegWideText;
+	@UiField(R.id.configGoHomeThresholdNegWideSeekBar) SeekBar goHomeThresholdNegWideSeekBar;
+	@UiField(R.id.configGoHomeThresholdPosWideText) TextView goHomeThresholdPosWideText;
+	@UiField(R.id.configGoHomeThresholdPosWideSeekBar) SeekBar goHomeThresholdPosWideSeekBar;
 	
 	public ConfigureView(Activity activity) {
 		super(activity);
@@ -107,22 +111,43 @@ public class ConfigureView extends ActivityBinderView implements ConfigureActivi
 	}
 	
 	@Override
-	public TextView getGoHomeThresholdNegText() {
-		return goHomeThresholdNegText;
+	public TextView getGoHomeThresholdNegNarrowText() {
+		return goHomeThresholdNegNarrowText;
 	}
 
 	@Override
-	public SeekBar getGoHomeThresholdNegSeekBar() {
-		return goHomeThresholdNegSeekBar;
+	public SeekBar getGoHomeThresholdNegNarrowSeekBar() {
+		return goHomeThresholdNegNarrowSeekBar;
 	}
 
 	@Override
-	public TextView getGoHomeThresholdPosText() {
-		return goHomeThresholdPosText;
+	public TextView getGoHomeThresholdPosNarrowText() {
+		return goHomeThresholdPosNarrowText;
 	}
 
 	@Override
-	public SeekBar getGoHomeThresholdPosSeekBar() {
-		return goHomeThresholdPosSeekBar;
+	public SeekBar getGoHomeThresholdPosNarrowSeekBar() {
+		return goHomeThresholdPosNarrowSeekBar;
 	}
+
+	@Override
+	public TextView getGoHomeThresholdNegWideText() {
+		return goHomeThresholdNegWideText;
+	}
+
+	@Override
+	public SeekBar getGoHomeThresholdNegWideSeekBar() {
+		return goHomeThresholdNegWideSeekBar;
+	}
+
+	@Override
+	public TextView getGoHomeThresholdPosWideText() {
+		return goHomeThresholdPosWideText;
+	}
+
+	@Override
+	public SeekBar getGoHomeThresholdPosWideSeekBar() {
+		return goHomeThresholdPosWideSeekBar;
+	}
+	
 }

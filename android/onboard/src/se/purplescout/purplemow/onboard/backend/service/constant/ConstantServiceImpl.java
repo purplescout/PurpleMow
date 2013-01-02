@@ -36,8 +36,10 @@ public class ConstantServiceImpl implements ConstantService {
 				constantMap.get(ConstantEnum.BATTERY_LOW), 
 				constantMap.get(ConstantEnum.BATTERY_CHARGED), 
 				constantMap.get(ConstantEnum.GO_HOME_HYSTERES),
-				constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_NEG), 
-				constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_POS),
+				constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_NEG_NARROW), 
+				constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_POS_NARROW),
+				constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_NEG_WIDE), 
+				constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_POS_WIDE),
 				constantMap.get(ConstantEnum.GO_HOME_OFFSET));
 	}
 
@@ -54,8 +56,10 @@ public class ConstantServiceImpl implements ConstantService {
 		dto.setBatteryLow(constantMap.get(ConstantEnum.BATTERY_LOW)); 
 		dto.setBatteryCharged(constantMap.get(ConstantEnum.BATTERY_CHARGED)); 
 		dto.setGoHomeHysteres(constantMap.get(ConstantEnum.GO_HOME_HYSTERES));
-		dto.setGoHomeThresholdNeg(constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_NEG)); 
-		dto.setGoHomeThresholdPos(constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_POS));
+		dto.setGoHomeThresholdNegNarrow(constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_NEG_NARROW)); 
+		dto.setGoHomeThresholdPosNarrow(constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_POS_NARROW));
+		dto.setGoHomeThresholdNegWide(constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_NEG_WIDE)); 
+		dto.setGoHomeThresholdPosWide(constantMap.get(ConstantEnum.GO_HOME_THRESHOLD_POS_WIDE));
 		dto.setGoHomeOffset(constantMap.get(ConstantEnum.GO_HOME_OFFSET));
 		
 		return dto;
@@ -74,8 +78,10 @@ public class ConstantServiceImpl implements ConstantService {
 			constantDAO.save(ConstantEnum.BATTERY_LOW, constantsDTO.getBatteryLow());
 			constantDAO.save(ConstantEnum.BATTERY_CHARGED, constantsDTO.getBatteryCharged());
 			constantDAO.save(ConstantEnum.GO_HOME_HYSTERES, constantsDTO.getGoHomeHysteres());
-			constantDAO.save(ConstantEnum.GO_HOME_THRESHOLD_NEG, constantsDTO.getGoHomeThresholdNeg());
-			constantDAO.save(ConstantEnum.GO_HOME_THRESHOLD_POS, constantsDTO.getGoHomeThresholdPos());
+			constantDAO.save(ConstantEnum.GO_HOME_THRESHOLD_NEG_NARROW, constantsDTO.getGoHomeThresholdNegNarrow());
+			constantDAO.save(ConstantEnum.GO_HOME_THRESHOLD_POS_NARROW, constantsDTO.getGoHomeThresholdPosNarrow());
+			constantDAO.save(ConstantEnum.GO_HOME_THRESHOLD_NEG_WIDE, constantsDTO.getGoHomeThresholdNegWide());
+			constantDAO.save(ConstantEnum.GO_HOME_THRESHOLD_POS_WIDE, constantsDTO.getGoHomeThresholdPosWide());
 			constantDAO.save(ConstantEnum.GO_HOME_OFFSET, constantsDTO.getGoHomeOffset());
 			
 			coreBus.fireEvent(new NewConstantsEvent(getConstants()));
