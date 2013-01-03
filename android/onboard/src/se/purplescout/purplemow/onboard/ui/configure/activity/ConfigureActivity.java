@@ -86,8 +86,10 @@ public class ConfigureActivity extends RoboActivity {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				constants.setFullSpeed(Integer.parseInt(s.toString().trim()));
-				constants.setChanged(true);
+				if(s != null && s.length() > 0) {
+					constants.setFullSpeed(Integer.parseInt(s.toString().trim()));
+					constants.setChanged(true);
+				}
 			}
 		});
 		display.getNoSpeedText().addTextChangedListener(new SimpleTextWatcher() {
