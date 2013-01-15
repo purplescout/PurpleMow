@@ -22,8 +22,8 @@ import android.util.Log;
 public class SensorReader extends Thread {
 
 	private static final int SENSOR_BUFFER_SIZE = 10000;
-	private static final int SLEEP_TIME = 20;
-	private static final long SLEEP_TIME_LONG = 100;
+	private static final int SLEEP_TIME = 10;
+	private static final long SLEEP_TIME_LONG = 50;
 
 	Map<Byte, Buffer> sensorData = new HashMap<Byte, Buffer>();
 	{
