@@ -38,7 +38,7 @@ public class SensorReader extends Thread {
 	private boolean isRunning = true;
 	private int thrownExceptions = 0;
 	private CoreBus coreBus = CoreBus.getInstance();
-	private Integer[] bwfVals = new Integer[] {1023, 1023};
+	private Integer[] bwfVals = new Integer[] {1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023};
 
 	public SensorReader(ComStream comStream) {
 		this.comStream = comStream;
@@ -48,20 +48,10 @@ public class SensorReader extends Thread {
 	public void run() {
 		try {
 			while (isRunning) {
-				requestSensor(ComStream.RANGE_SENSOR_LEFT);
-				readSensor();
+				requestSensor(ComStream.ALL_SENSORS);
+				readAllSensors();
 
 				Thread.sleep(SLEEP_TIME);
-
-				requestSensor(ComStream.RANGE_SENSOR_RIGHT);
-				readSensor();
-
-				Thread.sleep(SLEEP_TIME);
-
-				requestSensor(ComStream.BWF_SENSOR_LEFT);
-				readSensor();
-
-				Thread.sleep(SLEEP_TIME_LONG);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -84,7 +74,11 @@ public class SensorReader extends Thread {
 	private void readSensor() {
 		try {
 			byte[] buffer = new byte[4];
+			
 			comStream.read(buffer);
+			
+			
+			
 			byte hi = buffer[2];
 			byte lo = buffer[3];
 			int val = composeInt(hi, lo);
@@ -101,13 +95,76 @@ public class SensorReader extends Thread {
 				coreBus.fireEvent(new BwfSensorReceiveEvent(getRunningAverage(bwfVals)));
 			}
 		} catch (IOException e) {
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			handleIOException(e);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	private void readAllSensors() {
+		byte[] buffer = new byte[12];
+		try {
+			comStream.read(buffer);
+			byte hi = buffer[2];
+			byte lo = buffer[3];
+			int rangeRight = composeInt(hi, lo);
 
+			hi = buffer[4];
+			lo = buffer[5];
+			int rangeLeft = composeInt(hi, lo);
+
+			hi = buffer[6];
+			lo = buffer[7];
+			int bwf = composeInt(hi, lo);
+			shiftArray(bwf);
+			
+
+			hi = buffer[8];
+			lo = buffer[9];
+			int voltage = composeInt(hi, lo);
+
+			hi = buffer[10];
+			lo = buffer[11];
+			int current = composeInt(hi, lo);
+			
+			sensorData.get(ComStream.RANGE_SENSOR_LEFT).add(new SensorData(new Date(), rangeLeft));
+			coreBus.fireEvent(new RangeSensorReceiveEvent(rangeLeft, Side.LEFT));
+
+			sensorData.get(ComStream.RANGE_SENSOR_RIGHT).add(new SensorData(new Date(), rangeRight));
+			coreBus.fireEvent(new RangeSensorReceiveEvent(rangeRight, Side.RIGHT));
+			
+			sensorData.get(ComStream.BWF_SENSOR_LEFT).add(new SensorData(new Date(), getRunningAverage(bwfVals)));
+			sensorData.get(ComStream.BWF_SENSOR_RIGHT).add(new SensorData(new Date(), bwf));
+			coreBus.fireEvent(new BwfSensorReceiveEvent(getRunningAverage(bwfVals)));
+
+		} catch (IOException e) {
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
+			handleIOException(e);	
+		}		
+	}
+	/**
+	 * Collect the latest 10 BWF values into an array
+	 * @param bwf
+	 */
+	private void shiftArray(int bwf) {
+		for (int i = bwfVals.length -1 ; i > 0; i --) {
+			bwfVals[i] = bwfVals[i-1];
+		}
+		bwfVals[0] = bwf;
+	}
+
+	/**
+	 * Calculate average based on the 10 latest bwf values
+	 * @param bwfVals
+	 * @return
+	 */
 	private int getRunningAverage(Integer[] bwfVals) {
-		int sum = bwfVals[0] + bwfVals[1];
-		return sum / 2;
+		int sum = 0;
+		for (Integer val : bwfVals) {
+			sum += val;
+		}
+		
+		return sum / bwfVals.length;
 	}
 
 	private void handleIOException(IOException e) {

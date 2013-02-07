@@ -20,8 +20,8 @@
 
 #define  RANGE_SENSOR_LEFT      A2
 #define  RANGE_SENSOR_RIGHT     A3
+#define  BWF_SENSOR_CENTER      A4
 #define  VOLTAGE_SENSOR         A5
-#define  BWF_SENSOR_CENTER      A6
 #define  MOIST_SENSOR           A7
 #define  CUTTER_OVERCURRENT_SENSOR A8
 
@@ -80,6 +80,7 @@ void setup() {
 
 void loop() {
   byte msg[MAX_MSG_SIZE];
+
   int to_write;
 
   if (acc.isConnected()) {
@@ -143,7 +144,7 @@ void getSensorData() {
   val = analogRead(CUTTER_OVERCURRENT_SENSOR);
   if ( val > -1 ) {
     sensorData[10] = val >> 8;
-    sensorData[1] = val & 0xff;
+    sensorData[11] = val & 0xff;
     val = -1;
   }
 
@@ -212,7 +213,12 @@ int process_command(byte* msg, int length)
     case CMD_BWF_SENSOR:
       val = analogRead(BWF_SENSOR_CENTER);
       break;
-
+      
+    case CMD_GET_ALL_SENSORS:
+      sensorData[0] = CMD_SEND;
+      sensorData[1] = msg[1];
+      result = 12;
+      break;
     }
 
     if ( val > -1 )
@@ -224,11 +230,7 @@ int process_command(byte* msg, int length)
       result = 4;
     }
   } 
-  else if (msg[0] == CMD_GET_ALL_SENSORS) {
-      sensorData[0] = CMD_SEND;
-      sensorData[1] = msg[1];
-      result = 12;
-  }
+
 
   return result;
 }
