@@ -3,6 +3,7 @@
 #include <libusb.h>
 #include <usb.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "mower.h"
 #include "usb_functions.h"
@@ -204,33 +205,43 @@ int mower_parse(char * inBuffer, char * outBuffer, int length)
 }
 */
 
+
+
 void run(void)
 {
-	char recvbuffer[4];
-	char sendbuffer[4];
-	int bufferlength=4;
-	int transferred_chars=0;
-	int response;
-	int reply;
-	libusb_set_debug(NULL,3);
+    char recvbuffer[4];
+    char sendbuffer[4];
+    char command[256];
+    int bufferlength=4;
+    int transferred_chars=0;
+    int response;
+    int reply;
+    libusb_set_debug(NULL,3);
 
+
+
+    while( 1)
+    {
+        response = receive_data(recvbuffer,bufferlength,&transferred_chars);
+	//printf("Receive %d buffer: %d %d %d %d\n\r", response, recvbuffer[0], recvbuffer[1], recvbuffer[2], recvbuffer[3]); 
 	
-	
-	while( 1)
-	{
-
-		response = receive_data(recvbuffer,bufferlength,&transferred_chars);
-		printf("Receive %d buffer: %d %d %d %d\n\r", response, recvbuffer[0], recvbuffer[1], recvbuffer[2], recvbuffer[3]); 
-		if(response != 0)
-			printf("Error: %s\n", libusb_error_name(response));
-		
-		if(mower_parse(recvbuffer,sendbuffer,bufferlength) == 0)
-		{
-			response = send_data(sendbuffer,bufferlength,&transferred_chars);
-			if(response != 0)
-			printf("Error: %s\n", libusb_error_name(response));
-		}
-		
-
+	if(response == 0)
+	{	
+	    snprintf(command,256, "./command.sh %d %d %d %d", recvbuffer[0], recvbuffer[1], recvbuffer[2], recvbuffer[3]);
+	    system(command);
 	}
+	else
+	{
+	    printf("Error: %s\n", libusb_error_name(response));
+	}
+		
+	if(mower_parse(recvbuffer,sendbuffer,bufferlength) == 0)
+	{
+	    response = send_data(sendbuffer,bufferlength,&transferred_chars);
+	    if(response != 0)
+	    printf("Error: %s\n", libusb_error_name(response));
+	}
+		
+
+    }
 }

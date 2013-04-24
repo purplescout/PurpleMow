@@ -95,8 +95,9 @@ void main() {
     char c0;
 
     static uint8_t count = 0;
-    char buffer[MAX_MSG_SIZE];
-    uint8_t msg[MAX_MSG_SIZE];
+    char buffer[20];
+    int msg[MAX_MSG_SIZE+1];
+    uint8_t umsg[MAX_MSG_SIZE+1];
     long touchcount;
     int to_write;
     uint8_t running=1;
@@ -115,25 +116,32 @@ void main() {
 	printf("Awaiting cmd\n");
 	fflush(stdout);
         
-        read_from_socket(buffer,MAX_MSG_SIZE);
+        read_from_socket(buffer,20);
 
+	printf("%s ", buffer);
+	sscanf(buffer,"%d %d %d %d", &msg[0], &msg[1], &msg[2], &msg[3]);
+/*	
 	msg[0]=buffer[0]-48;
-        msg[1]=buffer[1]-48;
-        msg[2]=buffer[2]-48;
-        msg[3]=buffer[3]-48;
-        
-        printf("%d %d %d\n\r", msg[0],msg[1],msg[2],msg[3]);
+        msg[1]=buffer[3]-48;
+        msg[2]=buffer[5]-48;
+        msg[3]=buffer[7]-48;
+  */      
+        printf("Parsed: %d %d %d\n\r", msg[0],msg[1],msg[2],msg[3]);
+	umsg[0]=msg[0];
+	umsg[1]=msg[1];
+	umsg[2]=msg[2];
+	umsg[3]=msg[3];
 
         if(connected)
 	{
 
-	  len=strlen(msg);
+	  len=strlen(umsg);
           if (len > 0) {
               // assumes only one command per packet
-              to_write = process_command(msg, sizeof(msg));
+              to_write = process_command(umsg, sizeof(umsg));
               if ( to_write > 0 )
               {
-                  printf("Message: %s, Length: %d", msg, to_write);
+                  printf("Message: %s, Length: %d", umsg, to_write);
               }
           }
 	}
