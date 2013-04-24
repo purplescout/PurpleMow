@@ -1,0 +1,9 @@
+The c port of the arduino code requires wiringPi (GNU LGPLv3)
+
+It needs to be compiled and installed:
+git clone git://git.drogon.net/wiringPi
+cd wiringPi
+git pull origin
+
+cd wiringPi
+./build #this installs it using sudo

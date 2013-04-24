@@ -1,0 +1,19 @@
+
+
+In order to make the program actually change any digital io, The DRY_RUN define needs to be removed ( //#define DRY_RUN ) from PurpleMow.c
+
+To test the CLI:
+
+ Start the server:
+  Use start.sh, it compiles, removes any old socket, and starts the server (which handles the digital IO)
+
+  The server runs in the foreground for now, in the future it will be a daemonized process.
+
+ Use the client:
+  Send CMD_WRITE MOTOR_RIGHT 1
+  sudo ./mowcli 201
+  
+  Read voltage sensor (does not yet read an actual sensor value)
+  sudo ./mowcli 42
+
+
