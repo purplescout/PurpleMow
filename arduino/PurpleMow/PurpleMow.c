@@ -40,7 +40,7 @@
 
 //Remove define for DRY_RUN to enable actual IO calls
 
-#define DRY_RUN 1
+//#define DRY_RUN 1
 
 int process_command(uint8_t* msg, int length);
 

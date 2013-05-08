@@ -20,16 +20,18 @@
  * Kika pa kaellkod till lsusb
  */
 
-#define IN 0x81
-#define OUT 0x02
+#define IN 0x83
+#define OUT 0x03
 
 //Nexus 7: 18d1:4e43 (non-debug mode)
 
 
 #define VENDORID 0x18D1
-#define PRODUCTID 0x4E43
+#define PRODUCTID 0x4E12
+//#define PRODUCTID 0x4e43
 
-#define ACCESSORY_PID 0x2D00
+//#define ACCESSORY_PID 0x2D00
+#define ACCESSORY_PID 0x2D01
 
 char * app_developer="PurpleScout AB";
 char * app_name="PurpleMow";
@@ -107,7 +109,7 @@ int send_data(char * buffer, int length, int * outLength)
 
 int receive_data(char * buffer, int length, int * outLength)
 {
-	printf("Receiving %d bytes\n\r", length);
+//	printf("Receiving %d bytes\n\r", length);
 	return libusb_bulk_transfer(handle,IN,buffer,length,outLength,100);
 }
 
@@ -232,7 +234,7 @@ void run(void)
 	}
 	else
 	{
-	    printf("Error: %s\n", libusb_error_name(response));
+	    //printf("Error: %s\n", libusb_error_name(response));
 	}
 		
 	if(mower_parse(recvbuffer,sendbuffer,bufferlength) == 0)

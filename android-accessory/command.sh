@@ -5,3 +5,4 @@ set -x
 
 $PATH/mowcli $*
 
+echo $* >> /tmp/log
