@@ -26,13 +26,14 @@ struct usb_device {
 static const struct usb_device id_table[] =
 {
     { NEXUS_7_VID, NEXUS_7_PID, 0x81, 0x02 },
+    { NEXUS_7_VID, NEXUS_7_PID+1, 0x81, 0x02 },
     { NEXUS_S_VID, NEXUS_S_PID, 0x83, 0x03 }
 };
 
 static const struct usb_device accessory_id_table[] =
 {
     { 0x18d1, 0x2D00, 0, 0 },
-    { 0x18d1, 0x2D00, 0, 0}
+    { 0x18d1, 0x2D01, 0, 0}
 };
 
 #define NUMBER_OF_IDS (sizeof(id_table) / sizeof(id_table[0]))
@@ -124,13 +125,14 @@ int setup_accessory(struct libusb_device_handle * aHandle)
 //Move to accessory.c?
 int send_data(struct libusb_device_handle * aHandle, char * buffer, int length, int * outLength)
 {
-    printf("Sending buffer: %d %d %d %d, length %d\n\r", buffer[0], buffer[1], buffer[2], buffer[3], length); 
-    return libusb_bulk_transfer(aHandle,current_device.OUT,buffer,length,outLength,100);
+    //printf("Sending buffer: %d %d %d %d, length %d\n\r", buffer[0], buffer[1], buffer[2], buffer[3], length); 
+    return libusb_bulk_transfer(aHandle,current_device.OUT,buffer,length,outLength,0);
 }
 
 //Move to accessory.c?
 int receive_data(struct libusb_device_handle * aHandle, char * buffer, int length, int * outLength)
 {
-//	printf("Receiving %d bytes\n\r", length);
-    return libusb_bulk_transfer(aHandle,current_device.IN, buffer,length,outLength,100);
+    int wait_time=0; //ms
+    //printf("Waiting %d ms for %d bytes\n\r", wait_time, length);
+    return libusb_bulk_transfer(aHandle,current_device.IN, buffer,length,outLength,wait_time);
 }

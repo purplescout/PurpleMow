@@ -33,7 +33,6 @@ int main(int argc, char * argv[])
     //Check for accessory pids
     int response;
 
-
     handle=NULL;
     printf("Initializing\n\r");	
     libusb_init(NULL);
@@ -80,41 +79,59 @@ int main(int argc, char * argv[])
 }
 
 
-
-
 void run(void)
 {
-    char recvbuffer[4];
-    char sendbuffer[4];
-    char command[256];
-    int bufferlength=4;
+    uint8_t recvbuffer[4];
+    uint8_t sendbuffer[12];
+    uint8_t command[256];
+    int bufferlength=3;
     int transferred_chars=0;
     int response;
     int reply;
+    int to_write;
     libusb_set_debug(NULL,3);
 
 
-
-    while( 1)
+    /* Exit loop on LIBUSB_ERROR_NO_DEVICE */
+    while( response != -4)
     {
         response = receive_data(handle, recvbuffer,bufferlength,&transferred_chars);
         //printf("Receive %d buffer: %d %d %d %d\n\r", response, recvbuffer[0], recvbuffer[1], recvbuffer[2], recvbuffer[3]); 
 
         if(response == 0)
         {
-            snprintf(command,256, "./command.sh %d %d %d %d", recvbuffer[0], recvbuffer[1], recvbuffer[2], recvbuffer[3]);
-            system(command);
+            if(recvbuffer[0] != 4)// && recvbuffer[1] == 2)
+            {
+		printf("Cmd received %u %u %u\n", recvbuffer[0], recvbuffer[1], recvbuffer[2]);
+                fflush(stdout);
+            }
+            //snprintf(command,256, "./command.sh %d %d %d", recvbuffer[0], recvbuffer[1], recvbuffer[2]);
+            //system(command);
         }
         else
         {
-            //printf("Error: %s\n", libusb_error_name(response));
+            printf("Error: %s\n", libusb_error_name(response));
+            if(response == -7)
+            {
+                
+                printf("Bytes received %d\n", transferred_chars);
+            }
         }
 
-        if(mower_parse(recvbuffer,sendbuffer,bufferlength) == 0)
+        to_write=mower_parse(recvbuffer,sendbuffer,bufferlength);
+        if(to_write > 0)
         {
-            response = send_data(handle,sendbuffer,bufferlength,&transferred_chars);
+            response = send_data(handle,sendbuffer,to_write,&transferred_chars);
             if(response != 0)
                 printf("Error: %s\n", libusb_error_name(response));
+            if(response == -7)
+            {
+                
+                printf("Bytes received %d\n", transferred_chars);
+            }
         }
     }
+
+    libusb_close(handle);
+    libusb_exit(NULL);
 }

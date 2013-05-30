@@ -27,6 +27,7 @@
 #define CMD_BWF_LEFT_SENSOR     0x3
 #define CMD_BWF_RIGHT_SENSOR    0x4
 #define CMD_MOIST_SENSOR        0x5
+#define CMD_ALL_SENSORS         0x6
 #define CMD_I2C_MAGIC           0x54
 
 #define MAX_MSG_SIZE            4
