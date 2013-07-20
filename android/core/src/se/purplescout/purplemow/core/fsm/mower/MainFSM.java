@@ -8,13 +8,24 @@ import se.purplescout.purplemow.core.bus.CoreBusSubscriberThread;
 import se.purplescout.purplemow.core.common.Constants;
 import se.purplescout.purplemow.core.fsm.common.event.NewConstantsEvent;
 import se.purplescout.purplemow.core.fsm.common.event.NewConstantsEventHandler;
+import se.purplescout.purplemow.core.fsm.motor.MotorFSM;
+import se.purplescout.purplemow.core.fsm.motor.event.EmergencyStopEvent;
 import se.purplescout.purplemow.core.fsm.motor.event.MoveEvent;
+import se.purplescout.purplemow.core.fsm.motor.event.MowEvent;
 import se.purplescout.purplemow.core.fsm.motor.event.StopEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.BatterySensorReceiveEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.BatterySensorReceiveEventHandler;
+import se.purplescout.purplemow.core.fsm.mower.event.BumperEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.BumperEventHandler;
 import se.purplescout.purplemow.core.fsm.mower.event.BwfSensorReceiveEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.BwfSensorReceiveEventHandler;
 import se.purplescout.purplemow.core.fsm.mower.event.MowerChangeStateEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.NoBWFDataEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.NoBWFDataEventHandler;
+import se.purplescout.purplemow.core.fsm.mower.event.OutsideBWFEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.OutsideBWFEventHandler;
+import se.purplescout.purplemow.core.fsm.mower.event.PushButtonPressedEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.PushButtonPressedEventHandler;
 import se.purplescout.purplemow.core.fsm.mower.event.RangeSensorReceiveEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.RangeSensorReceiveEventHandler;
 import se.purplescout.purplemow.core.fsm.mower.event.StartedMowingEvent;
@@ -22,8 +33,11 @@ import se.purplescout.purplemow.core.fsm.mower.event.StartedMowingEventHandler;
 import android.util.Log;
 
 public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEventHandler, BwfSensorReceiveEventHandler, RangeSensorReceiveEventHandler,
-	BatterySensorReceiveEventHandler, NewConstantsEventHandler {
+	BatterySensorReceiveEventHandler, NewConstantsEventHandler, BumperEventHandler, OutsideBWFEventHandler, NoBWFDataEventHandler, PushButtonPressedEventHandler {
 
+	private static final int INSIDE_BWF = 107;
+	private static final int OUTSIDE_BWF = 171;
+	
 	private enum State {
 		IDLE, MOWING, AVOIDING_OBSTACLE, GOING_HOME, CHARGING
 	}
@@ -33,6 +47,7 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	private int hysteres = 0;
 	private Constants constants;
 	private boolean batteryLow;
+		
 
 	public MainFSM(Constants constants) {
 		this.constants = constants;
@@ -45,6 +60,10 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 		subscribe(StartedMowingEvent.TYPE, this);
 		subscribe(BatterySensorReceiveEvent.TYPE, this);
 		subscribe(NewConstantsEvent.TYPE, this);
+		subscribe(BumperEvent.TYPE, this);
+		subscribe(OutsideBWFEvent.TYPE, this);
+		subscribe(NoBWFDataEvent.TYPE, this);
+		subscribe(PushButtonPressedEvent.TYPE, this);
 	}
 
 	@Override
@@ -85,7 +104,7 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	public void onBatterySensorReceived(BatterySensorReceiveEvent event) {
 		if (state == State.MOWING) {
 			if (event.getValue() <= constants.getBatteryLow()) {
-				this.batteryLow = true;
+				coreBus.fireEvent(new EmergencyStopEvent("Battery low"));
 				return;
 			}
 		}
@@ -97,6 +116,43 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 			}
 		}
 	}
+	@Override
+	public void onBumperPressed(BumperEvent event) {
+		if (state == State.MOWING) {
+			changeState(State.AVOIDING_OBSTACLE);
+			avoidObstacle();
+		}
+	}
+	
+	@Override
+	public void onOutSide(OutsideBWFEvent event) {
+		if (event.getBwfVal() == OUTSIDE_BWF && state == State.MOWING) {
+			if(batteryLow) {
+				goHome(event.getBwfVal());
+				changeState(State.GOING_HOME);
+			} else {
+				changeState(State.AVOIDING_OBSTACLE);
+				avoidObstacle();
+			}
+		} 				
+		if (state == State.GOING_HOME) {
+			goHome(event.getBwfVal());
+		}
+	}
+	
+	@Override
+	public void onNoData(NoBWFDataEvent event) {
+		if (state == State.MOWING || state == State.GOING_HOME || state  == State.AVOIDING_OBSTACLE) {
+			Log.i(this.getClass().getSimpleName(), "Ingen data. Shutting down " + state );
+			coreBus.fireEvent(new EmergencyStopEvent("Ingen data från BWF"));
+		}
+	}
+
+	@Override
+	public void onButtonPressed(PushButtonPressedEvent event) {
+		coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
+		coreBus.fireEvent(new MowEvent(constants.getFullSpeed()));
+	}
 
 	@Override
 	public void onNewConstants(NewConstantsEvent event) {
@@ -106,19 +162,28 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	private void avoidObstacle() {
 		coreBus.fireEvent(new StopEvent());
 
-		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.BACKWARD), 500);
-		coreBus.fireDelaydEvent(new StopEvent(), 1500);
+		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.BACKWARD), 300);
+		coreBus.fireDelaydEvent(new StopEvent(), 1800);
 
 		if (new Random().nextBoolean()) {
-			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.LEFT), 2000);
+			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.LEFT), 2100);
 		} else {
-			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.RIGHT), 2000);
+			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.RIGHT), 2100);
 		}
-		coreBus.fireDelaydEvent(new StopEvent(), 3000);
-		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 3500);
+		coreBus.fireDelaydEvent(new StopEvent(), 2900);
+		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 3200);
 	}
 
 	private void goHome(int bwfReading) {
+		if (bwfReading == OUTSIDE_BWF) {
+			coreBus.fireEvent(new MoveEvent(constants.getFullSpeed() / 2, 0, Direction.LEFT));
+		} else if (bwfReading == INSIDE_BWF) {
+			coreBus.fireEvent(new MoveEvent(0, constants.getFullSpeed() / 2, Direction.RIGHT));
+		}
+		
+	}
+
+	private void goHomeOld(int bwfReading) {
 		int diff = bwfReading - constants.getGoHomeOffset() - hysteres;
 		Log.d("goHome()", "Diff is: " + diff);
 		if (diff >= -constants.getGoHomeThresholdNegNarrow() && diff <= constants.getGoHomeThresholdPosNarrow()) {
@@ -152,4 +217,5 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 		coreBus.fireEvent(new MowerChangeStateEvent(state.name(), newState.name()));
 		state = newState;
 	}
+	
 }

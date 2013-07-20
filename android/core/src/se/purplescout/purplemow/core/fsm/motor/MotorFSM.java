@@ -82,7 +82,7 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 	@Override
 	public void onMow(MowEvent event) {
 		try {
-			cutterEngine(event.getVelocity());
+			cutterEngine(255);
 		} catch (IOException e) {
 			handleIOException(e);
 		}
@@ -99,9 +99,11 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 
 	@Override
 	public void onEmergencyStop(EmergencyStopEvent event) {
+		Log.e(this.getClass().getSimpleName(), "Emergency stop received in MotorFSM. Shutting down.");
 		try {
 			stopMotors();
-			System.exit(1);
+			cutterEngine(0);
+//			System.exit(1);
 		} catch (IOException e) {
 			handleIOException(e);
 		}
@@ -218,7 +220,7 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 			changeState(State.TURNING_LEFT);
 		} else {
 			coreBus.fireEvent(new StopEvent());
-			coreBus.fireDelaydEvent(new MoveEvent(valueR, valueL, Direction.LEFT), 500);
+			coreBus.fireDelaydEvent(new MoveEvent(valueR, valueL, Direction.LEFT), 300);
 		}
 	}
 

@@ -13,6 +13,7 @@ import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.common.Constants;
 import se.purplescout.purplemow.core.controller.CoreController;
 import se.purplescout.purplemow.core.fsm.motor.event.MoveEvent;
+import se.purplescout.purplemow.core.fsm.motor.event.MowEvent;
 import se.purplescout.purplemow.onboard.backend.service.constant.ConstantService;
 import se.purplescout.purplemow.onboard.backend.service.schedule.ScheduleService;
 import se.purplescout.purplemow.onboard.ui.home.activity.HomeActivity;
@@ -135,6 +136,7 @@ public class MainService extends RoboService {
 		scheduleService.initScheduler();
 
 		coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
+		coreBus.fireEvent(new MowEvent(constants.getFullSpeed()));
 
 		try {
 			webServer = new WebServer(8080, this, dispatcher);

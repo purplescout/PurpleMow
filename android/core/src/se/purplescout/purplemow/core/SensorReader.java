@@ -3,7 +3,6 @@ package se.purplescout.purplemow.core;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,15 +13,17 @@ import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.controller.SensorLogger.SensorData;
-import se.purplescout.purplemow.core.fsm.mower.event.BwfSensorReceiveEvent;
-import se.purplescout.purplemow.core.fsm.mower.event.RangeSensorReceiveEvent;
-import se.purplescout.purplemow.core.fsm.mower.event.RangeSensorReceiveEvent.Side;
+import se.purplescout.purplemow.core.fsm.mower.event.BatterySensorReceiveEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.BumperEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.NoBWFDataEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.OutsideBWFEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.PushButtonPressedEvent;
 import android.util.Log;
 
 public class SensorReader extends Thread {
 
 	private static final int SENSOR_BUFFER_SIZE = 10000;
-	private static final int SLEEP_TIME = 10;
+	private static final int SLEEP_TIME = 20;
 	private static final long SLEEP_TIME_LONG = 50;
 
 	Map<Byte, Buffer> sensorData = new HashMap<Byte, Buffer>();
@@ -39,6 +40,7 @@ public class SensorReader extends Thread {
 	private int thrownExceptions = 0;
 	private CoreBus coreBus = CoreBus.getInstance();
 	private Integer[] bwfVals = new Integer[] {1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023};
+	private int batteryCounter = 0;
 
 	public SensorReader(ComStream comStream) {
 		this.comStream = comStream;
@@ -50,7 +52,8 @@ public class SensorReader extends Thread {
 			while (isRunning) {
 				requestSensor(ComStream.ALL_SENSORS);
 				readAllSensors();
-
+				//Check duration of last time there was an InsideBWF value received
+				// if more than 7 seconds then emergency stop
 				Thread.sleep(SLEEP_TIME);
 			}
 		} catch (InterruptedException e) {
@@ -70,39 +73,10 @@ public class SensorReader extends Thread {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private void readSensor() {
-		try {
-			byte[] buffer = new byte[4];
-			
-			comStream.read(buffer);
-			
-			
-			
-			byte hi = buffer[2];
-			byte lo = buffer[3];
-			int val = composeInt(hi, lo);
-			if (buffer[1] == ComStream.RANGE_SENSOR_LEFT) {
-				sensorData.get(ComStream.RANGE_SENSOR_LEFT).add(new SensorData(new Date(), val));
-				coreBus.fireEvent(new RangeSensorReceiveEvent(val, Side.LEFT));
-			} else if (buffer[1] == ComStream.RANGE_SENSOR_RIGHT) {
-				sensorData.get(ComStream.RANGE_SENSOR_RIGHT).add(new SensorData(new Date(), val));
-				coreBus.fireEvent(new RangeSensorReceiveEvent(val, Side.RIGHT));
-			} else if (buffer[1] == ComStream.BWF_SENSOR_LEFT) {
-				bwfVals[1] = bwfVals[0];
-				bwfVals[0] = val;
-				sensorData.get(ComStream.BWF_SENSOR_LEFT).add(new SensorData(new Date(), getRunningAverage(bwfVals)));
-				coreBus.fireEvent(new BwfSensorReceiveEvent(getRunningAverage(bwfVals)));
-			}
-		} catch (IOException e) {
-			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
-			handleIOException(e);
-		}
-	}
 	
 	@SuppressWarnings("unchecked")
 	private void readAllSensors() {
-		byte[] buffer = new byte[12];
+		byte[] buffer = new byte[16];
 		try {
 			comStream.read(buffer);
 			byte hi = buffer[2];
@@ -118,24 +92,62 @@ public class SensorReader extends Thread {
 			int bwf = composeInt(hi, lo);
 			shiftArray(bwf);
 			
-
 			hi = buffer[8];
 			lo = buffer[9];
 			int voltage = composeInt(hi, lo);
+			batteryCounter++;
+			//Hantera endast var 50e sample av batterispänningen
+			if (batteryCounter  >= 100) {
+				//Log.i(this.getClass().getSimpleName(), "Batterispänning: " + voltage);
+				coreBus.fireEvent(new BatterySensorReceiveEvent(voltage));
+				batteryCounter = 0;
+			}
 
 			hi = buffer[10];
 			lo = buffer[11];
 			int current = composeInt(hi, lo);
 			
-			sensorData.get(ComStream.RANGE_SENSOR_LEFT).add(new SensorData(new Date(), rangeLeft));
-			coreBus.fireEvent(new RangeSensorReceiveEvent(rangeLeft, Side.LEFT));
-
-			sensorData.get(ComStream.RANGE_SENSOR_RIGHT).add(new SensorData(new Date(), rangeRight));
-			coreBus.fireEvent(new RangeSensorReceiveEvent(rangeRight, Side.RIGHT));
+			//Check bumper
+			lo = buffer[12];
+			if (lo == 0) { 
+				coreBus.fireEvent(new BumperEvent());
+			}
 			
-			sensorData.get(ComStream.BWF_SENSOR_LEFT).add(new SensorData(new Date(), getRunningAverage(bwfVals)));
-			sensorData.get(ComStream.BWF_SENSOR_RIGHT).add(new SensorData(new Date(), bwf));
-			coreBus.fireEvent(new BwfSensorReceiveEvent(getRunningAverage(bwfVals)));
+			//Check bwf sensor for outside/inside
+			lo = buffer[14];
+			int bwfVal =  lo;
+			
+			if (bwfVal < 0 ) {
+				//Log.i(this.getClass().getSimpleName(), "Recalculating BWF");
+				bwfVal = bwfVal + 256;
+			}
+			if (bwfVal == 171 || bwfVal == 107 ) {
+				//Log.i(this.getClass().getSimpleName(), "Close to BWF: " + bwfVal);
+				coreBus.fireEvent(new OutsideBWFEvent(bwfVal));
+			}
+
+
+			//Check if inside value has been missing for long...
+			lo = buffer[15];
+			if (lo == 1) {
+				coreBus.fireEvent(new NoBWFDataEvent());
+			}
+			
+			//Check if push-button has been set
+			lo = buffer[13];
+			if (lo == 0) {
+				coreBus.fireEvent(new PushButtonPressedEvent());
+			}			
+//			sensorData.get(ComStream.RANGE_SENSOR_LEFT).add(new SensorData(new Date(), rangeLeft));
+//			coreBus.fireEvent(new RangeSensorReceiveEvent(rangeLeft, Side.LEFT));
+//
+//			sensorData.get(ComStream.RANGE_SENSOR_RIGHT).add(new SensorData(new Date(), rangeRight));
+//			coreBus.fireEvent(new RangeSensorReceiveEvent(rangeRight, Side.RIGHT));
+//			
+//			sensorData.get(ComStream.BWF_SENSOR_LEFT).add(new SensorData(new Date(), getRunningAverage(bwfVals)));
+//			sensorData.get(ComStream.BWF_SENSOR_RIGHT).add(new SensorData(new Date(), bwf));
+//			coreBus.fireEvent(new BwfSensorReceiveEvent(getRunningAverage(bwfVals)));
+			
 
 		} catch (IOException e) {
 			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
