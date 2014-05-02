@@ -121,4 +121,5 @@ public class SensorsActivity extends CoreBusSubscriberActivity {
 		super.onStop();
 		unsubscribeAll();
 	}
+
 }

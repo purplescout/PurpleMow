@@ -18,6 +18,7 @@ public abstract class CoreBusSubscriberThread extends Thread implements CoreBusS
 	private PriorityBlockingQueue<CoreEvent<?>> queue = new PriorityBlockingQueue<CoreEvent<?>>();
 	private List<CoreBusSubscription> subscriptions = new ArrayList<CoreBusSubscription>();
 	private boolean isRunning = true;
+	private boolean cancelDelayedTasks = false;
 
 	@Override
 	public final void run() {
@@ -46,16 +47,32 @@ public abstract class CoreBusSubscriberThread extends Thread implements CoreBusS
 
 	@Override
 	public final void queueDelayedEvent(final CoreEvent<?> event, long ms) {
+		final Timer timer = new Timer();
 		TimerTask task = new TimerTask() {
 
 			@Override
 			public void run() {
-				queue.add(event);
+				if(cancelDelayedTasks) {
+					timer.cancel();
+					timer.purge();
+				} else {
+					queue.add(event);
+				}
 			}
 		};
-		new Timer().schedule(task, ms);
+		timer.schedule(task, ms);
 	}
 
+	@Override
+	public void removeDelayedEvents() {
+		cancelDelayedTasks = true;
+	}
+
+	@Override
+	public void enableDelayedEvents() {
+		cancelDelayedTasks = false;
+	}
+	
 	protected final <H extends CoreEventHandler> void subscribe(CoreEvent.Type<H> type, H handler) {
 		doAdd(type, handler);
 		CoreBusSubscription subscription = CoreBus.getInstance().subscribe(type, this);

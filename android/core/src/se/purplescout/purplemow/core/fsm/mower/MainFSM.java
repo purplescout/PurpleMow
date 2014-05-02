@@ -39,7 +39,7 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	private static final int OUTSIDE_BWF = 171;
 	
 	private enum State {
-		IDLE, MOWING, AVOIDING_OBSTACLE, GOING_HOME, CHARGING
+		IDLE, MOWING, AVOIDING_OBSTACLE, GOING_HOME, CHARGING, EMERGENCY_STOPPED, STOPPED_NO_SIGNAL
 	}
 
 	private State state = State.IDLE;
@@ -79,7 +79,7 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	@Override
 	public void onBWFSensorEvent(BwfSensorReceiveEvent event) {
 		if (state == State.MOWING) {
-			//Battery is low. Go home to charger whenever BWF is reached.
+			//When battery is low, go home to charger whenever BWF is reached.
 			if(event.getValue() < constants.getGoHomeOffset() && batteryLow) {
 				goHome(event.getValue());
 				changeState(State.GOING_HOME);
@@ -97,6 +97,7 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	public void onStartedMowing(StartedMowingEvent event) {
 		if (state == State.AVOIDING_OBSTACLE || state == State.CHARGING || state == State.IDLE) {
 			changeState(State.MOWING);
+			enableDelayedEvents();
 		}
 	}
 
@@ -128,8 +129,9 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	public void onOutSide(OutsideBWFEvent event) {
 		if (event.getBwfVal() == OUTSIDE_BWF && state == State.MOWING) {
 			if(batteryLow) {
-				goHome(event.getBwfVal());
 				changeState(State.GOING_HOME);
+				goHome(event.getBwfVal());
+				
 			} else {
 				changeState(State.AVOIDING_OBSTACLE);
 				avoidObstacle();
@@ -138,20 +140,31 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 		if (state == State.GOING_HOME) {
 			goHome(event.getBwfVal());
 		}
+		
+		if(event.getBwfVal() == INSIDE_BWF && state == State.STOPPED_NO_SIGNAL) {
+			coreBus.fireEvent(new MowEvent(constants.getFullSpeed()));
+			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 1000);
+			changeState(State.MOWING);
+		}
 	}
 	
 	@Override
 	public void onNoData(NoBWFDataEvent event) {
 		if (state == State.MOWING || state == State.GOING_HOME || state  == State.AVOIDING_OBSTACLE) {
 			Log.i(this.getClass().getSimpleName(), "Ingen data. Shutting down " + state );
+			removeDelayedEvents();
 			coreBus.fireEvent(new EmergencyStopEvent("Ingen data från BWF"));
+			changeState(State.STOPPED_NO_SIGNAL);
 		}
 	}
 
 	@Override
 	public void onButtonPressed(PushButtonPressedEvent event) {
-		coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
-		coreBus.fireEvent(new MowEvent(constants.getFullSpeed()));
+		if(state == State.STOPPED_NO_SIGNAL) {
+			coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
+			coreBus.fireEvent(new MowEvent(constants.getFullSpeed()));
+			changeState(State.MOWING);
+		}
 	}
 
 	@Override

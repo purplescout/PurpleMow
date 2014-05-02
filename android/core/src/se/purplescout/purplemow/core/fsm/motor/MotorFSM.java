@@ -82,7 +82,7 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 	@Override
 	public void onMow(MowEvent event) {
 		try {
-			cutterEngine(255);
+			cutterEngine(event.getVelocity());
 		} catch (IOException e) {
 			handleIOException(e);
 		}

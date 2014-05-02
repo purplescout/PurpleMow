@@ -48,6 +48,13 @@ public abstract class CoreBusSubscriberActivity extends Activity implements Core
 		handler.sendMessageDelayed(msg, ms);
 	}
 
+	@Override
+	public void enableDelayedEvents() {};
+	
+	@Override
+	public void removeDelayedEvents() {};
+	
+	
 	protected final <H extends CoreEventHandler> void subscribe(CoreEvent.Type<H> type, H handler) {
 		doAdd(type, handler);
 		CoreBusSubscription subscription = CoreBus.getInstance().subscribe(type, this);

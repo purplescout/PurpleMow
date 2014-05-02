@@ -23,7 +23,7 @@ import android.util.Log;
 public class SensorReader extends Thread {
 
 	private static final int SENSOR_BUFFER_SIZE = 10000;
-	private static final int SLEEP_TIME = 20;
+	private static final int SLEEP_TIME = 13;
 	private static final long SLEEP_TIME_LONG = 50;
 
 	Map<Byte, Buffer> sensorData = new HashMap<Byte, Buffer>();
@@ -41,6 +41,8 @@ public class SensorReader extends Thread {
 	private CoreBus coreBus = CoreBus.getInstance();
 	private Integer[] bwfVals = new Integer[] {1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023};
 	private int batteryCounter = 0;
+	private long timer = System.currentTimeMillis();
+	private static int TIMEOUT = 20000;
 
 	public SensorReader(ComStream comStream) {
 		this.comStream = comStream;
@@ -121,39 +123,47 @@ public class SensorReader extends Thread {
 				//Log.i(this.getClass().getSimpleName(), "Recalculating BWF");
 				bwfVal = bwfVal + 256;
 			}
+			//171 utanför, 107 innanför
 			if (bwfVal == 171 || bwfVal == 107 ) {
 				//Log.i(this.getClass().getSimpleName(), "Close to BWF: " + bwfVal);
 				coreBus.fireEvent(new OutsideBWFEvent(bwfVal));
 			}
 
+			if (bwfVal == 107) {
+				resetTimer();
+			} else {
+				checkTimer();
+			}
 
 			//Check if inside value has been missing for long...
-			lo = buffer[15];
-			if (lo == 1) {
-				coreBus.fireEvent(new NoBWFDataEvent());
-			}
+//			lo = buffer[15];
+//			if (lo == 1) {
+//				coreBus.fireEvent(new NoBWFDataEvent());
+//			}
 			
 			//Check if push-button has been set
 			lo = buffer[13];
 			if (lo == 0) {
+				resetTimer();
 				coreBus.fireEvent(new PushButtonPressedEvent());
 			}			
-//			sensorData.get(ComStream.RANGE_SENSOR_LEFT).add(new SensorData(new Date(), rangeLeft));
-//			coreBus.fireEvent(new RangeSensorReceiveEvent(rangeLeft, Side.LEFT));
-//
-//			sensorData.get(ComStream.RANGE_SENSOR_RIGHT).add(new SensorData(new Date(), rangeRight));
-//			coreBus.fireEvent(new RangeSensorReceiveEvent(rangeRight, Side.RIGHT));
-//			
-//			sensorData.get(ComStream.BWF_SENSOR_LEFT).add(new SensorData(new Date(), getRunningAverage(bwfVals)));
-//			sensorData.get(ComStream.BWF_SENSOR_RIGHT).add(new SensorData(new Date(), bwf));
-//			coreBus.fireEvent(new BwfSensorReceiveEvent(getRunningAverage(bwfVals)));
-			
+
 
 		} catch (IOException e) {
 			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			handleIOException(e);	
 		}		
 	}
+	private void checkTimer() {
+		if(timer + TIMEOUT < System.currentTimeMillis()) {
+			coreBus.fireEvent(new NoBWFDataEvent());
+		}
+	}
+
+	private void resetTimer() {
+		timer = System.currentTimeMillis();
+	}
+
 	/**
 	 * Collect the latest 10 BWF values into an array
 	 * @param bwf
