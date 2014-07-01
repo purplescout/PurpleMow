@@ -7,9 +7,11 @@
 
 #include "commands.h"
 
-#define  MOTOR_RIGHT_PWM        8
-#define  MOTOR_LEFT_PWM         9
-#define  CUTTER_PWM                 11
+#define  MOTOR_RIGHT_PWM_1        7
+#define  MOTOR_RIGHT_PWM_2        8
+#define  MOTOR_LEFT_PWM_1         9
+#define  MOTOR_LEFT_PWM_1         10
+#define  CUTTER_PWM               11
 
 #define  MOTOR_RIGHT_DIR            23
 #define  MOTOR_LEFT_DIR             25
@@ -59,11 +61,13 @@ void setup() {
   Serial1.begin(9600, SERIAL_8E1);
   Serial.begin(9600);
   Serial.print("\r\nStart PurpleMow Arduino");
-  pinMode(MOTOR_RIGHT_PWM, OUTPUT);   // sets the pin as output
-  pinMode(MOTOR_LEFT_PWM, OUTPUT);   // sets the pin as output
+  pinMode(MOTOR_RIGHT_PWM_1, OUTPUT);   // sets the pin as output
+  pinMode(MOTOR_RIGHT_PWM_2, OUTPUT);   // sets the pin as output
+  pinMode(MOTOR_LEFT_PWM_1, OUTPUT);   // sets the pin as output
+  pinMode(MOTOR_LEFT_PWM_2, OUTPUT);   // sets the pin as output
   pinMode(CUTTER_PWM, OUTPUT);   // sets the pin as output
-  pinMode(MOTOR_RIGHT_DIR, OUTPUT);
-  pinMode(MOTOR_LEFT_DIR, OUTPUT);
+//  pinMode(MOTOR_RIGHT_DIR, OUTPUT);
+//  pinMode(MOTOR_LEFT_DIR, OUTPUT);
   pinMode(MOTOR_CUTTER_DIR, OUTPUT);
   pinMode(RANGE_SENSOR_RIGHT, INPUT);
   pinMode(RANGE_SENSOR_LEFT, INPUT);
@@ -116,12 +120,14 @@ void loop() {
   } 
   else {
     // reset outputs to default values on disconnect
-    digitalWrite(MOTOR_RIGHT_PWM, LOW);
-    digitalWrite(MOTOR_LEFT_PWM, LOW);
+    digitalWrite(MOTOR_RIGHT_PWM_1, LOW);
+    digitalWrite(MOTOR_LEFT_PWM_1, LOW);
+    digitalWrite(MOTOR_RIGHT_PWM_2, LOW);
+    digitalWrite(MOTOR_LEFT_PWM_2, LOW);
     analogWrite(CUTTER_PWM, 0);
     digitalWrite(MOTOR_CUTTER_DIR, HIGH);
-    digitalWrite(MOTOR_RIGHT_DIR, HIGH);
-    digitalWrite(MOTOR_LEFT_DIR, LOW);
+//    digitalWrite(MOTOR_RIGHT_DIR, HIGH);
+//    digitalWrite(MOTOR_LEFT_DIR, LOW);
 
   }
 }
