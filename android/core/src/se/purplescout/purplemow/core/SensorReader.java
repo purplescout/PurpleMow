@@ -15,6 +15,7 @@ import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.controller.SensorLogger.SensorData;
 import se.purplescout.purplemow.core.fsm.mower.event.BatterySensorReceiveEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.BumperEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.CutterFrequencyEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.NoBWFDataEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.OutsideBWFEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.PushButtonPressedEvent;
@@ -41,6 +42,7 @@ public class SensorReader extends Thread {
 	private CoreBus coreBus = CoreBus.getInstance();
 	private Integer[] bwfVals = new Integer[] {1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023};
 	private int batteryCounter = 0;
+	private int frequencyCounter = 0;
 	private long timer = System.currentTimeMillis();
 	private static int TIMEOUT = 20000;
 
@@ -81,6 +83,8 @@ public class SensorReader extends Thread {
 		byte[] buffer = new byte[16];
 		try {
 			comStream.read(buffer);
+			
+			//Range sensors using IR
 			byte hi = buffer[2];
 			byte lo = buffer[3];
 			int rangeRight = composeInt(hi, lo);
@@ -89,16 +93,23 @@ public class SensorReader extends Thread {
 			lo = buffer[5];
 			int rangeLeft = composeInt(hi, lo);
 
+			//Cutter motor freq
 			hi = buffer[6];
 			lo = buffer[7];
-			int bwf = composeInt(hi, lo);
-			shiftArray(bwf);
+			int frequency = composeInt(hi, lo);
+			frequencyCounter++;
+			//Hantera endast var 200e sample av batterispänningen
+			if (frequencyCounter  >= 50) {
+				Log.i(this.getClass().getSimpleName(), "Frekvens på klipparn: " + frequency);
+				coreBus.fireEvent(new CutterFrequencyEvent(frequency));
+				frequencyCounter = 0;
+			}
 			
 			hi = buffer[8];
 			lo = buffer[9];
 			int voltage = composeInt(hi, lo);
 			batteryCounter++;
-			//Hantera endast var 50e sample av batterispänningen
+			//Hantera endast var 100e sample av batterispänningen
 			if (batteryCounter  >= 100) {
 				//Log.i(this.getClass().getSimpleName(), "Batterispänning: " + voltage);
 				coreBus.fireEvent(new BatterySensorReceiveEvent(voltage));
@@ -134,13 +145,7 @@ public class SensorReader extends Thread {
 			} else {
 				checkTimer();
 			}
-
-			//Check if inside value has been missing for long...
-//			lo = buffer[15];
-//			if (lo == 1) {
-//				coreBus.fireEvent(new NoBWFDataEvent());
-//			}
-			
+						
 			//Check if push-button has been set
 			lo = buffer[13];
 			if (lo == 0) {

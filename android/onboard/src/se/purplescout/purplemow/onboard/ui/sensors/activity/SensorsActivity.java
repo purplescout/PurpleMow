@@ -8,6 +8,8 @@ import se.purplescout.purplemow.core.fsm.mower.event.BumperEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.BumperEventHandler;
 import se.purplescout.purplemow.core.fsm.mower.event.BwfSensorReceiveEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.BwfSensorReceiveEventHandler;
+import se.purplescout.purplemow.core.fsm.mower.event.CutterFrequencyEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.CutterFrequencyEventHandler;
 import se.purplescout.purplemow.core.fsm.mower.event.MowerChangeStateEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.MowerChangeStateEventHandler;
 import se.purplescout.purplemow.core.fsm.mower.event.OutsideBWFEvent;
@@ -37,6 +39,8 @@ public class SensorsActivity extends CoreBusSubscriberActivity {
 		void setOutsideBWF(String value);
 
 		void setBatteryLevel(int value);
+		
+		void setFrequency(int value);
 		
 		void setMessage(String message);
 	}
@@ -113,7 +117,13 @@ public class SensorsActivity extends CoreBusSubscriberActivity {
 			}
 
 		});
-		
+		subscribe(CutterFrequencyEvent.TYPE, new CutterFrequencyEventHandler() {
+			
+			@Override
+			public void onCutterFreqeuncyEvent(CutterFrequencyEvent event) {
+				display.setFrequency(event.getValue());
+			}
+		});		
 	}
 
 	@Override

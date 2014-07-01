@@ -134,7 +134,8 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 				
 			} else {
 				changeState(State.AVOIDING_OBSTACLE);
-				avoidObstacle();
+//				avoidObstacle();
+				changeDirection();
 			}
 		} 				
 		if (state == State.GOING_HOME) {
@@ -142,7 +143,9 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 		}
 		
 		if(event.getBwfVal() == INSIDE_BWF && state == State.STOPPED_NO_SIGNAL) {
-			coreBus.fireEvent(new MowEvent(constants.getFullSpeed()));
+			int fullSpeed = constants.getFullSpeed();
+			int speed60Percent = (int) (fullSpeed*0.6);
+			coreBus.fireEvent(new MowEvent(speed60Percent));
 			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 1000);
 			changeState(State.MOWING);
 		}
@@ -187,6 +190,21 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 3200);
 	}
 
+	private void changeDirection() {
+		coreBus.fireEvent(new StopEvent());
+
+		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.BACKWARD), 300);
+		coreBus.fireDelaydEvent(new StopEvent(), 1500);
+
+		if (new Random().nextBoolean()) {
+			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.LEFT), 1800);
+		} else {
+			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.RIGHT), 1800);
+		}
+		coreBus.fireDelaydEvent(new StopEvent(), 2500);
+		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 2800);
+	}
+	
 	private void goHome(int bwfReading) {
 		if (bwfReading == OUTSIDE_BWF) {
 			coreBus.fireEvent(new MoveEvent(constants.getFullSpeed() / 2, 0, Direction.LEFT));

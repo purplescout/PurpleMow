@@ -14,6 +14,7 @@ public class SensorsView implements SensorsActivity.ViewDisplay {
 	private TextView bumperCounter;
 	private TextView outsideBWF;
 	private TextView batteryLevel;
+	private TextView frequency;
 	private TextView messageArea;
 	private Integer bumperCount = 0;
 	
@@ -25,6 +26,7 @@ public class SensorsView implements SensorsActivity.ViewDisplay {
 		bumperCounter = (TextView) activity.findViewById(R.id.bumperHits);
 		batteryLevel = (TextView) activity.findViewById(R.id.batteryLevel);
 		outsideBWF = (TextView) activity.findViewById(R.id.outsideBWF);
+		frequency = (TextView) activity.findViewById(R.id.frequency);
 		messageArea = (TextView) activity.findViewById(R.id.messageArea);
 	}
 
@@ -69,5 +71,10 @@ public class SensorsView implements SensorsActivity.ViewDisplay {
 	@Override
 	public void setMessage(String message) {
 		messageArea.setText(message);
+	}
+
+	@Override
+	public void setFrequency(int value) {
+		frequency.setText(Integer.toString(value));
 	}
 }

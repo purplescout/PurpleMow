@@ -136,7 +136,9 @@ public class MainService extends RoboService {
 		scheduleService.initScheduler();
 
 		coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
-		coreBus.fireEvent(new MowEvent(constants.getFullSpeed()));
+		int fullSpeed = constants.getFullSpeed();
+		int speed60Percent = (int) (fullSpeed*0.6);
+		coreBus.fireEvent(new MowEvent(speed60Percent));
 
 		try {
 			webServer = new WebServer(8080, this, dispatcher);
