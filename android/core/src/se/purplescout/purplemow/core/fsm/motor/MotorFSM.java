@@ -187,6 +187,7 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 	}
 
 	private void stopMotors() throws IOException {
+		Log.v(getClass().getSimpleName(), getClass().getSimpleName() + ": stopping motors.");
 		motorController.move(0);
 		changeState(State.STOPPED);
 	}
@@ -241,6 +242,7 @@ public class MotorFSM extends CoreBusSubscriberThread implements EmergencyStopEv
 	}
 
 	private void cutterEngine(int value) throws IOException {
+		Log.v(getClass().getSimpleName(), getClass().getSimpleName() + ": Setting speed on cutter motor to " + value);
 		motorController.runCutter(value);
 		currentCutterSpeed = value;
 	}

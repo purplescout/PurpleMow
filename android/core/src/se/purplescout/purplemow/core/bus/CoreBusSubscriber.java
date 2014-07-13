@@ -14,4 +14,6 @@ public interface CoreBusSubscriber {
 	void removeDelayedEvents();
 
 	void enableDelayedEvents();
+
+	boolean getDelayedEventsStatus();
 }

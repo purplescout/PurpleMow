@@ -69,19 +69,19 @@ public class CoreControllerImpl implements CoreController {
 		return sensorReader.getBwfSensorData();
 	}
 
-	@Override
-	public List<SensorData> getLeftRangeSensorData() {
-		if (state == State.SHUTDOWN) {
-			return new ArrayList<SensorData>();
-		}
-		return sensorReader.getLeftRangeSensorData();
-	}
-
-	@Override
-	public List<SensorData> getRightRangeSensorData() {
-		if (state == State.SHUTDOWN) {
-			return new ArrayList<SensorData>();
-		}
-		return sensorReader.getRightRangeSensorData();
-	}
+	//	@Override
+//	public List<SensorData> getLeftRangeSensorData() {
+//		if (state == State.SHUTDOWN) {
+//			return new ArrayList<SensorData>();
+//		}
+//		return sensorReader.getLeftRangeSensorData();
+//	}
+//
+//	@Override
+//	public List<SensorData> getRightRangeSensorData() {
+//		if (state == State.SHUTDOWN) {
+//			return new ArrayList<SensorData>();
+//		}
+//		return sensorReader.getRightRangeSensorData();
+//	}
 }

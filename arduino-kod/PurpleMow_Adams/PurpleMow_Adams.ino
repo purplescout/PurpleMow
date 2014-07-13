@@ -1,5 +1,3 @@
-#include <Wire.h>
-#include <Servo.h>
 
 #include <Max3421e.h>
 #include <Usb.h>
@@ -7,10 +5,11 @@
 
 #include "commands.h"
 
-#define  MOTOR_RIGHT_PWM_1        7
-#define  MOTOR_RIGHT_PWM_2        8
-#define  MOTOR_LEFT_PWM_1         9
-#define  MOTOR_LEFT_PWM_1         10
+#define  MOTOR_LEFT_PWM_1         7
+#define  MOTOR_LEFT_PWM_2         8
+#define  MOTOR_RIGHT_PWM_1        9
+#define  MOTOR_RIGHT_PWM_2        10
+
 #define  CUTTER_PWM               11
 
 #define  MOTOR_RIGHT_DIR            23
@@ -23,7 +22,7 @@
 #define  RANGE_SENSOR_LEFT      A2
 #define  RANGE_SENSOR_RIGHT     A3
 #define  BWF_SENSOR_CENTER      A4
-#define  VOLTAGE_SENSOR         A5
+#define  VOLTAGE_SENSOR         A6
 #define  MOIST_SENSOR           A7
 #define  CUTTER_OVERCURRENT_SENSOR A8
 
@@ -35,6 +34,7 @@ void checkBWF();
 void zeroPadByteArray();
 void setupCounter();
 void getCutterRPM();
+
 
 // global variables
 AndroidAccessory acc("PurpleScout AB",
@@ -57,6 +57,12 @@ long timeOut = 40000;
 unsigned long overflowCount;
 unsigned long startTime;
 
+const String FORWARD = "fwd";
+const String BACKWARDS = "back";
+
+String motorLeftDir = FORWARD;
+String motorRightDir = FORWARD;
+
 void setup() {
   Serial1.begin(9600, SERIAL_8E1);
   Serial.begin(9600);
@@ -66,8 +72,6 @@ void setup() {
   pinMode(MOTOR_LEFT_PWM_1, OUTPUT);   // sets the pin as output
   pinMode(MOTOR_LEFT_PWM_2, OUTPUT);   // sets the pin as output
   pinMode(CUTTER_PWM, OUTPUT);   // sets the pin as output
-//  pinMode(MOTOR_RIGHT_DIR, OUTPUT);
-//  pinMode(MOTOR_LEFT_DIR, OUTPUT);
   pinMode(MOTOR_CUTTER_DIR, OUTPUT);
   pinMode(RANGE_SENSOR_RIGHT, INPUT);
   pinMode(RANGE_SENSOR_LEFT, INPUT);
@@ -120,14 +124,12 @@ void loop() {
   } 
   else {
     // reset outputs to default values on disconnect
-    digitalWrite(MOTOR_RIGHT_PWM_1, LOW);
-    digitalWrite(MOTOR_LEFT_PWM_1, LOW);
-    digitalWrite(MOTOR_RIGHT_PWM_2, LOW);
-    digitalWrite(MOTOR_LEFT_PWM_2, LOW);
+    analogWrite(MOTOR_RIGHT_PWM_1, 0);
+    analogWrite(MOTOR_LEFT_PWM_1, 0);
+    analogWrite(MOTOR_RIGHT_PWM_2, 0);
+    analogWrite(MOTOR_LEFT_PWM_2, 0);
     analogWrite(CUTTER_PWM, 0);
     digitalWrite(MOTOR_CUTTER_DIR, HIGH);
-//    digitalWrite(MOTOR_RIGHT_DIR, HIGH);
-//    digitalWrite(MOTOR_LEFT_DIR, LOW);
 
   }
 }
@@ -180,28 +182,32 @@ int process_command(byte* msg, int length)
   }
 
   if (msg[0] == CMD_WRITE) {
-    if (msg[1] == CMD_MOTOR_RIGHT)
-    {
-      if(msg[2] > 0) {
-        digitalWrite(MOTOR_RIGHT_PWM, HIGH);
-      } 
-      else {
-        digitalWrite(MOTOR_RIGHT_PWM, LOW);
+    Serial.print("\r\nCommand WRITE received\r\n");
+    Serial.print(msg[0]);
+    Serial.print("\t"); 
+    Serial.print(msg[1]);
+    Serial.print("\t"); 
+    Serial.print(msg[2]);
+    Serial.print("\r\n");   
+    if (msg[1] == CMD_MOTOR_RIGHT) {
+      if(motorRightDir.equals(FORWARD)) {
+        analogWrite(MOTOR_RIGHT_PWM_1, msg[2]);
+        analogWrite(MOTOR_RIGHT_PWM_2, 0);
+      } else {
+        analogWrite(MOTOR_RIGHT_PWM_1, 0);
+        analogWrite(MOTOR_RIGHT_PWM_2, msg[2]);
       }
       result = 0;
-    }
-    else if (msg[1] == CMD_MOTOR_LEFT)
-    {
-      if(msg[2] > 0) {
-        digitalWrite(MOTOR_LEFT_PWM, HIGH);
-      } 
-      else {
-        digitalWrite(MOTOR_LEFT_PWM, LOW);
+    } else if (msg[1] == CMD_MOTOR_LEFT) {
+      if(motorLeftDir.equals(FORWARD)) {
+        analogWrite(MOTOR_LEFT_PWM_1, msg[2]);
+        analogWrite(MOTOR_LEFT_PWM_2, 0);
+      } else {
+        analogWrite(MOTOR_LEFT_PWM_1, 0);
+        analogWrite(MOTOR_LEFT_PWM_2, msg[2]);
       }
       result = 0;
-    }
-    else if (msg[1] == CMD_CUTTER)
-    {
+    } else if (msg[1] == CMD_CUTTER) {
       analogWrite(CUTTER_PWM, msg[2]);
       result = 0;
     }
@@ -214,14 +220,23 @@ int process_command(byte* msg, int length)
     Serial.print("\t"); 
     Serial.print(msg[2]);
     Serial.print("\r\n");   
-    if (msg[1] == CMD_RELAY_RIGHT)
-    {
-      digitalWrite(MOTOR_RIGHT_DIR, msg[2] ? LOW : HIGH);
+    if (msg[1] == CMD_RELAY_RIGHT ) {
+      //digitalWrite(MOTOR_RIGHT_DIR, msg[2] ? LOW : HIGH);
+      if(msg[2]) {
+        motorRightDir = FORWARD;
+      } else {
+        motorRightDir = BACKWARDS;
+      }
+      
       result = 0;
     }
-    else if (msg[1] == CMD_RELAY_LEFT)
-    {
-      digitalWrite(MOTOR_LEFT_DIR, msg[2] ? HIGH : LOW);            
+    else if (msg[1] == CMD_RELAY_LEFT) {
+      if(msg[2]) {
+        motorLeftDir = FORWARD;
+      } else {
+        motorLeftDir = BACKWARDS;
+      }
+
       result = 0;
     }
   } 
@@ -333,4 +348,5 @@ void setupCounter() {
   startTime = millis();
 
 }
+
 

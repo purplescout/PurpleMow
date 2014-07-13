@@ -73,6 +73,11 @@ public abstract class CoreBusSubscriberThread extends Thread implements CoreBusS
 		cancelDelayedTasks = false;
 	}
 	
+	@Override
+	public boolean getDelayedEventsStatus() {
+		return cancelDelayedTasks;
+	}
+	
 	protected final <H extends CoreEventHandler> void subscribe(CoreEvent.Type<H> type, H handler) {
 		doAdd(type, handler);
 		CoreBusSubscription subscription = CoreBus.getInstance().subscribe(type, this);

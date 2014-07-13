@@ -5,7 +5,7 @@
 	<name>purplemow-onboard</name>
 
 	<properties>
-		<android.platform>4.0.3</android.platform>
+		<android.sdk.platform>15</android.sdk.platform>
 	</properties>
 	<parent>
 		<groupId>se.purplescout.purplemow</groupId>
@@ -105,8 +105,7 @@
 				<plugin>
 					<groupId>com.jayway.maven.plugins.android.generation2</groupId>
 					<artifactId>android-maven-plugin</artifactId>
-					<version>3.4.0</version>
-
+					<version>3.8.0</version>
 					<extensions>true</extensions>
 				</plugin>
 			</plugins>
@@ -147,6 +146,7 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			
 			<plugin>
 				<!-- See http://code.google.com/p/maven-android-plugin/ for info -->
 				<groupId>com.jayway.maven.plugins.android.generation2</groupId>

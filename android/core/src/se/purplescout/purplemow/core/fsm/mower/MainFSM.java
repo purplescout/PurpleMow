@@ -35,8 +35,10 @@ import android.util.Log;
 public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEventHandler, BwfSensorReceiveEventHandler, RangeSensorReceiveEventHandler,
 	BatterySensorReceiveEventHandler, NewConstantsEventHandler, BumperEventHandler, OutsideBWFEventHandler, NoBWFDataEventHandler, PushButtonPressedEventHandler {
 
-	private static final int INSIDE_BWF = 107;
-	private static final int OUTSIDE_BWF = 171;
+//	private static final int INSIDE_BWF = 107;
+//	private static final int OUTSIDE_BWF = 171;
+	private static final int INSIDE_BWF = 215;
+	private static final int OUTSIDE_BWF = 87;
 	
 	private enum State {
 		IDLE, MOWING, AVOIDING_OBSTACLE, GOING_HOME, CHARGING, EMERGENCY_STOPPED, STOPPED_NO_SIGNAL
@@ -68,36 +70,18 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 
 	@Override
 	public void onRangeSensorReceive(RangeSensorReceiveEvent event) {
-		if (state == State.MOWING) {
-			if (event.getValue() > constants.getRangeLimit()) {
-				changeState(State.AVOIDING_OBSTACLE);
-				avoidObstacle();
-			}
-		}
+
 	}
 
 	@Override
 	public void onBWFSensorEvent(BwfSensorReceiveEvent event) {
-		if (state == State.MOWING) {
-			//When battery is low, go home to charger whenever BWF is reached.
-			if(event.getValue() < constants.getGoHomeOffset() && batteryLow) {
-				goHome(event.getValue());
-				changeState(State.GOING_HOME);
-			} else if (event.getValue() < constants.getBwfLimit()) {
-				changeState(State.AVOIDING_OBSTACLE);
-				avoidObstacle();
-			}
-		}
-		if (state == State.GOING_HOME) {
-			goHome(event.getValue());
-		}
+
 	}
 
 	@Override
 	public void onStartedMowing(StartedMowingEvent event) {
 		if (state == State.AVOIDING_OBSTACLE || state == State.CHARGING || state == State.IDLE) {
 			changeState(State.MOWING);
-			enableDelayedEvents();
 		}
 	}
 
@@ -106,19 +90,23 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 		if (state == State.MOWING) {
 			if (event.getValue() <= constants.getBatteryLow()) {
 				coreBus.fireEvent(new EmergencyStopEvent("Battery low"));
+				batteryLow = true;
 				return;
 			}
 		}
-		if (state == State.CHARGING || state == State.GOING_HOME) {
-			if (event.getValue() >= constants.getBatteryCharged()) {
-				coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
-				batteryLow = false;
-				changeState(State.MOWING);
-			}
-		}
+
+		//Adam: Ta tillbaka när du fått det att funka med att åka hem.
+		//		if (state == State.CHARGING || state == State.GOING_HOME) {
+//			if (event.getValue() >= constants.getBatteryCharged()) {
+//				coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
+//				batteryLow = false;
+//				changeState(State.MOWING);
+//			}
+//		}
 	}
 	@Override
 	public void onBumperPressed(BumperEvent event) {
+		Log.i(this.getClass().getSimpleName(), "Bumper pressed in state " + state);
 		if (state == State.MOWING) {
 			changeState(State.AVOIDING_OBSTACLE);
 			avoidObstacle();
@@ -127,6 +115,7 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	
 	@Override
 	public void onOutSide(OutsideBWFEvent event) {
+		Log.i(this.getClass().getSimpleName(), "Outside BWF in state " + state);
 		if (event.getBwfVal() == OUTSIDE_BWF && state == State.MOWING) {
 			if(batteryLow) {
 				changeState(State.GOING_HOME);
@@ -134,7 +123,6 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 				
 			} else {
 				changeState(State.AVOIDING_OBSTACLE);
-//				avoidObstacle();
 				changeDirection();
 			}
 		} 				
@@ -143,16 +131,19 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 		}
 		
 		if(event.getBwfVal() == INSIDE_BWF && state == State.STOPPED_NO_SIGNAL) {
+			Log.i(this.getClass().getSimpleName(), "Signal is back again! Starting up.");
+			enableDelayedEvents();
 			int fullSpeed = constants.getFullSpeed();
-			int speed60Percent = (int) (fullSpeed*0.6);
+			int speed60Percent = (int) (255*0.6);
 			coreBus.fireEvent(new MowEvent(speed60Percent));
-			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 1000);
+			coreBus.fireDelaydEvent(new MoveEvent(fullSpeed, Direction.FORWARD), 1000);
 			changeState(State.MOWING);
 		}
 	}
 	
 	@Override
 	public void onNoData(NoBWFDataEvent event) {
+		Log.i(this.getClass().getSimpleName(), "No signal from BWF. In state " + state );
 		if (state == State.MOWING || state == State.GOING_HOME || state  == State.AVOIDING_OBSTACLE) {
 			Log.i(this.getClass().getSimpleName(), "Ingen data. Shutting down " + state );
 			removeDelayedEvents();
@@ -163,9 +154,13 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 
 	@Override
 	public void onButtonPressed(PushButtonPressedEvent event) {
+		Log.i(this.getClass().getSimpleName(), "Button pressed. In state " + state );
 		if(state == State.STOPPED_NO_SIGNAL) {
-			coreBus.fireEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD));
-			coreBus.fireEvent(new MowEvent(constants.getFullSpeed()));
+			int fullSpeed = constants.getFullSpeed();
+			int speed60Percent = (int) (255*0.6);
+			enableDelayedEvents();
+			coreBus.fireEvent(new MowEvent(speed60Percent));
+			coreBus.fireEvent(new MoveEvent(fullSpeed, Direction.FORWARD));
 			changeState(State.MOWING);
 		}
 	}
@@ -176,6 +171,7 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	}
 
 	private void avoidObstacle() {
+		Log.i(this.getClass().getSimpleName(), "Doing avoidObstacle(). Delayed events = " + getDelayedEventsStatus());
 		coreBus.fireEvent(new StopEvent());
 
 		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.BACKWARD), 300);
@@ -191,18 +187,19 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 	}
 
 	private void changeDirection() {
+		Log.i(this.getClass().getSimpleName(), "Doing changeDirection(). RemoveDelayedEvents = " + getDelayedEventsStatus());
 		coreBus.fireEvent(new StopEvent());
 
-		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.BACKWARD), 300);
-		coreBus.fireDelaydEvent(new StopEvent(), 1500);
+		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.BACKWARD), 200);
+		coreBus.fireDelaydEvent(new StopEvent(), 1400);
 
 		if (new Random().nextBoolean()) {
-			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.LEFT), 1800);
+			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.LEFT), 1600);
 		} else {
-			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.RIGHT), 1800);
+			coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.RIGHT), 1600);
 		}
-		coreBus.fireDelaydEvent(new StopEvent(), 2500);
-		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 2800);
+		coreBus.fireDelaydEvent(new StopEvent(), 2800);
+		coreBus.fireDelaydEvent(new MoveEvent(constants.getFullSpeed(), Direction.FORWARD), 2900);
 	}
 	
 	private void goHome(int bwfReading) {
@@ -212,35 +209,6 @@ public class MainFSM extends CoreBusSubscriberThread implements StartedMowingEve
 			coreBus.fireEvent(new MoveEvent(0, constants.getFullSpeed() / 2, Direction.RIGHT));
 		}
 		
-	}
-
-	private void goHomeOld(int bwfReading) {
-		int diff = bwfReading - constants.getGoHomeOffset() - hysteres;
-		Log.d("goHome()", "Diff is: " + diff);
-		if (diff >= -constants.getGoHomeThresholdNegNarrow() && diff <= constants.getGoHomeThresholdPosNarrow()) {
-			// We are centered - drive straight
-			coreBus.fireEvent(new MoveEvent(constants.getFullSpeed() / 2, Direction.FORWARD));
-			hysteres = 0;
-		} else {
-			if (diff > 0) {
-				if (diff > constants.getGoHomeThresholdPosWide()) {
-					// Very off center: turn around own axis
-					coreBus.fireEvent(new MoveEvent(constants.getFullSpeed() / 2 , Direction.LEFT));
-				} else {
-					// Slightly off center: shallow turn
-					coreBus.fireEvent(new MoveEvent(constants.getFullSpeed() / 2, 0, Direction.LEFT));
-				}
-				// sets hysteresis to avoid over-turning
-				hysteres = constants.getGoHomeHysteres();
-			} else {
-				if (diff < -constants.getGoHomeThresholdNegWide()) {
-					coreBus.fireEvent(new MoveEvent(constants.getFullSpeed() / 2, Direction.RIGHT));
-				} else {
-					coreBus.fireEvent(new MoveEvent(0, constants.getFullSpeed() / 2, Direction.RIGHT));
-				}
-				hysteres = -constants.getGoHomeHysteres();
-			}
-		}
 	}
 
 	private void changeState(State newState) {

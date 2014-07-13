@@ -23,16 +23,14 @@ import android.util.Log;
 
 public class SensorReader extends Thread {
 
+	private static final int INSIDE_BWF = 215;
+	private static final int OUTSIDE_BWF = 87;
 	private static final int SENSOR_BUFFER_SIZE = 10000;
 	private static final int SLEEP_TIME = 13;
-	private static final long SLEEP_TIME_LONG = 50;
 
 	Map<Byte, Buffer> sensorData = new HashMap<Byte, Buffer>();
 	{
 		sensorData.put(ComStream.BWF_SENSOR_LEFT, BufferUtils.synchronizedBuffer(new CircularFifoBuffer(SENSOR_BUFFER_SIZE)));
-		sensorData.put(ComStream.BWF_SENSOR_RIGHT, BufferUtils.synchronizedBuffer(new CircularFifoBuffer(SENSOR_BUFFER_SIZE)));
-		sensorData.put(ComStream.RANGE_SENSOR_LEFT, BufferUtils.synchronizedBuffer(new CircularFifoBuffer(SENSOR_BUFFER_SIZE)));
-		sensorData.put(ComStream.RANGE_SENSOR_RIGHT, BufferUtils.synchronizedBuffer(new CircularFifoBuffer(SENSOR_BUFFER_SIZE)));
 	}
 
 	private ComStream comStream;
@@ -40,11 +38,12 @@ public class SensorReader extends Thread {
 	private boolean isRunning = true;
 	private int thrownExceptions = 0;
 	private CoreBus coreBus = CoreBus.getInstance();
-	private Integer[] bwfVals = new Integer[] {1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023};
 	private int batteryCounter = 0;
 	private int frequencyCounter = 0;
 	private long timer = System.currentTimeMillis();
-	private static int TIMEOUT = 20000;
+
+	private int oldReading = 0;
+	private static int TIMEOUT = 10000;
 
 	public SensorReader(ComStream comStream) {
 		this.comStream = comStream;
@@ -57,7 +56,7 @@ public class SensorReader extends Thread {
 				requestSensor(ComStream.ALL_SENSORS);
 				readAllSensors();
 				//Check duration of last time there was an InsideBWF value received
-				// if more than 7 seconds then emergency stop
+				// if more than 20 seconds then emergency stop
 				Thread.sleep(SLEEP_TIME);
 			}
 		} catch (InterruptedException e) {
@@ -78,29 +77,19 @@ public class SensorReader extends Thread {
 	}
 
 	
-	@SuppressWarnings("unchecked")
 	private void readAllSensors() {
 		byte[] buffer = new byte[16];
 		try {
 			comStream.read(buffer);
 			
-			//Range sensors using IR
-			byte hi = buffer[2];
-			byte lo = buffer[3];
-			int rangeRight = composeInt(hi, lo);
-
-			hi = buffer[4];
-			lo = buffer[5];
-			int rangeLeft = composeInt(hi, lo);
-
 			//Cutter motor freq
-			hi = buffer[6];
-			lo = buffer[7];
+			byte hi = buffer[6];
+			byte lo = buffer[7];
 			int frequency = composeInt(hi, lo);
 			frequencyCounter++;
-			//Hantera endast var 200e sample av batterispänningen
+			//Hantera endast var 50 sample av klipparfrekvensen
 			if (frequencyCounter  >= 50) {
-				Log.i(this.getClass().getSimpleName(), "Frekvens på klipparn: " + frequency);
+//				Log.i(this.getClass().getSimpleName(), "Frekvens på klipparn: " + frequency);
 				coreBus.fireEvent(new CutterFrequencyEvent(frequency));
 				frequencyCounter = 0;
 			}
@@ -128,25 +117,24 @@ public class SensorReader extends Thread {
 			
 			//Check bwf sensor for outside/inside
 			lo = buffer[14];
+			
+			Log.i(this.getClass().getSimpleName(), "BWF värde just nu: " + lo);
 			int bwfVal =  lo;
 			
 			if (bwfVal < 0 ) {
-				//Log.i(this.getClass().getSimpleName(), "Recalculating BWF");
 				bwfVal = bwfVal + 256;
+				Log.i(this.getClass().getSimpleName(), "Recalculated BWF " + bwfVal);
 			}
-			//171 utanför, 107 innanför
-			if (bwfVal == 171 || bwfVal == 107 ) {
-				//Log.i(this.getClass().getSimpleName(), "Close to BWF: " + bwfVal);
-				coreBus.fireEvent(new OutsideBWFEvent(bwfVal));
+			
+			if(oldReading == bwfVal) {
+				if (bwfVal == OUTSIDE_BWF || bwfVal == INSIDE_BWF ) {
+					coreBus.fireEvent(new OutsideBWFEvent(bwfVal));
+				}
 			}
-
-			if (bwfVal == 107) {
-				resetTimer();
-			} else {
-				checkTimer();
-			}
+			handleTimer(bwfVal);
+			oldReading = bwfVal;
 						
-			//Check if push-button has been set
+			//Check if push-button has been pressed
 			lo = buffer[13];
 			if (lo == 0) {
 				resetTimer();
@@ -159,6 +147,14 @@ public class SensorReader extends Thread {
 			handleIOException(e);	
 		}		
 	}
+
+	private void handleTimer(int bwfVal) {
+		if (bwfVal == INSIDE_BWF && oldReading == INSIDE_BWF) {
+			resetTimer();
+		} else {
+			checkTimer();
+		}
+	}
 	private void checkTimer() {
 		if(timer + TIMEOUT < System.currentTimeMillis()) {
 			coreBus.fireEvent(new NoBWFDataEvent());
@@ -169,30 +165,6 @@ public class SensorReader extends Thread {
 		timer = System.currentTimeMillis();
 	}
 
-	/**
-	 * Collect the latest 10 BWF values into an array
-	 * @param bwf
-	 */
-	private void shiftArray(int bwf) {
-		for (int i = bwfVals.length -1 ; i > 0; i --) {
-			bwfVals[i] = bwfVals[i-1];
-		}
-		bwfVals[0] = bwf;
-	}
-
-	/**
-	 * Calculate average based on the 10 latest bwf values
-	 * @param bwfVals
-	 * @return
-	 */
-	private int getRunningAverage(Integer[] bwfVals) {
-		int sum = 0;
-		for (Integer val : bwfVals) {
-			sum += val;
-		}
-		
-		return sum / bwfVals.length;
-	}
 
 	private void handleIOException(IOException e) {
 		//TODO Notifiy system and log
@@ -217,17 +189,4 @@ public class SensorReader extends Thread {
 		return values;
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<SensorData> getLeftRangeSensorData() {
-		List<SensorData> values = new ArrayList<SensorData>(sensorData.get(ComStream.RANGE_SENSOR_LEFT));
-		Collections.reverse(values);
-		return values;
-	}
-
-	@SuppressWarnings("unchecked")
-	public List<SensorData> getRightRangeSensorData() {
-		List<SensorData> values = new ArrayList<SensorData>(sensorData.get(ComStream.RANGE_SENSOR_RIGHT));
-		Collections.reverse(values);
-		return values;
-	}
 }

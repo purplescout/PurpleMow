@@ -96,37 +96,37 @@ public class LogServiceImpl implements LogService {
 		}
 	}
 
-	@Override
-	public InputStream getLeftBwfData() {
-		List<SensorData> sendorData = sensorLogger.getBwfSensorData();
-		String log = createSensorOutput(sendorData);
-
-		return new ByteArrayInputStream(log.getBytes());
-	}
-
-	@Override
-	public InputStream getRightBwfData() {
-		List<SensorData> sendorData = sensorLogger.getBwfSensorData();
-		String log = createSensorOutput(sendorData);
-
-		return new ByteArrayInputStream(log.getBytes());
-	}
-
-	@Override
-	public InputStream getLeftRangeData() {
-		List<SensorData> sendorData = sensorLogger.getLeftRangeSensorData();
-		String log = createSensorOutput(sendorData);
-
-		return new ByteArrayInputStream(log.getBytes());
-	}
-
-	@Override
-	public InputStream getRightRangeData() {
-		List<SensorData> sendorData = sensorLogger.getRightRangeSensorData();
-		String log = createSensorOutput(sendorData);
-
-		return new ByteArrayInputStream(log.getBytes());
-	}
+//	@Override
+//	public InputStream getLeftBwfData() {
+//		List<SensorData> sendorData = sensorLogger.getBwfSensorData();
+//		String log = createSensorOutput(sendorData);
+//
+//		return new ByteArrayInputStream(log.getBytes());
+//	}
+//
+//	@Override
+//	public InputStream getRightBwfData() {
+//		List<SensorData> sendorData = sensorLogger.getBwfSensorData();
+//		String log = createSensorOutput(sendorData);
+//
+//		return new ByteArrayInputStream(log.getBytes());
+//	}
+//
+//	@Override
+//	public InputStream getLeftRangeData() {
+//		List<SensorData> sendorData = sensorLogger.getLeftRangeSensorData();
+//		String log = createSensorOutput(sendorData);
+//
+//		return new ByteArrayInputStream(log.getBytes());
+//	}
+//
+//	@Override
+//	public InputStream getRightRangeData() {
+//		List<SensorData> sendorData = sensorLogger.getRightRangeSensorData();
+//		String log = createSensorOutput(sendorData);
+//
+//		return new ByteArrayInputStream(log.getBytes());
+//	}
 
 	private String createSensorOutput(List<SensorData> sendorData) {
 		StringBuilder log = new StringBuilder();

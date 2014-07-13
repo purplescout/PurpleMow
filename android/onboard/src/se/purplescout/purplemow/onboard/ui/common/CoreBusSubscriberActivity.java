@@ -54,6 +54,11 @@ public abstract class CoreBusSubscriberActivity extends Activity implements Core
 	@Override
 	public void removeDelayedEvents() {};
 	
+	@Override
+	public boolean getDelayedEventsStatus() {
+		return false;
+	}
+	
 	
 	protected final <H extends CoreEventHandler> void subscribe(CoreEvent.Type<H> type, H handler) {
 		doAdd(type, handler);

@@ -2,6 +2,7 @@ package se.purplescout.purplemow.core;
 
 import java.io.IOException;
 
+import android.util.Log;
 import se.purplescout.purplemow.core.common.Constants;
 
 public class MotorController {
@@ -30,6 +31,7 @@ public class MotorController {
 	}
 
 	public void move(int speed) throws IOException {
+		Log.i(getClass().getSimpleName(), getClass().getSimpleName() + ": Setting speed on both motors to " + speed);
 		if (speed > constants.getFullSpeed()) {
 			speed = constants.getFullSpeed();
 		}

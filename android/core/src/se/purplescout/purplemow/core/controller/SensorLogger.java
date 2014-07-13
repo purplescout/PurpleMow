@@ -34,7 +34,7 @@ public interface SensorLogger {
 
 	List<SensorData> getBwfSensorData();
 
-	List<SensorData> getLeftRangeSensorData();
-
-	List<SensorData> getRightRangeSensorData();
+//	List<SensorData> getLeftRangeSensorData();
+//
+//	List<SensorData> getRightRangeSensorData();
 }

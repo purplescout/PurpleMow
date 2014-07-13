@@ -112,30 +112,30 @@ public class RpcDispatcher {
 					response.header.setProperty("Content-Disposition", "attachment; filename=\"logcat.csv\"");
 					return response;
 				}
-				if (suffix.equals("/bwfLeftData.csv")) {
-					InputStream data = logService.getLeftBwfData();
-					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
-					response.header.setProperty("Content-Disposition", "attachment; filename=\"bwfLeftData.csv\"");
-					return response;
-				}
-				if (suffix.equals("/bwfRightData.csv")) {
-					InputStream data = logService.getRightBwfData();
-					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
-					response.header.setProperty("Content-Disposition", "attachment; filename=\"bwfRightData.csv\"");
-					return response;
-				}
-				if (suffix.equals("/rangeLeftData.csv")) {
-					InputStream data = logService.getLeftRangeData();
-					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
-					response.header.setProperty("Content-Disposition", "attachment; filename=\"rangeLeftData.csv\"");
-					return response;
-				}
-				if (suffix.equals("/rangeRightData.csv")) {
-					InputStream data = logService.getRightRangeData();
-					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
-					response.header.setProperty("Content-Disposition", "attachment; filename=\"rangeRightData.csv\"");
-					return response;
-				}
+//				if (suffix.equals("/bwfLeftData.csv")) {
+//					InputStream data = logService.getLeftBwfData();
+//					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
+//					response.header.setProperty("Content-Disposition", "attachment; filename=\"bwfLeftData.csv\"");
+//					return response;
+//				}
+//				if (suffix.equals("/bwfRightData.csv")) {
+//					InputStream data = logService.getRightBwfData();
+//					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
+//					response.header.setProperty("Content-Disposition", "attachment; filename=\"bwfRightData.csv\"");
+//					return response;
+//				}
+//				if (suffix.equals("/rangeLeftData.csv")) {
+//					InputStream data = logService.getLeftRangeData();
+//					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
+//					response.header.setProperty("Content-Disposition", "attachment; filename=\"rangeLeftData.csv\"");
+//					return response;
+//				}
+//				if (suffix.equals("/rangeRightData.csv")) {
+//					InputStream data = logService.getRightRangeData();
+//					Response response = new Response(NanoHTTPD.HTTP_OK, "text/csv", data);
+//					response.header.setProperty("Content-Disposition", "attachment; filename=\"rangeRightData.csv\"");
+//					return response;
+//				}
 			}
 		} catch (JsonParseException e) {
 			Log.e(getClass().getSimpleName(), e.getMessage(), e);
