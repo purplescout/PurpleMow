@@ -28,6 +28,7 @@
 #define CMD_MOIST_SENSOR        0x5
 #define CMD_GET_ALL_SENSORS     0x6
 #define CMD_BUMPER_SENSOR       0x7
+#define CMD_CHARGING_DETECTED_SENSOR   0x8
 
 #define MAX_MSG_SIZE            4
 

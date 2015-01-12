@@ -19,6 +19,7 @@
 
 #define  PUSH_BUTTON_START_MOW  29
 #define  BUMPER                 33
+#define  CHARGING_DETECTED     34
 #define  RANGE_SENSOR_LEFT      A2
 #define  RANGE_SENSOR_RIGHT     A3
 #define  BWF_SENSOR_CENTER      A4
@@ -80,7 +81,9 @@ void setup() {
   pinMode(BWF_SENSOR_CENTER, INPUT);
   pinMode(CUTTER_OVERCURRENT_SENSOR, INPUT);
   pinMode(BUMPER, INPUT);
+  pinMode(CHARGING_DETECTED, INPUT);
   digitalWrite(BUMPER, HIGH);  // Enable pull-up resistor
+  digitalWrite(CHARGING_DETECTED, HIGH);  // Enable pull-up resistor
   pinMode(PUSH_BUTTON_START_MOW, INPUT); 
   digitalWrite(PUSH_BUTTON_START_MOW, HIGH);
 
@@ -145,6 +148,14 @@ void getSensorData() {
     sensorData[9] = val & 0xff;
     val = -1;
   }
+  val = digitalRead(CHARGING_DETECTED);
+  if ( val == HIGH ) {
+    sensorData[11] = (byte) 255;
+  } 
+  else {
+    sensorData[11] = (byte) 0;
+  }
+  val = -1;
 
   val = digitalRead(BUMPER);
   if ( val == HIGH ) {
@@ -265,6 +276,10 @@ int process_command(byte* msg, int length)
 
     case CMD_BUMPER_SENSOR:
       val = digitalRead(BUMPER);
+      break;
+
+    case CMD_CHARGING_DETECTED_SENSOR:
+      val = digitalRead(CHARGING_DETECTED);
       break;
 
     case CMD_GET_ALL_SENSORS:

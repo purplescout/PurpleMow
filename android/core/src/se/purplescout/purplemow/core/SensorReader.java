@@ -15,6 +15,7 @@ import se.purplescout.purplemow.core.bus.CoreBus;
 import se.purplescout.purplemow.core.controller.SensorLogger.SensorData;
 import se.purplescout.purplemow.core.fsm.mower.event.BatterySensorReceiveEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.BumperEvent;
+import se.purplescout.purplemow.core.fsm.mower.event.ChargingDetectedEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.CutterFrequencyEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.NoBWFDataEvent;
 import se.purplescout.purplemow.core.fsm.mower.event.OutsideBWFEvent;
@@ -25,6 +26,9 @@ public class SensorReader extends Thread {
 
 	private static final int INSIDE_BWF = 215;
 	private static final int OUTSIDE_BWF = 87;
+	private static final int INSIDE_BWF_GOING_HOME = 213;
+	private static final int OUTSIDE_BWF_GOING_HOME = 181;
+	
 	private static final int SENSOR_BUFFER_SIZE = 10000;
 	private static final int SLEEP_TIME = 13;
 
@@ -105,9 +109,10 @@ public class SensorReader extends Thread {
 				batteryCounter = 0;
 			}
 
-			hi = buffer[10];
 			lo = buffer[11];
-			int current = composeInt(hi, lo);
+			if (lo == 0) { 
+				coreBus.fireEvent(new ChargingDetectedEvent());
+			}
 			
 			//Check bumper
 			lo = buffer[12];
@@ -127,13 +132,15 @@ public class SensorReader extends Thread {
 			}
 			
 			if(oldReading == bwfVal) {
-				if (bwfVal == OUTSIDE_BWF || bwfVal == INSIDE_BWF ) {
+				if (bwfVal == OUTSIDE_BWF || bwfVal == INSIDE_BWF ||
+						bwfVal == OUTSIDE_BWF_GOING_HOME || bwfVal == INSIDE_BWF_GOING_HOME ) {
 					coreBus.fireEvent(new OutsideBWFEvent(bwfVal));
 				}
+				handleTimer(bwfVal);
 			}
-			handleTimer(bwfVal);
 			oldReading = bwfVal;
-						
+			checkTimer();
+			
 			//Check if push-button has been pressed
 			lo = buffer[13];
 			if (lo == 0) {
@@ -149,11 +156,9 @@ public class SensorReader extends Thread {
 	}
 
 	private void handleTimer(int bwfVal) {
-		if (bwfVal == INSIDE_BWF && oldReading == INSIDE_BWF) {
+		if (bwfVal == INSIDE_BWF || bwfVal == INSIDE_BWF_GOING_HOME || bwfVal == OUTSIDE_BWF_GOING_HOME) {
 			resetTimer();
-		} else {
-			checkTimer();
-		}
+		} 
 	}
 	private void checkTimer() {
 		if(timer + TIMEOUT < System.currentTimeMillis()) {
